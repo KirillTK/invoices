@@ -1,8 +1,12 @@
-import { auth } from '@clerk/nextjs/server';
-
+import { auth } from "@clerk/nextjs/server";
+import { InvoicesTable } from "~/features/invoices-table";
 
 export default function InvoicesPage() {
   const user = auth();
-  
-  return <div>{user.sessionId}</div>;
+
+  return (
+    <>
+      <InvoicesTable />
+    </>
+  );
 }

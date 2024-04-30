@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
+import { Header } from "~/shared/components/header";
 
 import "~/styles/globals.css";
 
@@ -22,7 +23,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`font-sans ${inter.variable}`}>{children}</body>
+        <body className={`font-sans ${inter.variable}`}>
+          <Header />
+          <main className="p-4">{children}</main>
+        </body>
       </html>
     </ClerkProvider>
   );
