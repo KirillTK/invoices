@@ -3,6 +3,9 @@
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Combobox } from "~/shared/components/combobox";
+import { DatePickerField } from "~/shared/components/controls/date-picker-field";
+import { InputField } from '~/shared/components/controls/input-field';
+import { Label } from "~/shared/components/label";
 
 const frameworks = [
   {
@@ -25,6 +28,8 @@ const frameworks = [
 interface InvoiceForm {
   clientId: string;
   userId: string;
+  test?: Date;
+  test2?: string;
 }
 
 export function InvoiceForm() {
@@ -32,8 +37,7 @@ export function InvoiceForm() {
 
   const formValues = watch();
 
-  console.log(formValues, 'formValues');
-  
+  console.log(formValues, "formValues");
 
   const onSubmit = useCallback((values: InvoiceForm) => {
     console.log(values, "values");
@@ -41,11 +45,31 @@ export function InvoiceForm() {
 
   return (
     <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <Combobox options={frameworks} field={register('userId')} label="From:" />
+      <div className="flex flex-col space-y-8">
+        <div>
+          <Label className="mb-4 text-lg font-medium">From:</Label>
+          <Combobox
+            options={frameworks}
+            field={register("userId")}
+            className="mt-4"
+          />
+        </div>
+        <div>
+          <Label className="mb-4 text-lg font-medium">From:</Label>
+          <Combobox
+            options={frameworks}
+            field={register("clientId")}
+            className="mt-4"
+          />
+        </div>
       </div>
       <div>
-      <Combobox options={frameworks} field={register('clientId')} label="Bill To:" />
+        <Label className="mb-4 text-lg font-medium block">Invoice Details</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <DatePickerField field={register("test")} label="Date of issue" />
+          <DatePickerField field={register("test")} label="Realization date of the order" />
+          <InputField field={register("test2")} label="Invoice number" />
+        </div>
       </div>
     </form>
   );

@@ -21,9 +21,10 @@ interface Props {
   initialValue?: string;
   placeholder?: string;
   label?: string;
+  className?: string;
 }
 
-export function Combobox({ options, field, placeholder, initialValue, label }: Props) {
+export function Combobox({ options, field, placeholder, initialValue, label, className }: Props) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(initialValue);
 
@@ -38,7 +39,7 @@ export function Combobox({ options, field, placeholder, initialValue, label }: P
   }, []);
 
   return (
-    <div className="flex flex-col space-y-4 justify-center">
+    <div className={cn("flex flex-col space-y-4 justify-center", className)}>
       {label && <Label>Accept terms and conditions</Label>}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -47,7 +48,7 @@ export function Combobox({ options, field, placeholder, initialValue, label }: P
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] justify-between"
+            className="w-full justify-between"
           >
             {value
               ? options.find((option) => option.value === value)?.label
@@ -55,7 +56,7 @@ export function Combobox({ options, field, placeholder, initialValue, label }: P
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput placeholder={placeholder} />
             <CommandEmpty>No option found.</CommandEmpty>
