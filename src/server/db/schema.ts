@@ -21,8 +21,7 @@ import {
  */
 export const createTable = pgTableCreator((name) => `factura_${name}`);
 
-
-export const unitEnum = pgEnum('invoice_unit', ['per/hours']);
+export const unitEnum = pgEnum("invoice_unit", ["per/hours"]);
 
 export const exchange_rate = createTable("exchange_rates", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -52,13 +51,28 @@ export const invoice = createTable("invoices", {
   // exchangeRate: uuid("exchange_rate_id").references(() => exchange_rate.id),
   title: varchar("title", { length: 50 }).notNull().unique(),
   description: varchar("description", { length: 256 }).notNull(),
-  unit: unitEnum('unit').notNull(),
-  unitPrice: doublePrecision('unit_price').notNull(),
-  quantity: doublePrecision('quantity').notNull(),
-  vatInvoice: boolean('vat_invoice').notNull(),
-  dueDate: date('due_date'),
-  realizationDate: date('realization_date'),
-  dateOfIssue: date('date_of_issue'),
+  // unit: unitEnum("unit").notNull(),
+  // unitPrice: doublePrecision("unit_price").notNull(),
+  // quantity: doublePrecision("quantity").notNull(),
+  vatInvoice: boolean("vat_invoice").notNull(),
+  dueDate: date("due_date"),
+  realizationDate: date("realization_date"),
+  dateOfIssue: date("date_of_issue"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt"),
+});
+
+export const invoiceDetails = createTable("invoice_details", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  invoice: uuid("invoice_id")
+    .references(() => invoice.id, { onDelete: "cascade" })
+    .notNull(),
+  title: varchar("description", { length: 256 }).notNull(),
+  unit: unitEnum("unit").notNull(),
+  unitPrice: doublePrecision("unit_price").notNull(),
+  quantity: doublePrecision("quantity").notNull(),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
