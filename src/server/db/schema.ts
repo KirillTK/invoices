@@ -23,6 +23,17 @@ export const createTable = pgTableCreator((name) => `factura_${name}`);
 
 export const unitEnum = pgEnum("invoice_unit", ["per/hours"]);
 
+export const user = createTable("users", {
+  id: uuid("id"),
+  name: varchar("name", { length: 50 }).notNull().unique(),
+  city: varchar("city", { length: 50 }).notNull(),
+  country: varchar("country", { length: 50 }).notNull(),
+  zip: varchar("zip", { length: 50 }).notNull(),
+  address: varchar("address", { length: 50 }).notNull(),
+  taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
+});
+
+
 export const exchange_rate = createTable("exchange_rates", {
   id: uuid("id").primaryKey().defaultRandom(),
   currencyName: varchar("currency_name", { length: 256 }).notNull(),
@@ -38,7 +49,8 @@ export const clients = createTable("clients", {
   name: varchar("name", { length: 50 }).notNull().unique(),
   city: varchar("city", { length: 50 }).notNull(),
   country: varchar("country", { length: 50 }).notNull(),
-  mailIndex: varchar("mail_index", { length: 50 }).notNull(),
+  zip: varchar("zip", { length: 50 }).notNull(),
+  address: varchar("address", { length: 50 }).notNull(),
   taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
   userId: varchar("user_id", { length: 256 }).notNull(),
 });

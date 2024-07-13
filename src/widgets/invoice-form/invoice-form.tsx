@@ -8,29 +8,24 @@ import { DatePickerField } from "~/shared/components/controls/date-picker-field"
 import { InputField } from "~/shared/components/controls/input-field";
 import { Label } from "~/shared/components/label";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-    id: "222313123123aa",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-    id: "222313123123a23232",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-    id: "222313123123a23232123131",
-  },
-];
-
 interface InvoiceForm {
+  // invoice
+  title: string;
+  description: string;
+  vatInvoice: boolean;
+  dueDate: Date,
+  realizationDate: Date,
+  dateOfIssue: Date,
+
+  //client info
   clientId: string;
+  clientAddress: string;
+  clientName: string;
+
+  // user info
   userId: string;
-  test?: Date;
-  test2?: string;
+  userAddress: string;
+  userName: string;
 }
 
 export function InvoiceForm() {
@@ -53,7 +48,7 @@ export function InvoiceForm() {
         <div>
           <Label className="mb-4 text-lg font-medium">From:</Label>
           <ComboboxField
-            options={frameworks}
+            options={[]}
             field={register("userId")}
             className="mt-4"
           />
