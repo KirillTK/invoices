@@ -2,5 +2,5 @@
 
 
 export function InvoiceTable() {
-  return <div>Table</div>;
+  return <div>Table1</div>;
 }
