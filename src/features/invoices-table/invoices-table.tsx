@@ -27,7 +27,7 @@ export async function InvoicesTable() {
           <TableRow key={invoice.id}>
             <TableCell className="font-medium">{invoice.title}</TableCell>
             <TableCell>{invoice.client}</TableCell>
-            <TableCell>{invoice.quantity}</TableCell>
+            <TableCell>{invoice.client}</TableCell>
             <TableCell className="text-right">{invoice.createdAt.toISOString()}</TableCell>
           </TableRow>
         ))}

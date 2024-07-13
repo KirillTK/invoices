@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ClientCombobox } from "~/features/client-combobox";
+import { InvoiceTable } from '~/features/invoice-table';
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Label } from "~/shared/components/label";
@@ -74,6 +75,10 @@ export function InvoiceForm() {
         <ClientCombobox field={register("clientId")} />
         <InputField field={register("clientTaxIndex")} label="NIP/VAT ID:" />
         <InputField field={register("clientAddress")} label="Address:" />
+      </div>
+
+      <div className="col-span-2">
+        <InvoiceTable />
       </div>
     </form>
   );
