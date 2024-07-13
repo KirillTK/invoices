@@ -47,7 +47,7 @@ export function InvoiceForm() {
     >
       <div></div>
 
-      <div>
+      <div className="grid gap-y-2">
         <DatePickerField
           field={register("dateOfIssue")}
           label="Realization date of the order"
@@ -56,6 +56,10 @@ export function InvoiceForm() {
           field={register("realizationDate")}
           label="Realization date of the order"
         />
+      </div>
+
+      <div className="col-span-2">
+        <InputField field={register("title")} label="NIP/VAT ID:" className="max-w-56" />
       </div>
 
       <div className="grid gap-y-2">

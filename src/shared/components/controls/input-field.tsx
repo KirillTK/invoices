@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback } from "react";
+import { type ChangeEventHandler, useCallback } from "react";
 import { useField } from "~/shared/hooks/form";
 import { cn } from "~/shared/utils";
 import type { UncontrolledInputProps } from "~/shared/types/form";
