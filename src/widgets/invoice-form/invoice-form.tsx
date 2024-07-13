@@ -2,7 +2,8 @@
 
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { Combobox } from "~/shared/components/combobox";
+import { ClientCombobox } from '~/features/client-combobox';
+import { ComboboxField } from '~/shared/components/controls/combobox-field';
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
 import { InputField } from '~/shared/components/controls/input-field';
 import { Label } from "~/shared/components/label";
@@ -48,19 +49,15 @@ export function InvoiceForm() {
       <div className="flex flex-col space-y-8">
         <div>
           <Label className="mb-4 text-lg font-medium">From:</Label>
-          <Combobox
+          <ComboboxField
             options={frameworks}
             field={register("userId")}
             className="mt-4"
           />
         </div>
         <div>
-          <Label className="mb-4 text-lg font-medium">From:</Label>
-          <Combobox
-            options={frameworks}
-            field={register("clientId")}
-            className="mt-4"
-          />
+          <Label className="mb-4 text-lg font-medium">To:</Label>
+          <ClientCombobox field={register("clientId")}/>
         </div>
       </div>
       <div>

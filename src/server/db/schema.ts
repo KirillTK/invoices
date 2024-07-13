@@ -40,6 +40,7 @@ export const clients = createTable("clients", {
   country: varchar("country", { length: 50 }).notNull(),
   mailIndex: varchar("mail_index", { length: 50 }).notNull(),
   taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
+  userId: varchar("user_id", { length: 256 }).notNull(),
 });
 
 export const invoice = createTable("invoices", {
@@ -63,6 +64,7 @@ export const invoice = createTable("invoices", {
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
+
 
 export const invoiceDetails = createTable("invoice_details", {
   id: uuid("id").primaryKey().defaultRandom(),

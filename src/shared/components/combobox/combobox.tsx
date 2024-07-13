@@ -12,39 +12,47 @@ import {
   CommandInput,
   CommandItem,
 } from "../command/command";
-import type { Option, UncontrolledInputProps } from "~/shared/types/form";
-import { Label } from '../label';
+import type { Option } from "~/shared/types/form";
+import { Label } from "../label";
 
-interface Props {
+export interface Props {
   options: Option[];
-  field: UncontrolledInputProps;
-  initialValue?: string;
   placeholder?: string;
   label?: string;
   className?: string;
+  value?: string;
+  name: string;
+  onChange: (value: string) => void;
+  emptyOption?: string | React.ReactNode;
 }
 
-export function Combobox({ options, field, placeholder, initialValue, label, className }: Props) {
+export function Combobox({
+  options,
+  placeholder,
+  name,
+  label,
+  className,
+  value,
+  onChange,
+  emptyOption = "No option found.",
+}: Props) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(initialValue);
 
-  React.useEffect(() => {
-    void field.onChange({
-      target: {
-        value: initialValue,
-        name: field.name,
-      },
-    });
-    setValue(initialValue);
-  }, []);
+  const handleChange = React.useCallback(
+    (newValue: string) => {
+      onChange(newValue);
+      setOpen(false);
+    },
+    [setOpen, onChange],
+  );
 
   return (
-    <div className={cn("flex flex-col space-y-4 justify-center", className)}>
+    <div className={cn("flex flex-col justify-center space-y-4", className)}>
       {label && <Label>Accept terms and conditions</Label>}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            id={field.name}
+            id={name}
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -59,23 +67,13 @@ export function Combobox({ options, field, placeholder, initialValue, label, cla
         <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput placeholder={placeholder} />
-            <CommandEmpty>No option found.</CommandEmpty>
+            <CommandEmpty>{emptyOption}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
                   key={option.id ?? option.value}
                   value={option.value}
-                  onSelect={async (currentValue) => {
-                    await field.onChange({
-                      target: {
-                        value: currentValue,
-                        name: field.name,
-                      },
-                    });
-
-                    setValue(currentValue);
-                    setOpen(false);
-                  }}
+                  onSelect={handleChange}
                 >
                   <Check
                     className={cn(
