@@ -4,6 +4,7 @@ import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "~/shared/components/button";
+import { InputField } from "~/shared/components/controls/input-field";
 import {
   TableHeader,
   TableRow,
@@ -18,7 +19,10 @@ interface InvoiceTableForm {
   unit: string;
   quantity: number;
   uniqNetPrice: number;
+  totalNetPrice: number;
   vat: number;
+  vatAmount: number;
+  totalGrossPrice: number;
 }
 
 const defaultRow: InvoiceTableForm = {
@@ -26,13 +30,18 @@ const defaultRow: InvoiceTableForm = {
   unit: "",
   quantity: 0,
   uniqNetPrice: 0,
+  totalNetPrice: 0,
   vat: 0,
+  vatAmount: 0,
+  totalGrossPrice: 0,
 };
 
 export function InvoiceTable() {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
 
-  const [showRemoveLineBtn, setShowRemoveLineBtn] = useState(false);
+  const [removeLineBtn, setShowRemoveLineBtn] = useState<
+    Record<string, boolean>
+  >({});
 
   const { control } = useForm<{ invoice: InvoiceTableForm[] }>({
     defaultValues: { invoice: [defaultRow] },
@@ -51,17 +60,36 @@ export function InvoiceTable() {
     setShowAddLineBtn(false);
   }, [setShowAddLineBtn]);
 
-  const handleMouseEnterTableRow = useCallback(() => {
-    setShowRemoveLineBtn(true);
-  }, [setShowRemoveLineBtn]);
+  const handleMouseEnterTableRow = useCallback(
+    (rowId: string) => () => {
+      setShowRemoveLineBtn((prevState) => ({
+        ...prevState,
+        [rowId]: true,
+      }));
+    },
+    [setShowRemoveLineBtn],
+  );
 
-  const handleMouseLeaveTableRow = useCallback(() => {
-    setShowRemoveLineBtn(false);
-  }, [setShowRemoveLineBtn]);
+  const handleMouseLeaveTableRow = useCallback(
+    (rowId: string) => () => {
+      setShowRemoveLineBtn((prevState) => ({
+        ...prevState,
+        [rowId]: false,
+      }));
+    },
+    [setShowRemoveLineBtn],
+  );
 
   const addRow = useCallback(() => {
     append(defaultRow);
   }, [append]);
+
+  const removeLine = useCallback(
+    (index: number) => () => {
+      remove(index);
+    },
+    [remove],
+  );
 
   return (
     <Table
@@ -86,15 +114,50 @@ export function InvoiceTable() {
           return (
             <TableRow
               key={item.id}
-              onMouseEnter={handleMouseEnterTableRow}
-              onMouseLeave={handleMouseLeaveTableRow}
+              onMouseEnter={handleMouseEnterTableRow(item.id)}
+              onMouseLeave={handleMouseLeaveTableRow(item.id)}
             >
               <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell>111</TableCell>
-              <TableCell>1111</TableCell>
-              <TableCell className="flex space-x-1 align-center">
-                <p>111</p>
-                {showRemoveLineBtn && <MinusCircleIcon />}
+              <TableCell>
+                <InputField
+                  field={control.register(`invoice.${index}.description`)}
+                />
+              </TableCell>
+              <TableCell>
+                <InputField
+                  field={control.register(`invoice.${index}.unit`)}
+                  type="number"
+                />
+              </TableCell>
+              <TableCell>
+                <InputField
+                  field={control.register(`invoice.${index}.quantity`)}
+                  type="number"
+                />
+              </TableCell>
+              <TableCell>
+                <InputField
+                  field={control.register(`invoice.${index}.uniqNetPrice`)}
+                />
+              </TableCell>
+              <TableCell>
+                <span>{item.totalNetPrice}</span>
+              </TableCell>
+              <TableCell>
+                <InputField
+                  field={control.register(`invoice.${index}.vat`)}
+                  type="number"
+                />
+              </TableCell>
+              <TableCell>
+                <span>{item.vatAmount}</span>
+              </TableCell>
+              <TableCell>
+                <span>{item.totalGrossPrice}</span>
+
+                {removeLineBtn[item.id] && fields.length > 1 && (
+                  <MinusCircleIcon onClick={removeLine(index)} />
+                )}
               </TableCell>
             </TableRow>
           );

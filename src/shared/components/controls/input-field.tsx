@@ -10,9 +10,16 @@ interface Props {
   initialValue?: string;
   className?: string;
   label?: string;
+  type?: "text" | "number";
 }
 
-export const InputField = ({ field, initialValue, label, ...rest }: Props) => {
+export const InputField = ({
+  field,
+  initialValue,
+  label,
+  type = "text",
+  ...rest
+}: Props) => {
   const { onChange, value } = useField(field, { initialValue });
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -27,7 +34,7 @@ export const InputField = ({ field, initialValue, label, ...rest }: Props) => {
       {label && (
         <Label className="text-sm font-normal text-gray-500">{label}</Label>
       )}
-      <Input onChange={handleChange} value={value} {...rest} />
+      <Input onChange={handleChange} value={value} type={type} {...rest} />
     </div>
   );
 };
