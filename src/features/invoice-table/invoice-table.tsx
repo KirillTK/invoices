@@ -2,7 +2,9 @@
 
 import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
+import type { Control } from "react-hook-form";
+import { animated, useSpring } from "@react-spring/web";
 import { Button } from "~/shared/components/button";
 import { InputField } from "~/shared/components/controls/input-field";
 import {
@@ -14,7 +16,7 @@ import {
   Table,
 } from "~/shared/components/table/table";
 
-interface InvoiceTableForm {
+export interface InvoiceTableForm {
   description: string;
   unit: string;
   quantity: number;
@@ -25,7 +27,7 @@ interface InvoiceTableForm {
   totalGrossPrice: number;
 }
 
-const defaultRow: InvoiceTableForm = {
+export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
   description: "",
   unit: "",
   quantity: 0,
@@ -36,15 +38,27 @@ const defaultRow: InvoiceTableForm = {
   totalGrossPrice: 0,
 };
 
-export function InvoiceTable() {
+interface Props {
+  control: Control<{ invoice: InvoiceTableForm[] }>;
+}
+
+export function InvoiceTable({ control }: Props) {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
 
   const [removeLineBtn, setShowRemoveLineBtn] = useState<
     Record<string, boolean>
   >({});
 
-  const { control } = useForm<{ invoice: InvoiceTableForm[] }>({
-    defaultValues: { invoice: [defaultRow] },
+  // const { ...rest } = useForm<{ invoice: InvoiceTableForm[] }>({
+  //   defaultValues: { invoice: [defaultRow] },
+  // });
+
+  // console.log(rest, 'rest');
+  
+
+  const addRowButtonStyles = useSpring({
+    opacity: showAddLineBtn ? 1 : 0,
+    y: showAddLineBtn ? 0 : 20,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -81,7 +95,7 @@ export function InvoiceTable() {
   );
 
   const addRow = useCallback(() => {
-    append(defaultRow);
+    append(EMPTY_INVOICE_ROW_TABLE);
   }, [append]);
 
   const removeLine = useCallback(
@@ -162,17 +176,16 @@ export function InvoiceTable() {
             </TableRow>
           );
         })}
-
-        {showAddLineBtn && (
-          <TableRow>
-            <TableCell colSpan={9}>
+        <TableRow>
+          <TableCell colSpan={9}>
+            <animated.div style={addRowButtonStyles}>
               <Button variant="destructive" className="w-full" onClick={addRow}>
                 <PlusIcon />
                 Add More
               </Button>
-            </TableCell>
-          </TableRow>
-        )}
+            </animated.div>
+          </TableCell>
+        </TableRow>
       </TableBody>
     </Table>
   );

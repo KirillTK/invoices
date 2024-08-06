@@ -12,7 +12,7 @@ interface Props {
 export const ClientCombobox = ({ field }: Props) => {
   const { clients } = useClientQuery();
 
-  const options: Option[] = clients.map((client) => ({
+  const options: Option[] = (clients || []).map((client) => ({
     id: client.id,
     label: client.name,
     value: client.id,

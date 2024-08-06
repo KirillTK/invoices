@@ -3,7 +3,8 @@
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ClientCombobox } from "~/features/client-combobox";
-import { InvoiceTable } from '~/features/invoice-table';
+import { EMPTY_INVOICE_ROW_TABLE, InvoiceTable } from '~/features/invoice-table';
+import type { InvoiceTableForm } from '~/features/invoice-table';
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Label } from "~/shared/components/label";
@@ -28,10 +29,15 @@ interface InvoiceForm {
   userAddress: string;
   userName: string;
   userTaxIndex: string;
+
+  // table
+  invoice: InvoiceTableForm[];
 }
 
 export function InvoiceForm() {
-  const { handleSubmit, watch, register } = useForm<InvoiceForm>();
+  const { handleSubmit, watch, register, control } = useForm<InvoiceForm>({
+    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE]}
+  });
 
   const formValues = watch();
 
@@ -60,7 +66,7 @@ export function InvoiceForm() {
       </div>
 
       <div className="col-span-2">
-        <InputField field={register("title")} label="NIP/VAT ID:" className="max-w-56" />
+        <InputField field={register("title")} label="Invoice #" className="max-w-56" />
       </div>
 
       <div className="grid gap-y-2">
@@ -78,7 +84,7 @@ export function InvoiceForm() {
       </div>
 
       <div className="col-span-2">
-        <InvoiceTable />
+        <InvoiceTable control={control} />
       </div>
     </form>
   );
