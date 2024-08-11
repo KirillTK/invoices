@@ -109,6 +109,7 @@ export function InvoiceTable({ control }: Props) {
     <Table
       onMouseEnter={handleMouseEnterTable}
       onMouseLeave={handleMouseLeaveTable}
+      className="overflow-hidden"
     >
       <TableHeader>
         <TableRow>
