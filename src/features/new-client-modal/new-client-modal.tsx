@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSWRConfig } from "swr";
 import type { z } from "zod";
 import type { ClientModel } from "~/entities/client/client.model";
-import { clientSchema } from "~/server/clients";
 import { Button } from "~/shared/components/button";
 import { InputField } from "~/shared/components/controls/input-field";
 import {
@@ -17,6 +16,7 @@ import {
 } from "~/shared/components/dialog";
 import { Label } from "~/shared/components/label";
 import { getFormErrorArray, isHttpValidationError } from "~/shared/utils/http";
+import { clientSchema } from "~/shared/schemas/client.schema";
 
 type NewClientForm = z.infer<typeof clientSchema>;
 
@@ -34,6 +34,7 @@ export function NewClientModal() {
   const title = "Create new client";
 
   const {
+    handleSubmit,
     register,
     getValues,
     formState: { errors },
@@ -80,27 +81,31 @@ export function NewClientModal() {
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {Object.keys(defaultValues).map((fieldName) => {
-            return (
-              <div
-                className="grid grid-cols-4 items-center gap-4"
-                key={fieldName}
-              >
-                <Label htmlFor="name" className="text-right capitalize">
-                  {fieldName}
-                </Label>
-                <InputField
-                  field={register(fieldName as keyof NewClientForm)}
-                  containerClassName="col-span-3"
-                />
-              </div>
-            );
-          })}
-        </div>
-        <DialogFooter>
-          <Button onClick={saveClient}>Save</Button>
-        </DialogFooter>
+
+        <form onSubmit={handleSubmit(saveClient)}>
+          <div className="grid gap-4 py-4">
+            {Object.keys(defaultValues).map((fieldName) => {
+              return (
+                <div
+                  className="grid grid-cols-4 items-center gap-4"
+                  key={fieldName}
+                >
+                  <Label htmlFor="name" className="text-right capitalize">
+                    {fieldName}
+                  </Label>
+                  <InputField
+                    field={register(fieldName as keyof NewClientForm)}
+                    containerClassName="col-span-3"
+                    errors={errors}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

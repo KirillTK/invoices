@@ -1,9 +1,11 @@
 import { type ChangeEventHandler, useCallback } from "react";
+import { ErrorMessage } from '@hookform/error-message';
 import { useField } from "~/shared/hooks/form";
 import { cn } from "~/shared/utils";
 import type { UncontrolledInputProps } from "~/shared/types/form";
 import { Label } from "../label";
 import { Input } from "../input";
+import { ErrorField } from './error-field';
 
 interface Props {
   field: UncontrolledInputProps;
@@ -12,6 +14,7 @@ interface Props {
   containerClassName?: string;
   label?: string;
   type?: "text" | "number";
+  errors?: Record<string, unknown>;
 }
 
 export const InputField = ({
@@ -19,6 +22,7 @@ export const InputField = ({
   initialValue,
   label,
   type = "text",
+  errors,
   containerClassName,
   ...rest
 }: Props) => {
@@ -36,8 +40,8 @@ export const InputField = ({
       {label && (
         <Label className="text-sm font-normal text-gray-500">{label}</Label>
       )}
-      <FormMessage/>
       <Input onChange={handleChange} value={value} type={type} {...rest} />
+      <ErrorMessage name={field.name} errors={errors ?? {}} as={ErrorField} />
     </div>
   );
 };

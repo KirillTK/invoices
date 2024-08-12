@@ -1,8 +1,9 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getClients, clientSchema, saveClient } from "~/server/clients";
+import { getClients, saveClient } from "~/server/clients";
 import type { ClientModel } from '~/server/db/schema';
+import { clientSchema } from '~/shared/schemas/client.schema';
 
 export async function GET() {
   const user = await currentUser();

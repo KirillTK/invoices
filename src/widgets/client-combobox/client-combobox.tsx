@@ -21,8 +21,6 @@ export const ClientCombobox = ({ field }: Props) => {
 
   const emptyOption = useMemo(() => <NewClientModal />, []);
 
-  console.log(emptyOption, "emptyOption");
-
   return (
     <ComboboxField
       options={options}
