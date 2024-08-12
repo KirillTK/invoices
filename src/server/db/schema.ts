@@ -2,6 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import {
   pgTableCreator,
   uuid,
@@ -44,6 +45,7 @@ export const exchange_rate = createTable("exchange_rates", {
   updatedAt: timestamp("updatedAt"),
 });
 
+
 export const clients = createTable("clients", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 50 }).notNull().unique(),
@@ -54,6 +56,10 @@ export const clients = createTable("clients", {
   taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
   userId: varchar("user_id", { length: 256 }).notNull(),
 });
+
+export type ClientModel = InferSelectModel<typeof clients>
+
+
 
 export const invoice = createTable("invoices", {
   id: uuid("id").primaryKey().defaultRandom(),

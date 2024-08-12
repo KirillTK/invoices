@@ -1,9 +1,9 @@
 "use client";
-import { useCallback, useMemo } from "react";
-import { Button } from "~/shared/components/button";
+import { useMemo } from "react";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import type { Option, UncontrolledInputProps } from "~/shared/types/form";
 import { useClientQuery } from "~/entities/client/api";
+import { NewClientModal } from "~/features/new-client-modal";
 
 interface Props {
   field: UncontrolledInputProps;
@@ -11,6 +11,7 @@ interface Props {
 
 export const ClientCombobox = ({ field }: Props) => {
   const { clients } = useClientQuery();
+  
 
   const options: Option[] = (clients || []).map((client) => ({
     id: client.id,
@@ -18,16 +19,16 @@ export const ClientCombobox = ({ field }: Props) => {
     value: client.id,
   }));
 
-  const createNewClient = useCallback(() => {
-    console.log("click");
-  }, []);
+  const emptyOption = useMemo(() => <NewClientModal />, []);
 
-  const emptyOption = useMemo(
-    () => <Button onClick={createNewClient}>Create New Client</Button>,
-    [createNewClient],
-  );
+  console.log(emptyOption, "emptyOption");
 
   return (
-    <ComboboxField options={options} field={field} emptyOption={emptyOption} />
+    <ComboboxField
+      options={options}
+      field={field}
+      emptyOption={emptyOption}
+      placeholder="Select client"
+    />
   );
 };

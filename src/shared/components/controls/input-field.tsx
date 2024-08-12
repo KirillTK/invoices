@@ -9,6 +9,7 @@ interface Props {
   field: UncontrolledInputProps;
   initialValue?: string;
   className?: string;
+  containerClassName?: string;
   label?: string;
   type?: "text" | "number";
 }
@@ -18,6 +19,7 @@ export const InputField = ({
   initialValue,
   label,
   type = "text",
+  containerClassName,
   ...rest
 }: Props) => {
   const { onChange, value } = useField(field, { initialValue });
@@ -30,10 +32,11 @@ export const InputField = ({
   );
 
   return (
-    <div className={cn("flex flex-col justify-center space-y-2")}>
+    <div className={cn("flex flex-col justify-center space-y-2", containerClassName)}>
       {label && (
         <Label className="text-sm font-normal text-gray-500">{label}</Label>
       )}
+      <FormMessage/>
       <Input onChange={handleChange} value={value} type={type} {...rest} />
     </div>
   );

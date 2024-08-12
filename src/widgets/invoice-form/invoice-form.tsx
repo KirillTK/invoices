@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { ClientCombobox } from "~/features/client-combobox";
+import { ClientCombobox } from "~/widgets/client-combobox";
 import { EMPTY_INVOICE_ROW_TABLE, InvoiceTable } from '~/features/invoice-table';
 import type { InvoiceTableForm } from '~/features/invoice-table';
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";

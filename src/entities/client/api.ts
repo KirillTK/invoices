@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { fetcher } from "~/shared/utils/fetcher";
-import type { ClientModel } from './client.model';
+import type { ClientModel } from "./client.model";
 
 export function useClientQuery() {
   const { data, error, isLoading } = useSWR<ClientModel[], Error>(
@@ -12,5 +12,5 @@ export function useClientQuery() {
     clients: data ?? [],
     error,
     isLoading,
-  }
+  };
 }
