@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getClients, saveClient } from "~/server/clients";
 import type { ClientModel } from '~/server/db/schema';
+import { isPostgresError } from '~/server/utils/db.utils';
 import { clientSchema } from '~/shared/schemas/client.schema';
 
 export async function GET() {
@@ -33,5 +34,15 @@ export async function POST(req: NextRequest) {
   }
 
 
-  return NextResponse.json(await saveClient(data));
+  try {
+    const resp = await saveClient({
+      ...data,
+      userId: user.id,
+    });
+    return NextResponse.json(resp);
+  } catch (error) {  
+    return NextResponse.json({
+      message: isPostgresError(error) ? error.detail : 'Internal Error',
+    }, { status: 500 }); 
+  }
 }

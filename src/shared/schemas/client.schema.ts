@@ -7,5 +7,4 @@ export const clientSchema = z.object({
   zip: z.string().max(50, 'Max length 50 symbols').min(1, "Zip is required"),
   address: z.string().max(50, 'Max length 50 symbols').min(1, "Address is required"),
   taxIndex: z.string().max(50, 'Max length 50 symbols').min(1, "Nip is required"),
-  userId: z.string().min(1, 'userId is required'),
 });

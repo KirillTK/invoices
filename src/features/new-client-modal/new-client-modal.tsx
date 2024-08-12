@@ -1,7 +1,6 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUser } from "@clerk/clerk-react";
 import { useSWRConfig } from "swr";
 import type { z } from "zod";
 import type { ClientModel } from "~/entities/client/client.model";
@@ -19,9 +18,7 @@ import { Label } from "~/shared/components/label";
 import { getFormErrorArray, isHttpValidationError } from "~/shared/utils/http";
 import { clientSchema } from "~/shared/schemas/client.schema";
 
-const newClientModalSchema = clientSchema.omit({ userId: true });
-
-type NewClientForm = z.infer<typeof newClientModalSchema>;
+type NewClientForm = z.infer<typeof clientSchema>;
 
 const defaultValues: NewClientForm = {
   name: "",
@@ -35,38 +32,24 @@ const defaultValues: NewClientForm = {
 export function NewClientModal() {
   const title = "Create new client";
 
-  const { user } = useUser();
-
-  console.log(user, "!!!!");
-
   const {
     handleSubmit,
     register,
     getValues,
-    formState: { errors },
+    formState: { errors, isSubmitting, isValidating },
     setError,
-  } = useForm<z.infer<typeof newClientModalSchema>>({
+  } = useForm<z.infer<typeof clientSchema>>({
     defaultValues,
-    resolver: zodResolver(newClientModalSchema),
+    resolver: zodResolver(clientSchema),
   });
 
   const { mutate } = useSWRConfig();
 
   const saveClient = async () => {
-    if (!user) {
-      console.error("No user session");
-      return;
-    }
-
-    const formValues = {
-      ...getValues(),
-      userId: user.id,
-    };
-
     try {
       const response = await fetch("/api/client", {
         method: "POST",
-        body: JSON.stringify(formValues),
+        body: JSON.stringify(getValues()),
       });
 
       if (!response.ok) throw await response.json();
@@ -81,8 +64,6 @@ export function NewClientModal() {
           setError(er.name, { type: er.type, message: er.message }),
         );
       }
-    } finally {
-      console.log("Finally");
     }
   };
 
@@ -119,7 +100,9 @@ export function NewClientModal() {
               })}
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" loading={isSubmitting || isValidating}>
+              Save
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
