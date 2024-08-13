@@ -3,19 +3,15 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@radix-ui/react-popover";
 
 import { cn } from "~/shared/utils";
 import { Button } from "../button";
 import { Calendar } from "../calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 interface Props {
   className?: string;
-  onChange: (day?: Date) => (void | Promise<void>);
+  onChange: (day?: Date) => void | Promise<void>;
   value?: Date;
 }
 
