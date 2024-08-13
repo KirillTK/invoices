@@ -36,7 +36,7 @@ interface InvoiceForm {
 
 export function InvoiceForm() {
   const { handleSubmit, watch, register, control } = useForm<InvoiceForm>({
-    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE]}
+    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE], clientId: '' }
   });
 
   const formValues = watch();

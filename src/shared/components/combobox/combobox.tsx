@@ -23,8 +23,9 @@ export interface Props {
   className?: string;
   value?: string;
   name: string;
-  onChange: (value: string) => void;
+  onChange: (value?: string) => void;
   emptyOption?: string | React.ReactNode;
+  topElement?: string | React.ReactNode;
 }
 
 export function Combobox({
@@ -36,20 +37,24 @@ export function Combobox({
   value,
   onChange,
   emptyOption = "No option found.",
+  topElement,
 }: Props) {
   const [open, setOpen] = React.useState(false);
 
   const handleChange = React.useCallback(
-    (newValue: string) => {
-      onChange(newValue);
+    (selectedLabel: string) => {
+
+      const value = options.find(({ label }) => label === selectedLabel)?.value;
+
+      onChange(value ?? undefined);
       setOpen(false);
     },
-    [setOpen, onChange],
+    [setOpen, onChange, options],
   );
 
   return (
     <div className={cn("flex flex-col justify-center space-y-4", className)}>
-      {label && <Label>Accept terms and conditions</Label>}
+      {label && <Label>{label}</Label>}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -69,12 +74,13 @@ export function Combobox({
           <Command>
             <CommandInput placeholder={placeholder} />
             <CommandList>
+              {topElement}
               <CommandEmpty>{emptyOption}</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => (
                   <CommandItem
                     key={option.id ?? option.value}
-                    value={option.value}
+                    value={option.label} // https://github.com/shadcn-ui/ui/issues/458
                     onSelect={handleChange}
                   >
                     <Check

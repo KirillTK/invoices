@@ -10,8 +10,7 @@ interface Props {
 }
 
 export const ClientCombobox = ({ field }: Props) => {
-  const { clients } = useClientQuery();
-  
+  const { clients } = useClientQuery();  
 
   const options: Option[] = (clients || []).map((client) => ({
     id: client.id,
@@ -19,13 +18,13 @@ export const ClientCombobox = ({ field }: Props) => {
     value: client.id,
   }));
 
-  const emptyOption = useMemo(() => <NewClientModal />, []);
+  const topElement = useMemo(() => <NewClientModal buttonClassName="my-2 w-full" />, []);
 
   return (
     <ComboboxField
       options={options}
       field={field}
-      emptyOption={emptyOption}
+      topElement={topElement}
       placeholder="Select client"
     />
   );

@@ -18,6 +18,10 @@ import { Label } from "~/shared/components/label";
 import { getFormErrorArray, isHttpValidationError } from "~/shared/utils/http";
 import { clientSchema } from "~/shared/schemas/client.schema";
 
+interface Props {
+  buttonClassName?: string;
+}
+
 type NewClientForm = z.infer<typeof clientSchema>;
 
 const defaultValues: NewClientForm = {
@@ -29,7 +33,7 @@ const defaultValues: NewClientForm = {
   zip: "",
 };
 
-export function NewClientModal() {
+export function NewClientModal({ buttonClassName }: Props) {
   const title = "Create new client";
 
   const {
@@ -70,7 +74,7 @@ export function NewClientModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">{title}</Button>
+        <Button className={buttonClassName}>{title}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
