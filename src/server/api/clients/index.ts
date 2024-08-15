@@ -17,8 +17,3 @@ export class ClientsService {
     return db.insert(clients).values(client);
   };
 }
-
-
-// export const saveClient = (client: ClientModel) => {
-//   return db.insert(clients).values(client);
-// };
