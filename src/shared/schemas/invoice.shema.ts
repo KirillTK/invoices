@@ -1,21 +1,39 @@
 import { z } from "zod";
 
 export const invoiceSchema = z.object({
-  userId: z.string().min(1, "userId is required"),
-  client_id: z.string().min(1, "client_id is required"),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  due_date: z.string().min(1, "Due date is required"),
-  realizationDate: z.string().min(1, "Realization date is required"),
+  invoiceNo: z
+    .string()
+    .min(1, "Invoice # is required")
+    .max(50, "Invoice # too long"),
+  dueDate: z.string().date(),
+  invoiceDate: z.string().date(),
   vatInvoice: z.boolean(),
+  // user
+  userId: z.string().min(1, "userId is required"),
+  userName: z.string().min(1, "User name is required").max(50, "Name too long"),
+  userAddress: z
+    .string()
+    .min(1, "User address is required")
+    .max(250, "User address too long"),
+  userNip: z.string().min(1, "User Nip is required").max(50, "Nip too long"),
+  // client
+  clientId: z.string().min(1, "client_id is required"),
+  clientAddress: z
+    .string()
+    .min(1, "User address is required")
+    .max(250, "User address too long"),
+  clientNip: z.string().min(1, "User Nip is required").max(50, "Nip too long"),
 });
 
 export const invoiceDetailsSchema = z.object({
-  invoice_id: z.string().min(1, "invoice_id is required"),
-  description: z.string().min(1, "Description is required"),
+  invoiceId: z.string().min(1, "invoice_id is required"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(256, "Invoice description too long"),
   unit: z.number().min(0.1, "Unit is required"),
-  unitPrice: z.number().min(0.1, "Unit price is required"),
   quantity: z.number().min(0.1, "Quantity is required"),
+  unitPrice: z.number().min(0.1, "Unit price is required"),
 });
 
 export const invoiceDocumentSchema = z.object({

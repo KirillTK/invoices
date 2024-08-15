@@ -1,5 +1,6 @@
 "use client";
 
+import { z } from "zod";
 import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useFieldArray } from "react-hook-form";
@@ -15,12 +16,10 @@ import {
   Table,
 } from "~/shared/components/table/table";
 import { InputField } from "~/shared/components/controls/input-field";
+import { invoiceDetailsSchema } from "~/shared/schemas/invoice.shema";
 
-export interface InvoiceTableForm {
-  description: string;
-  unit: string;
-  quantity: number;
-  uniqNetPrice: number;
+export interface InvoiceTableForm
+  extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
   totalNetPrice: number;
   vat: number;
   vatAmount: number;
@@ -29,9 +28,9 @@ export interface InvoiceTableForm {
 
 export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
   description: "",
-  unit: "",
+  unit: 0,
+  unitPrice: 0,
   quantity: 0,
-  uniqNetPrice: 0,
   totalNetPrice: 0,
   vat: 0,
   vatAmount: 0,
@@ -39,7 +38,7 @@ export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
 };
 
 interface Props {
-  form: UseFormReturn<{ invoice: InvoiceTableForm[] }>;
+  form: UseFormReturn<{ details: InvoiceTableForm[] }>;
 }
 
 export function InvoiceTable({ form }: Props) {
@@ -56,7 +55,7 @@ export function InvoiceTable({ form }: Props) {
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "invoice",
+    name: "details",
   });
 
   const handleMouseEnterTable = useCallback(() => {
@@ -129,27 +128,27 @@ export function InvoiceTable({ form }: Props) {
               <TableCell>
                 <InputField
                   form={form}
-                  fieldName={`invoice.${index}.description`}
+                  fieldName={`details.${index}.description`}
                 />
               </TableCell>
               <TableCell>
                 <InputField
                   form={form}
-                  fieldName={`invoice.${index}.unit`}
+                  fieldName={`details.${index}.unit`}
                   type="number"
                 />
               </TableCell>
               <TableCell>
                 <InputField
                   form={form}
-                  fieldName={`invoice.${index}.quantity`}
+                  fieldName={`details.${index}.quantity`}
                   type="number"
                 />
               </TableCell>
               <TableCell>
                 <InputField
                   form={form}
-                  fieldName={`invoice.${index}.uniqNetPrice`}
+                  fieldName={`details.${index}.unitPrice`}
                 />
               </TableCell>
               <TableCell>
@@ -158,7 +157,7 @@ export function InvoiceTable({ form }: Props) {
               <TableCell>
                 <InputField
                   form={form}
-                  fieldName={`invoice.${index}.vat`}
+                  fieldName={`details.${index}.vat`}
                   type="number"
                 />
               </TableCell>

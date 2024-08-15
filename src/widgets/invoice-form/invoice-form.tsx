@@ -12,57 +12,38 @@ import { DatePickerField } from "~/shared/components/controls/date-picker-field"
 import { useClientQuery } from "~/entities/client/api";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Form } from "~/shared/components/form";
+import { invoiceDocumentSchema } from "~/shared/schemas/invoice.shema";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface InvoiceForm {
-  // invoice
-  title: string;
-  description: string;
-  vatInvoice: boolean;
-  dueDate: Date;
-  realizationDate: Date;
-  dateOfIssue: Date;
-
-  //client info
-  clientId: string;
-  clientAddress: string;
-  clientName: string;
-  clientTaxIndex: string;
-
-  // user info
-  userId: string;
-  userAddress: string;
-  userName: string;
-  userTaxIndex: string;
-
-  // table
-  invoice: InvoiceTableForm[];
-}
+type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
 export function InvoiceForm() {
-  const form = useForm<InvoiceForm>({
-    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE] },
+  const form = useForm<InvoiceFormValues>({
+    defaultValues: { details: [EMPTY_INVOICE_ROW_TABLE] },
+    resolver: zodResolver(invoiceDocumentSchema),
   });
 
   const { handleSubmit, watch, setValue } = form;
 
   const { clients } = useClientQuery();
 
-  const selectedClientId = watch("clientId");
+  const selectedClientId = watch("invoice.clientId");
 
   useEffect(() => {
     if (selectedClientId) {
       const client = clients.find(({ id }) => id === selectedClientId);
 
       if (client) {
-        setValue("clientTaxIndex", client.taxIndex);
-        setValue("clientAddress", client.address);
+        setValue("invoice.clientNip", client.taxIndex);
+        setValue("invoice.clientAddress", client.address);
       }
     }
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
   console.log(selectedClientId, "formValues");
 
-  const onSubmit = useCallback((values: InvoiceForm) => {
+  const onSubmit = useCallback((values: InvoiceFormValues) => {
     console.log(values, "values");
   }, []);
 
@@ -77,20 +58,20 @@ export function InvoiceForm() {
         <div className="grid gap-y-2">
           <DatePickerField
             form={form}
-            fieldName="dateOfIssue"
-            label="Realization date of the order"
+            fieldName="invoice.invoiceDate"
+            label="Invoice Date"
           />
           <DatePickerField
             form={form}
-            fieldName="realizationDate"
-            label="Realization date of the order"
+            fieldName="invoice.dueDate"
+            label="Due Date"
           />
         </div>
 
         <div className="col-span-2">
           <InputField
             form={form}
-            fieldName="title"
+            fieldName="invoice.invoiceNo"
             label="Invoice #"
             className="max-w-56"
           />
@@ -99,38 +80,42 @@ export function InvoiceForm() {
         <div className="grid gap-y-2">
           <InputField
             form={form}
-            fieldName="userName"
+            fieldName="invoice.userName"
             label="From:"
             labelClassName="text-lg font-medium text-black"
           />
 
           <InputField
             form={form}
-            fieldName="userTaxIndex"
+            fieldName="invoice.userNip"
             label="NIP/VAT ID:"
           />
 
-          <InputField form={form} fieldName="userAddress" label="Address:" />
+          <InputField
+            form={form}
+            fieldName="invoice.userAddress"
+            label="Address:"
+          />
         </div>
 
         <div className="grid gap-y-2">
           <ClientCombobox
             form={form}
-            fieldName="clientId"
+            fieldName="invoice.clientId"
             label="To:"
             labelClassName="text-lg font-medium text-black"
           />
 
           <InputField
             form={form}
-            fieldName="clientTaxIndex"
+            fieldName="invoice.clientNip"
             label="NIP/VAT ID:"
             disabled={true}
           />
 
           <InputField
             form={form}
-            fieldName="clientAddress"
+            fieldName="invoice.clientAddress"
             label="Address:"
             disabled={true}
           />
@@ -139,7 +124,7 @@ export function InvoiceForm() {
         <div className="col-span-2">
           <InvoiceTable
             form={
-              form as unknown as UseFormReturn<{ invoice: InvoiceTableForm[] }>
+              form as unknown as UseFormReturn<{ details: InvoiceTableForm[] }>
             }
           />
         </div>
