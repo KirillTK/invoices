@@ -5,7 +5,6 @@ import { useSWRConfig } from "swr";
 import type { z } from "zod";
 import type { ClientModel } from "~/entities/client/client.model";
 import { Button } from "~/shared/components/button";
-import { InputField } from "~/shared/components/controls/input-field";
 import {
   Dialog,
   DialogContent,
@@ -14,9 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/shared/components/dialog";
-import { Label } from "~/shared/components/label";
-import { getFormErrorArray, isHttpValidationError } from "~/shared/utils/http";
+import { getFormErrorArray, isCommonHttpError, isHttpValidationError } from "~/shared/utils/http";
 import { clientSchema } from "~/shared/schemas/client.schema";
+import { Form } from "~/shared/components/form";
+import { InputFieldNew } from "~/shared/components/controls/input-field-new";
 
 interface Props {
   buttonClassName?: string;
@@ -36,16 +36,17 @@ const defaultValues: NewClientForm = {
 export function NewClientModal({ buttonClassName }: Props) {
   const title = "Create new client";
 
-  const {
-    handleSubmit,
-    register,
-    getValues,
-    formState: { errors, isSubmitting, isValidating },
-    setError,
-  } = useForm<z.infer<typeof clientSchema>>({
+  const form = useForm<z.infer<typeof clientSchema>>({
     defaultValues,
     resolver: zodResolver(clientSchema),
   });
+
+  const {
+    handleSubmit,
+    getValues,
+    formState: { isSubmitting, isValidating },
+    setError,
+  } = form;
 
   const { mutate } = useSWRConfig();
 
@@ -67,6 +68,8 @@ export function NewClientModal({ buttonClassName }: Props) {
         formErrors.forEach((er) =>
           setError(er.name, { type: er.type, message: er.message }),
         );
+      } else if(isCommonHttpError(error)) {
+        setError("name", { type: "manual", message: error.message });
       }
     }
   };
@@ -81,35 +84,58 @@ export function NewClientModal({ buttonClassName }: Props) {
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(saveClient)}>
-          <div className="grid gap-4 py-4">
+        <Form {...form}>
+          <form onSubmit={handleSubmit(saveClient)} className="grid gap-4 py-4">
             {Object.keys(defaultValues)
               .filter((fieldName) => fieldName !== "userId")
               .map((fieldName) => {
                 return (
-                  <div
-                    className="grid grid-cols-4 items-center gap-4"
+                  <InputFieldNew
                     key={fieldName}
-                  >
-                    <Label htmlFor="name" className="text-right capitalize">
-                      {fieldName}
-                    </Label>
-                    <InputField
-                      field={register(fieldName as keyof NewClientForm)}
-                      containerClassName="col-span-3"
-                      errors={errors}
-                    />
-                  </div>
+                    form={form}
+                    fieldName={fieldName as keyof NewClientForm}
+                    className="grid grid-cols-4 items-center gap-4"
+                    label={fieldName}
+                    labelClassName="capitalize"
+                    inputClassName="col-span-3"
+                  />
                 );
               })}
-          </div>
-          <DialogFooter>
-            <Button type="submit" loading={isSubmitting || isValidating}>
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="submit" loading={isSubmitting || isValidating}>
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
+}
+
+// <FormField
+// key={fieldName}
+// control={form.control}
+// name={fieldName as keyof NewClientForm}
+// render={({ field }) => (
+//   <FormItem className="grid grid-cols-4 items-center gap-4">
+//     <FormLabel className="capitalize">
+//       {fieldName}
+//     </FormLabel>
+//     <FormControl className="col-span-3">
+//       <Input {...field} />
+//     </FormControl>
+//   </FormItem>
+// )}
+// />
+
+{
+  /* <InputFieldNew
+key={fieldName}
+form={form}
+fieldName={fieldName as keyof NewClientForm}
+className="grid grid-cols-4 items-center gap-4"
+labelClassName="capitalize"
+inputClassName="col-span-3"
+/> */
 }

@@ -15,6 +15,10 @@ export function isHttpValidationError(
   return false;
 }
 
+export function isCommonHttpError(error: unknown): error is Error {
+  return error instanceof Object && 'message' in error;
+}
+
 export function getFormErrorArray<T>(errors: ValidationHttpError[]) {
   return errors.map((error) => ({
     type: "manual",
