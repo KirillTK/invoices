@@ -1,40 +1,21 @@
-import { useField } from "~/shared/hooks/form";
 import { cn } from "~/shared/utils";
-import type { UncontrolledInputProps } from "../../types/form";
+import type { UncontrolledControlProps } from "../../types/form";
 import { DatePicker } from "../date-picker";
-import { Label } from "../label";
-import { useCallback } from "react";
+import type { FieldValues } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { FormField, FormItem, FormLabel, FormControl } from "../form";
+import { ErrorField } from "./error-field";
+import { BaseField } from "./base-field";
 
-interface Props {
-  field: UncontrolledInputProps;
-  initialValue?: Date;
-  className?: string;
-  label?: string;
-}
+type Props<T extends FieldValues> = UncontrolledControlProps<T>;
 
-export const DatePickerField = ({
-  field,
-  initialValue,
-  label,
-  ...rest
-}: Props) => {
-  const { onChange, value } = useField<Date | undefined>(field, {
-    initialValue,
-  });
-
-  const handleChange = useCallback(
-    (value?: Date) => {
-      onChange(value);
-    },
-    [onChange],
-  );
-
+export const DatePickerField = <T extends FieldValues = FieldValues>(
+  props: Props<T>,
+) => {
   return (
-    <div className={cn("flex flex-col justify-center space-y-2")}>
-      {label && (
-        <Label className="text-sm font-normal text-gray-500">{label}</Label>
-      )}
-      <DatePicker onChange={handleChange} value={value} {...rest} />
-    </div>
+    <BaseField
+      {...props}
+      renderInput={(field, props) => <DatePicker {...props} {...field} />}
+    />
   );
 };

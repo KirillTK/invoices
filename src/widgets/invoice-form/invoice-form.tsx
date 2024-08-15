@@ -43,13 +43,9 @@ export function InvoiceForm() {
     defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE] },
   });
 
-  const { handleSubmit, watch, register, control, setValue } = form;
+  const { handleSubmit, watch, setValue } = form;
 
   const { clients } = useClientQuery();
-
-  const formValues = watch();
-
-  console.log(formValues, "formValues");
 
   const selectedClientId = watch("clientId");
 
@@ -80,11 +76,13 @@ export function InvoiceForm() {
 
         <div className="grid gap-y-2">
           <DatePickerField
-            field={register("dateOfIssue")}
+            form={form}
+            fieldName="dateOfIssue"
             label="Realization date of the order"
           />
           <DatePickerField
-            field={register("realizationDate")}
+            form={form}
+            fieldName="realizationDate"
             label="Realization date of the order"
           />
         </div>
