@@ -65,6 +65,7 @@ export const invoice = createTable("invoices", {
   vatInvoice: boolean("vat_invoice").notNull(),
   // user data
   userId: varchar("user_id", { length: 256 }).notNull(),
+  userName: varchar('user_name', { length: 50 }).notNull(),
   userAddress: varchar("user_address", { length: 250 }),
   userNip: varchar("userNip", { length: 50 }),
   // client data
