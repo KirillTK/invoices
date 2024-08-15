@@ -1,39 +1,53 @@
-import { useField } from "~/shared/hooks/form";
 import { cn } from "~/shared/utils";
-import type { UncontrolledInputProps } from "../../types/form";
-import { Label } from "../label";
-import { useCallback } from "react";
-import { Combobox } from '../combobox';
-import type { Props as ComboboxProps } from '../combobox';
+import type { UncontrolledControlProps } from "../../types/form";
+import { Combobox, type Props as ComboboxProps } from "../combobox";
+import type { FieldValues } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { FormField, FormItem, FormLabel, FormControl } from "../form";
+import { ErrorField } from "./error-field";
 
-interface Props extends Omit<ComboboxProps, 'onChange' | 'value' | 'name'> {
-  field: UncontrolledInputProps;
-  initialValue?: string;
-}
+interface Props<T extends FieldValues>
+  extends UncontrolledControlProps<T>,
+    Omit<ComboboxProps, "onChange" | "value" | "name"> {}
 
-export const ComboboxField = ({
-  field,
-  initialValue,
+export const ComboboxField = <T extends FieldValues>({
+  form,
+  fieldName,
   label,
+  className,
+  labelClassName,
+  inputClassName,
+  options,
   ...rest
-}: Props) => {
-  const { onChange, value } = useField<string | undefined>(field, {
-    initialValue,
-  });
-
-  const handleChange = useCallback(
-    (value?: string) => {
-      onChange(value);
-    },
-    [onChange],
-  );
-
+}: Props<T>) => {
   return (
-    <div className={cn("flex flex-col justify-center space-y-2")}>
-      {label && (
-        <Label className="text-sm font-normal text-gray-500">{label}</Label>
+    <FormField
+      control={form.control}
+      name={fieldName}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && (
+            <FormLabel
+              className={cn(
+                "text-sm font-normal text-gray-500",
+                labelClassName,
+              )}
+            >
+              {label}
+            </FormLabel>
+          )}
+          <FormControl>
+            <div className={inputClassName}>
+              <Combobox options={options} {...field} {...rest} />
+              <ErrorMessage
+                name={fieldName as never}
+                errors={form.formState.errors ?? {}}
+                as={ErrorField}
+              />
+            </div>
+          </FormControl>
+        </FormItem>
       )}
-      <Combobox onChange={handleChange} value={value} name={field.name} {...rest} />
-    </div>
+    />
   );
 };

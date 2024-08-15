@@ -3,10 +3,9 @@
 import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import type { Control } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
 import { animated, useSpring } from "@react-spring/web";
 import { Button } from "~/shared/components/button";
-import { InputField } from "~/shared/components/controls/input-field";
 import {
   TableHeader,
   TableRow,
@@ -15,6 +14,7 @@ import {
   TableCell,
   Table,
 } from "~/shared/components/table/table";
+import { InputField } from "~/shared/components/controls/input-field";
 
 export interface InvoiceTableForm {
   description: string;
@@ -39,22 +39,15 @@ export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
 };
 
 interface Props {
-  control: Control<{ invoice: InvoiceTableForm[] }>;
+  form: UseFormReturn<{ invoice: InvoiceTableForm[] }>;
 }
 
-export function InvoiceTable({ control }: Props) {
+export function InvoiceTable({ form }: Props) {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
 
   const [removeLineBtn, setShowRemoveLineBtn] = useState<
     Record<string, boolean>
   >({});
-
-  // const { ...rest } = useForm<{ invoice: InvoiceTableForm[] }>({
-  //   defaultValues: { invoice: [defaultRow] },
-  // });
-
-  // console.log(rest, 'rest');
-  
 
   const addRowButtonStyles = useSpring({
     opacity: showAddLineBtn ? 1 : 0,
@@ -62,7 +55,7 @@ export function InvoiceTable({ control }: Props) {
   });
 
   const { fields, append, remove } = useFieldArray({
-    control,
+    control: form.control,
     name: "invoice",
   });
 
@@ -135,34 +128,33 @@ export function InvoiceTable({ control }: Props) {
               <TableCell className="font-medium">{index + 1}</TableCell>
               <TableCell>
                 <InputField
-                  field={control.register(`invoice.${index}.description`)}
+                  form={form}
+                  fieldName={`invoice.${index}.description`}
                 />
               </TableCell>
               <TableCell>
                 <InputField
-                  field={control.register(`invoice.${index}.unit`)}
-                  type="number"
+                  form={form}
+                  fieldName={`invoice.${index}.unit`}
                 />
               </TableCell>
               <TableCell>
                 <InputField
-                  field={control.register(`invoice.${index}.quantity`)}
-                  type="number"
+                  form={form}
+                  fieldName={`invoice.${index}.quantity`}
                 />
               </TableCell>
               <TableCell>
                 <InputField
-                  field={control.register(`invoice.${index}.uniqNetPrice`)}
+                  form={form}
+                  fieldName={`invoice.${index}.uniqNetPrice`}
                 />
               </TableCell>
               <TableCell>
                 <span>{item.totalNetPrice}</span>
               </TableCell>
               <TableCell>
-                <InputField
-                  field={control.register(`invoice.${index}.vat`)}
-                  type="number"
-                />
+                <InputField form={form} fieldName={`invoice.${index}.vat`} />
               </TableCell>
               <TableCell>
                 <span>{item.vatAmount}</span>

@@ -1,48 +1,49 @@
-import { type ChangeEventHandler, useCallback } from "react";
-import { ErrorMessage } from '@hookform/error-message';
-import { useField } from "~/shared/hooks/form";
-import { cn } from "~/shared/utils";
-import type { UncontrolledInputProps } from "~/shared/types/form";
-import { Label } from "../label";
+import { type FieldValues } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { FormField, FormItem, FormLabel, FormControl } from "../form";
 import { Input } from "../input";
-import { ErrorField } from './error-field';
+import { ErrorField } from "./error-field";
+import { cn } from "~/shared/utils";
+import type { UncontrolledControlProps } from "~/shared/types/form";
 
-interface Props {
-  field: UncontrolledInputProps;
-  initialValue?: string;
-  className?: string;
-  containerClassName?: string;
-  label?: string;
-  type?: "text" | "number";
-  errors?: Record<string, unknown>;
-  disabled?: boolean;
-}
+type Props<T extends FieldValues> = UncontrolledControlProps<T>
 
-export const InputField = ({
-  field,
-  initialValue,
+export function InputField<T extends FieldValues = FieldValues>({
   label,
-  type = "text",
-  errors,
-  containerClassName,
-  ...rest
-}: Props) => {
-  const { onChange, value } = useField(field, { initialValue });
-
-  const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      onChange(event.target.value);
-    },
-    [onChange],
-  );
-
+  form,
+  fieldName,
+  className,
+  labelClassName,
+  inputClassName,
+}: Props<T>) {
   return (
-    <div className={cn("flex flex-col justify-center space-y-2", containerClassName)}>
-      {label && (
-        <Label className="text-sm font-normal text-gray-500">{label}</Label>
+    <FormField
+      control={form.control}
+      name={fieldName}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && (
+            <FormLabel
+              className={cn(
+                "text-sm font-normal text-gray-500",
+                labelClassName,
+              )}
+            >
+              {label}
+            </FormLabel>
+          )}
+          <FormControl>
+            <div className={inputClassName}>
+              <Input {...field} />
+              <ErrorMessage
+                name={fieldName as never}
+                errors={form.formState.errors ?? {}}
+                as={ErrorField}
+              />
+            </div>
+          </FormControl>
+        </FormItem>
       )}
-      <Input onChange={handleChange} value={value} type={type} {...rest} />
-      <ErrorMessage name={field.name} errors={errors ?? {}} as={ErrorField} />
-    </div>
+    />
   );
-};
+}

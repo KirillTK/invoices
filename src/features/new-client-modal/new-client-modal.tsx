@@ -13,10 +13,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/shared/components/dialog";
-import { getFormErrorArray, isCommonHttpError, isHttpValidationError } from "~/shared/utils/http";
+import {
+  getFormErrorArray,
+  isCommonHttpError,
+  isHttpValidationError,
+} from "~/shared/utils/http";
 import { clientSchema } from "~/shared/schemas/client.schema";
 import { Form } from "~/shared/components/form";
-import { InputFieldNew } from "~/shared/components/controls/input-field-new";
+import { InputField } from "~/shared/components/controls/input-field";
 
 interface Props {
   buttonClassName?: string;
@@ -68,7 +72,7 @@ export function NewClientModal({ buttonClassName }: Props) {
         formErrors.forEach((er) =>
           setError(er.name, { type: er.type, message: er.message }),
         );
-      } else if(isCommonHttpError(error)) {
+      } else if (isCommonHttpError(error)) {
         setError("name", { type: "manual", message: error.message });
       }
     }
@@ -90,7 +94,7 @@ export function NewClientModal({ buttonClassName }: Props) {
               .filter((fieldName) => fieldName !== "userId")
               .map((fieldName) => {
                 return (
-                  <InputFieldNew
+                  <InputField
                     key={fieldName}
                     form={form}
                     fieldName={fieldName as keyof NewClientForm}
@@ -111,31 +115,4 @@ export function NewClientModal({ buttonClassName }: Props) {
       </DialogContent>
     </Dialog>
   );
-}
-
-// <FormField
-// key={fieldName}
-// control={form.control}
-// name={fieldName as keyof NewClientForm}
-// render={({ field }) => (
-//   <FormItem className="grid grid-cols-4 items-center gap-4">
-//     <FormLabel className="capitalize">
-//       {fieldName}
-//     </FormLabel>
-//     <FormControl className="col-span-3">
-//       <Input {...field} />
-//     </FormControl>
-//   </FormItem>
-// )}
-// />
-
-{
-  /* <InputFieldNew
-key={fieldName}
-form={form}
-fieldName={fieldName as keyof NewClientForm}
-className="grid grid-cols-4 items-center gap-4"
-labelClassName="capitalize"
-inputClassName="col-span-3"
-/> */
 }

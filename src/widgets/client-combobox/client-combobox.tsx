@@ -1,15 +1,16 @@
 "use client";
 import { useMemo } from "react";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
-import type { Option, UncontrolledInputProps } from "~/shared/types/form";
+import type { Option, UncontrolledControlProps } from "~/shared/types/form";
 import { useClientQuery } from "~/entities/client/api";
 import { NewClientModal } from "~/features/new-client-modal";
+import { type FieldValues } from 'react-hook-form';
 
-interface Props {
-  field: UncontrolledInputProps;
-}
+type Props<T extends FieldValues> = UncontrolledControlProps<T>
 
-export const ClientCombobox = ({ field }: Props) => {
+
+// TODO: move to feature folder
+export const ClientCombobox = <T extends FieldValues>({ form, fieldName, ...rest }: Props<T>) => {
   const { clients } = useClientQuery();
 
   const options: Option[] = (clients || []).map((client) => ({
@@ -23,9 +24,11 @@ export const ClientCombobox = ({ field }: Props) => {
   return (
     <ComboboxField
       options={options}
-      field={field}
+      form={form}
+      fieldName={fieldName}
       topElement={topElement}
       placeholder="Select client"
+      {...rest}
     />
   );
 };

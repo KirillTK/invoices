@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { ClientCombobox } from "~/widgets/client-combobox";
 import {
   EMPTY_INVOICE_ROW_TABLE,
@@ -9,9 +9,9 @@ import {
 } from "~/features/invoice-table";
 import type { InvoiceTableForm } from "~/features/invoice-table";
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
-import { InputField } from "~/shared/components/controls/input-field";
-import { Label } from "~/shared/components/label";
 import { useClientQuery } from "~/entities/client/api";
+import { InputField } from "~/shared/components/controls/input-field";
+import { Form } from "~/shared/components/form";
 
 interface InvoiceForm {
   // invoice
@@ -39,14 +39,17 @@ interface InvoiceForm {
 }
 
 export function InvoiceForm() {
-  const { handleSubmit, watch, register, control, setValue } =
-    useForm<InvoiceForm>({
-      defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE] },
-    });
+  const form = useForm<InvoiceForm>({
+    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE] },
+  });
+
+  const { handleSubmit, watch, register, control, setValue } = form;
 
   const { clients } = useClientQuery();
 
-  // const formValues = watch();
+  const formValues = watch();
+
+  console.log(formValues, "formValues");
 
   const selectedClientId = watch("clientId");
 
@@ -68,48 +71,75 @@ export function InvoiceForm() {
   }, []);
 
   return (
-    <form
-      className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div></div>
+    <Form {...form}>
+      <form
+        className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div></div>
 
-      <div className="grid gap-y-2">
-        <DatePickerField
-          field={register("dateOfIssue")}
-          label="Realization date of the order"
-        />
-        <DatePickerField
-          field={register("realizationDate")}
-          label="Realization date of the order"
-        />
-      </div>
+        <div className="grid gap-y-2">
+          <DatePickerField
+            field={register("dateOfIssue")}
+            label="Realization date of the order"
+          />
+          <DatePickerField
+            field={register("realizationDate")}
+            label="Realization date of the order"
+          />
+        </div>
 
-      <div className="col-span-2">
-        <InputField
-          field={register("title")}
-          label="Invoice #"
-          className="max-w-56"
-        />
-      </div>
+        <div className="col-span-2">
+          <InputField
+            form={form}
+            fieldName="title"
+            label="Invoice #"
+            className="max-w-56"
+          />
+        </div>
 
-      <div className="grid gap-y-2">
-        <Label className="text-lg font-medium">From:</Label>
-        <InputField field={register("userName")} />
-        <InputField field={register("userTaxIndex")} label="NIP/VAT ID:" />
-        <InputField field={register("userAddress")} label="Address:" />
-      </div>
+        <div className="grid gap-y-2">
+          <InputField
+            form={form}
+            fieldName="userName"
+            label="From:"
+            labelClassName="text-lg font-medium text-black"
+          />
 
-      <div className="grid gap-y-2">
-        <Label className="text-lg font-medium">To:</Label>
-        <ClientCombobox field={register("clientId")} />
-        <InputField field={register("clientTaxIndex")} label="NIP/VAT ID:" />
-        <InputField field={register("clientAddress")} label="Address:" />
-      </div>
+          <InputField
+            form={form}
+            fieldName="userTaxIndex"
+            label="NIP/VAT ID:"
+          />
 
-      <div className="col-span-2">
-        <InvoiceTable control={control} />
-      </div>
-    </form>
+          <InputField form={form} fieldName="userAddress" label="Address:" />
+        </div>
+
+        <div className="grid gap-y-2">
+          <ClientCombobox
+            form={form}
+            fieldName="clientId"
+            label="To:"
+            labelClassName="text-lg font-medium text-black"
+          />
+
+          <InputField
+            form={form}
+            fieldName="clientTaxIndex"
+            label="NIP/VAT ID:"
+          />
+
+          <InputField form={form} fieldName="clientAddress" label="Address:" />
+        </div>
+
+        <div className="col-span-2">
+          <InvoiceTable
+            form={
+              form as unknown as UseFormReturn<{ invoice: InvoiceTableForm[] }>
+            }
+          />
+        </div>
+      </form>
+    </Form>
   );
 }
