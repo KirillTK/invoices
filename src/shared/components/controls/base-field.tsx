@@ -11,7 +11,8 @@ import { ReactElement, ReactNode } from "react";
 
 // type Props<T extends FieldValues> = UncontrolledControlProps<T>;
 
-interface Props<T extends FieldValues> extends UncontrolledControlProps<T> {
+export interface Props<T extends FieldValues> extends UncontrolledControlProps<T> {
+  disabled?: boolean;
   renderInput: (
     field: ControllerRenderProps<T, Path<T>>,
     rest?: Record<string, unknown>,
@@ -26,11 +27,13 @@ export function BaseField<T extends FieldValues = FieldValues>({
   labelClassName,
   inputClassName,
   renderInput,
+  disabled,
   ...rest
 }: Props<T>) {
   return (
     <FormField
       control={form.control}
+      disabled={disabled}
       name={fieldName}
       render={({ field }) => (
         <FormItem className={className}>

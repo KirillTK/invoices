@@ -125,9 +125,15 @@ export function InvoiceForm() {
             form={form}
             fieldName="clientTaxIndex"
             label="NIP/VAT ID:"
+            disabled={true}
           />
 
-          <InputField form={form} fieldName="clientAddress" label="Address:" />
+          <InputField
+            form={form}
+            fieldName="clientAddress"
+            label="Address:"
+            disabled={true}
+          />
         </div>
 
         <div className="col-span-2">
