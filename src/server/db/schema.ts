@@ -34,7 +34,6 @@ export const user = createTable("users", {
   taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
 });
 
-
 export const exchange_rate = createTable("exchange_rates", {
   id: uuid("id").primaryKey().defaultRandom(),
   currencyName: varchar("currency_name", { length: 256 }).notNull(),
@@ -44,7 +43,6 @@ export const exchange_rate = createTable("exchange_rates", {
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
-
 
 export const clients = createTable("clients", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -57,28 +55,32 @@ export const clients = createTable("clients", {
   userId: varchar("user_id", { length: 256 }).notNull(),
 });
 
-export type ClientModel = InferSelectModel<typeof clients>
-
-
+export type ClientModel = InferSelectModel<typeof clients>;
 
 export const invoice = createTable("invoices", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: varchar("user_id", { length: 256 }).notNull(),
-  clientId: uuid("client_id")
-    .references(() => clients.id, { onDelete: "cascade" })
-    .notNull(),
-  // exchangeRate: uuid("exchange_rate_id").references(() => exchange_rate.id),
   invoiceNo: varchar("invoice_no", { length: 50 }).notNull().unique(),
   dueDate: date("due_date"),
   invoiceDate: date("invoice_date"),
   vatInvoice: boolean("vat_invoice").notNull(),
+  // user data
+  userId: varchar("user_id", { length: 256 }).notNull(),
+  userAddress: varchar("user_address", { length: 250 }),
+  userNip: varchar("userNip", { length: 50 }),
+  // client data
+  clientId: uuid("client_id")
+    .references(() => clients.id, { onDelete: "cascade" })
+    .notNull(),
+  clientAddress: varchar("client_address", { length: 250 }),
+  clientNip: varchar("client_nip", { length: 50 }),
+  // exchangeRate: uuid("exchange_rate_id").references(() => exchange_rate.id),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
 
-export type InvoiceModel = InferSelectModel<typeof invoice>
+export type InvoiceModel = InferSelectModel<typeof invoice>;
 
 export const invoiceDetails = createTable("invoice_details", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -95,4 +97,4 @@ export const invoiceDetails = createTable("invoice_details", {
   updatedAt: timestamp("updatedAt"),
 });
 
-export type InvoiceDetailsModel = InferSelectModel<typeof invoiceDetails>
+export type InvoiceDetailsModel = InferSelectModel<typeof invoiceDetails>;
