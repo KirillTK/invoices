@@ -136,12 +136,14 @@ export function InvoiceTable({ form }: Props) {
                 <InputField
                   form={form}
                   fieldName={`invoice.${index}.unit`}
+                  type="number"
                 />
               </TableCell>
               <TableCell>
                 <InputField
                   form={form}
                   fieldName={`invoice.${index}.quantity`}
+                  type="number"
                 />
               </TableCell>
               <TableCell>
@@ -154,7 +156,11 @@ export function InvoiceTable({ form }: Props) {
                 <span>{item.totalNetPrice}</span>
               </TableCell>
               <TableCell>
-                <InputField form={form} fieldName={`invoice.${index}.vat`} />
+                <InputField
+                  form={form}
+                  fieldName={`invoice.${index}.vat`}
+                  type="number"
+                />
               </TableCell>
               <TableCell>
                 <span>{item.vatAmount}</span>
