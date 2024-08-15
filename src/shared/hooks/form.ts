@@ -9,7 +9,7 @@ export const useField = <TValue>(
   field: UncontrolledInputProps,
   config: Options<TValue>,
 ) => {
-  const [value, setValue] = useState(config.initialValue);
+  const [value, setValue] = useState(config.initialValue);  
 
   useEffect(() => {
     void field.onChange({
@@ -18,9 +18,9 @@ export const useField = <TValue>(
         name: field.name,
       },
     });
-    
+
     setValue(config.initialValue);
-  }, []);
+  }, [config.initialValue]);
 
   const onChange = useCallback((value: TValue) => {
     void field.onChange({

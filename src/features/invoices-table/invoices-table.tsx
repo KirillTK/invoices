@@ -1,4 +1,4 @@
-import { getInvoiceList } from '~/server/invoices';
+import { InvoicesService } from '~/server/api/invoices';
 import {
   Table,
   TableBody,
@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "~/shared/components/table/table";
 
-export async function InvoicesTable() {
-  const invoices = await getInvoiceList();  
+export async function InvoicesTable() {  
+  const invoices = await InvoicesService.getInvoiceList();
 
   return (
     <Table>

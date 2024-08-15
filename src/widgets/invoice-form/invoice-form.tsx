@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ClientCombobox } from "~/widgets/client-combobox";
-import { EMPTY_INVOICE_ROW_TABLE, InvoiceTable } from '~/features/invoice-table';
-import type { InvoiceTableForm } from '~/features/invoice-table';
+import {
+  EMPTY_INVOICE_ROW_TABLE,
+  InvoiceTable,
+} from "~/features/invoice-table";
+import type { InvoiceTableForm } from "~/features/invoice-table";
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Label } from "~/shared/components/label";
+import { useClientQuery } from "~/entities/client/api";
 
 interface InvoiceForm {
   // invoice
@@ -35,13 +39,29 @@ interface InvoiceForm {
 }
 
 export function InvoiceForm() {
-  const { handleSubmit, watch, register, control } = useForm<InvoiceForm>({
-    defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE], clientId: '' }
-  });
+  const { handleSubmit, watch, register, control, setValue } =
+    useForm<InvoiceForm>({
+      defaultValues: { invoice: [EMPTY_INVOICE_ROW_TABLE] },
+    });
 
-  const formValues = watch();
+  const { clients } = useClientQuery();
 
-  console.log(formValues, "formValues");
+  // const formValues = watch();
+
+  const selectedClientId = watch("clientId");
+
+  useEffect(() => {
+    if (selectedClientId) {
+      const client = clients.find(({ id }) => id === selectedClientId);
+
+      if (client) {
+        setValue("clientTaxIndex", client.taxIndex);
+        setValue("clientAddress", client.address);
+      }
+    }
+  }, [JSON.stringify(clients), selectedClientId, setValue]);
+
+  console.log(selectedClientId, "formValues");
 
   const onSubmit = useCallback((values: InvoiceForm) => {
     console.log(values, "values");
@@ -66,7 +86,11 @@ export function InvoiceForm() {
       </div>
 
       <div className="col-span-2">
-        <InputField field={register("title")} label="Invoice #" className="max-w-56" />
+        <InputField
+          field={register("title")}
+          label="Invoice #"
+          className="max-w-56"
+        />
       </div>
 
       <div className="grid gap-y-2">

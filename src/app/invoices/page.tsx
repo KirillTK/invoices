@@ -5,7 +5,7 @@ import { Button } from "~/shared/components/button";
 export default function InvoicesPage() {
   return (
     <>
-      <Button asChild>
+      <Button>
         <Link href="/invoice/new">Add Invoice</Link>
       </Button>
       <InvoicesTable />

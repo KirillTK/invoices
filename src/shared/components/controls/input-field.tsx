@@ -15,6 +15,7 @@ interface Props {
   label?: string;
   type?: "text" | "number";
   errors?: Record<string, unknown>;
+  disabled?: boolean;
 }
 
 export const InputField = ({
