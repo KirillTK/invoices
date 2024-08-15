@@ -64,37 +64,35 @@ export type ClientModel = InferSelectModel<typeof clients>
 export const invoice = createTable("invoices", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("user_id", { length: 256 }).notNull(),
-  client: uuid("client_id")
+  clientId: uuid("client_id")
     .references(() => clients.id, { onDelete: "cascade" })
     .notNull(),
   // exchangeRate: uuid("exchange_rate_id").references(() => exchange_rate.id),
-  title: varchar("title", { length: 50 }).notNull().unique(),
-  description: varchar("description", { length: 256 }).notNull(),
-  // unit: unitEnum("unit").notNull(),
-  // unitPrice: doublePrecision("unit_price").notNull(),
-  // quantity: doublePrecision("quantity").notNull(),
-  vatInvoice: boolean("vat_invoice").notNull(),
+  invoiceNo: varchar("invoice_no", { length: 50 }).notNull().unique(),
   dueDate: date("due_date"),
-  realizationDate: date("realization_date"),
-  dateOfIssue: date("date_of_issue"),
+  invoiceDate: date("invoice_date"),
+  vatInvoice: boolean("vat_invoice").notNull(),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
 
+export type InvoiceModel = InferSelectModel<typeof invoice>
 
 export const invoiceDetails = createTable("invoice_details", {
   id: uuid("id").primaryKey().defaultRandom(),
   invoice: uuid("invoice_id")
     .references(() => invoice.id, { onDelete: "cascade" })
     .notNull(),
-  title: varchar("description", { length: 256 }).notNull(),
+  description: varchar("description", { length: 256 }).notNull(),
   unit: unitEnum("unit").notNull(),
-  unitPrice: doublePrecision("unit_price").notNull(),
   quantity: doublePrecision("quantity").notNull(),
+  unitPrice: doublePrecision("unit_price").notNull(),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
+
+export type InvoiceDetailsModel = InferSelectModel<typeof invoiceDetails>

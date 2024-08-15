@@ -40,7 +40,7 @@ const defaultValues: NewClientForm = {
 export function NewClientModal({ buttonClassName }: Props) {
   const title = "Create new client";
 
-  const form = useForm<z.infer<typeof clientSchema>>({
+  const form = useForm<NewClientForm>({
     defaultValues,
     resolver: zodResolver(clientSchema),
   });

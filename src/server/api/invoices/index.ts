@@ -1,6 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../../db";
 import { authRequired } from "../../decorators/auth.decorator";
+import {
+  invoice,
+  invoiceDetails,
+  type InvoiceModel,
+  type InvoiceDetailsModel,
+} from "~/server/db/schema";
 
 export class InvoicesService {
   @authRequired()
@@ -14,7 +20,35 @@ export class InvoicesService {
   }
 
   @authRequired()
-  static async saveInvoice() {
-    return;
+  static async saveInvoice(
+    userId: string,
+    invoiceValues: InvoiceModel,
+    details: InvoiceDetailsModel[],
+  ) {
+    await db.transaction(async (tx) => {
+      try {
+        const [savedInvoice] = await tx
+          .insert(invoice)
+          .values({ ...invoiceValues, userId })
+          .returning({ invoiceId: invoice.id });
+
+        if (!savedInvoice?.invoiceId) {
+          tx.rollback();
+          return;
+        }
+
+        await tx.insert(invoiceDetails).values(
+          details.map((detail) => ({
+            ...detail,
+            invoice: savedInvoice.invoiceId,
+          })),
+        );
+
+        return savedInvoice.invoiceId;
+      } catch (error) {
+        tx.rollback();
+        return error;
+      }
+    });
   }
 }
