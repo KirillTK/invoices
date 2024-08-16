@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
+import type { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientCombobox } from "~/widgets/client-combobox";
 import {
   EMPTY_INVOICE_ROW_TABLE,
@@ -12,9 +14,8 @@ import { DatePickerField } from "~/shared/components/controls/date-picker-field"
 import { useClientQuery } from "~/entities/client/api";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Form } from "~/shared/components/form";
-import { invoiceDocumentSchema } from "~/shared/schemas/invoice.shema";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
+import { Button } from '~/shared/components/button';
 
 type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -30,6 +31,8 @@ export function InvoiceForm() {
 
   const selectedClientId = watch("invoice.clientId");
 
+  const formValues = watch();
+
   useEffect(() => {
     if (selectedClientId) {
       const client = clients.find(({ id }) => id === selectedClientId);
@@ -41,7 +44,7 @@ export function InvoiceForm() {
     }
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
-  console.log(selectedClientId, "formValues");
+  console.log(formValues, "formValues");
 
   const onSubmit = useCallback((values: InvoiceFormValues) => {
     console.log(values, "values");
@@ -52,8 +55,11 @@ export function InvoiceForm() {
       <form
         className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
         onSubmit={handleSubmit(onSubmit)}
+        id="invoice-form"
       >
-        <div></div>
+        <div>
+          <Button type="submit">Save Invoice</Button>
+        </div>
 
         <div className="grid gap-y-2">
           <DatePickerField

@@ -1,6 +1,6 @@
 "use client";
 
-import { z } from "zod";
+import type { z } from "zod";
 import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useFieldArray } from "react-hook-form";
@@ -16,7 +16,9 @@ import {
   Table,
 } from "~/shared/components/table/table";
 import { InputField } from "~/shared/components/controls/input-field";
-import { invoiceDetailsSchema } from "~/shared/schemas/invoice.shema";
+import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
+import { ComboboxField } from "~/shared/components/controls/combobox-field";
+import { UNIT_OPTIONS } from '~/shared/constants/unit.const';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -28,7 +30,7 @@ export interface InvoiceTableForm
 
 export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
   description: "",
-  unit: 0,
+  unit: UNIT_OPTIONS[0]!.value,
   unitPrice: 0,
   quantity: 0,
   totalNetPrice: 0,
@@ -132,10 +134,11 @@ export function InvoiceTable({ form }: Props) {
                 />
               </TableCell>
               <TableCell>
-                <InputField
+                <ComboboxField
+                  options={UNIT_OPTIONS}
                   form={form}
                   fieldName={`details.${index}.unit`}
-                  type="number"
+                  placeholder="Select Unit"
                 />
               </TableCell>
               <TableCell>

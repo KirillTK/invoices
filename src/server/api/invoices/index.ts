@@ -1,12 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../../db";
 import { authRequired } from "../../decorators/auth.decorator";
+import type { z } from "zod";
 import {
   invoice,
   invoiceDetails,
   type InvoiceModel,
   type InvoiceDetailsModel,
 } from "~/server/db/schema";
+import type { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
 
 export class InvoicesService {
   @authRequired()
@@ -22,14 +24,19 @@ export class InvoicesService {
   @authRequired()
   static async saveInvoice(
     userId: string,
-    invoiceValues: InvoiceModel,
-    details: InvoiceDetailsModel[],
+    invoiceData: z.infer<typeof invoiceDocumentSchema>,
   ) {
     await db.transaction(async (tx) => {
       try {
+        const { details, invoice: invoiceInfo } = invoiceData;
         const [savedInvoice] = await tx
           .insert(invoice)
-          .values({ ...invoiceValues, userId })
+          .values({
+            ...invoiceInfo,
+            userId,
+            dueDate: invoiceInfo.dueDate.toUTCString(),
+            invoiceDate: invoiceInfo.invoiceDate.toUTCString(),
+          })
           .returning({ invoiceId: invoice.id });
 
         if (!savedInvoice?.invoiceId) {

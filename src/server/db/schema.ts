@@ -22,7 +22,7 @@ import {
  */
 export const createTable = pgTableCreator((name) => `factura_${name}`);
 
-export const unitEnum = pgEnum("invoice_unit", ["per/hours"]);
+export const unitEnum = pgEnum("invoice_unit", ["PER_HOURS"]);
 
 export const user = createTable("users", {
   id: uuid("id"),
@@ -62,7 +62,7 @@ export const invoice = createTable("invoices", {
   invoiceNo: varchar("invoice_no", { length: 50 }).notNull().unique(),
   dueDate: date("due_date"),
   invoiceDate: date("invoice_date"),
-  vatInvoice: boolean("vat_invoice").notNull(),
+  vatInvoice: boolean("vat_invoice").default(false),
   // user data
   userId: varchar("user_id", { length: 256 }).notNull(),
   userName: varchar('user_name', { length: 50 }).notNull(),

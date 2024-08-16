@@ -3,7 +3,7 @@ import type { FieldValues, Path, UseFormRegisterReturn, UseFormReturn } from "re
 // TODO: need to be removed
 export type UncontrolledInputProps = UseFormRegisterReturn<string>;
 
-export type Option = { id?: string; label: string; value: string };
+export type Option<T> = { id?: string; label: string; value: T };
 
 export interface UncontrolledControlProps<T extends FieldValues> {
   label?: string;

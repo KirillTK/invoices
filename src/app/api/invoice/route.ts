@@ -1,9 +1,9 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import type { z } from "zod";
 import { InvoicesService } from "~/server/api/invoices";
-import { InvoiceDetailsModel, InvoiceModel } from "~/server/db/schema";
-import { isPostgresError } from '~/server/utils/db.utils';
-import { invoiceDocumentSchema } from "~/shared/schemas/invoice.shema";
+import { isPostgresError } from "~/server/utils/db.utils";
+import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
 
 export async function POST(req: NextRequest) {
   const user = await currentUser();
@@ -12,10 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = (await req.json()) as {
-    invoice: InvoiceModel;
-    details: InvoiceDetailsModel[];
-  };
+  const data = (await req.json()) as z.infer<typeof invoiceDocumentSchema>;
 
   const validationResult = invoiceDocumentSchema.safeParse(data);
 
@@ -29,13 +26,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const resp = await InvoicesService.saveInvoice(
-      user.id,
-      data.invoice,
-      data.details,
-    );
-    
-    return NextResponse.json(resp);
+    const resp = await InvoicesService.saveInvoice(user.id, data);
+
+    return NextResponse.json({});
   } catch (error) {
     return NextResponse.json(
       {
