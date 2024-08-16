@@ -26,10 +26,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const resp = await InvoicesService.saveInvoice(user.id, data);
+    await InvoicesService.saveInvoice(user.id, data);
 
     return NextResponse.json({});
   } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       {
         message: isPostgresError(error) ? error.detail : "Internal Error",

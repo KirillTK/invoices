@@ -2,12 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "../../db";
 import { authRequired } from "../../decorators/auth.decorator";
 import type { z } from "zod";
-import {
-  invoice,
-  invoiceDetails,
-  type InvoiceModel,
-  type InvoiceDetailsModel,
-} from "~/server/db/schema";
+import { invoice, invoiceDetails, unitEnum } from "~/server/db/schema";
 import type { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
 
 export class InvoicesService {
@@ -29,13 +24,15 @@ export class InvoicesService {
     await db.transaction(async (tx) => {
       try {
         const { details, invoice: invoiceInfo } = invoiceData;
+
         const [savedInvoice] = await tx
           .insert(invoice)
           .values({
             ...invoiceInfo,
             userId,
-            dueDate: invoiceInfo.dueDate.toUTCString(),
-            invoiceDate: invoiceInfo.invoiceDate.toUTCString(),
+            dueDate: invoiceInfo.dueDate as unknown as string,
+            invoiceDate: invoiceInfo.invoiceDate as unknown as string,
+            vatInvoice: false,
           })
           .returning({ invoiceId: invoice.id });
 
@@ -45,10 +42,15 @@ export class InvoicesService {
         }
 
         await tx.insert(invoiceDetails).values(
-          details.map((detail) => ({
-            ...detail,
-            invoice: savedInvoice.invoiceId,
-          })),
+          details.map((detail) => {
+            return {
+              invoice: savedInvoice.invoiceId,
+              description: detail.description,
+              unit: unitEnum.enumValues[0],
+              quantity: detail.quantity,
+              unitPrice: detail.unitPrice,
+            };
+          }),
         );
 
         return savedInvoice.invoiceId;

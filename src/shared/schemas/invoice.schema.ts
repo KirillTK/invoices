@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { unitEnum } from '~/server/db/schema';
 
 
 export const invoiceSchema = z.object({
@@ -7,9 +6,9 @@ export const invoiceSchema = z.object({
     .string()
     .min(1, "Invoice # is required")
     .max(50, "Invoice # too long"),
-  dueDate: z.date(),
-  invoiceDate: z.date(),
-  vatInvoice: z.boolean(),
+  dueDate: z.coerce.date(),
+  invoiceDate: z.coerce.date(),
+  vatInvoice: z.boolean().default(false),
   // user
   // userId: z.string().min(1, "userId is required"),
   userName: z.string().min(1, "User name is required").max(50, "Name too long"),
@@ -34,7 +33,7 @@ export const invoiceDetailsSchema = z.object({
     .min(1, "Description is required")
     .max(256, "Invoice description too long"),
   // unit: z.coerce.number().min(0.1, "Unit is required"),
-  unit: z.enum(unitEnum.enumValues),
+  // unit: z.enum(unitEnum.enumValues),
   quantity: z.coerce.number().min(0.1, "Quantity is required"),
   unitPrice: z.coerce.number().min(0.1, "Unit price is required"),
 });

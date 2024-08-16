@@ -15,7 +15,12 @@ import { useClientQuery } from "~/entities/client/api";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Form } from "~/shared/components/form";
 import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
-import { Button } from '~/shared/components/button';
+import { Button } from "~/shared/components/button";
+import {
+  getFormErrorArray,
+  isCommonHttpError,
+  isHttpValidationError,
+} from "~/shared/utils/http";
 
 type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -25,13 +30,15 @@ export function InvoiceForm() {
     resolver: zodResolver(invoiceDocumentSchema),
   });
 
-  const { handleSubmit, watch, setValue } = form;
+  const { handleSubmit, watch, setValue, getValues, setError } = form;
 
   const { clients } = useClientQuery();
 
   const selectedClientId = watch("invoice.clientId");
 
-  const formValues = watch();
+  const allValues = watch();
+
+  console.log(invoiceDocumentSchema.safeParse(allValues), "VALI");
 
   useEffect(() => {
     if (selectedClientId) {
@@ -44,11 +51,34 @@ export function InvoiceForm() {
     }
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
-  console.log(formValues, "formValues");
+  const onSubmit = useCallback(
+    async (values: InvoiceFormValues) => {
+      console.log(values, "values");
 
-  const onSubmit = useCallback((values: InvoiceFormValues) => {
-    console.log(values, "values");
-  }, []);
+      try {
+        const response = await fetch("/api/invoice", {
+          method: "POST",
+          body: JSON.stringify(getValues()),
+        });
+
+        if (!response.ok) throw await response.json();
+      } catch (error) {
+        if (isHttpValidationError(error)) {
+          const formErrors = getFormErrorArray<InvoiceFormValues>(error.errors);
+
+          formErrors.forEach((er) =>
+            setError(er.name, { type: er.type, message: er.message }),
+          );
+        } else if (isCommonHttpError(error)) {
+          setError("invoice.invoiceNo", {
+            type: "manual",
+            message: error.message,
+          });
+        }
+      }
+    },
+    [setError, getValues],
+  );
 
   return (
     <Form {...form}>
@@ -116,14 +146,12 @@ export function InvoiceForm() {
             form={form}
             fieldName="invoice.clientNip"
             label="NIP/VAT ID:"
-            disabled={true}
           />
 
           <InputField
             form={form}
             fieldName="invoice.clientAddress"
             label="Address:"
-            disabled={true}
           />
         </div>
 
