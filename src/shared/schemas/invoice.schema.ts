@@ -27,13 +27,11 @@ export const invoiceSchema = z.object({
 });
 
 export const invoiceDetailsSchema = z.object({
-  // invoiceId: z.string().min(1, "invoice_id is required"),
   description: z
     .string()
     .min(1, "Description is required")
     .max(256, "Invoice description too long"),
-  // unit: z.coerce.number().min(0.1, "Unit is required"),
-  // unit: z.enum(unitEnum.enumValues),
+  unit: z.string(), // TODO: need to add type here
   quantity: z.coerce.number().min(0.1, "Quantity is required"),
   unitPrice: z.coerce.number().min(0.1, "Unit price is required"),
 });

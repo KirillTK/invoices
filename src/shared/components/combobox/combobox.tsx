@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { Button } from "../button";
-import { cn } from "~/shared/utils";
+import { cn, isFalsyValueButNotZero } from "~/shared/utils";
 import {
   Command,
   CommandEmpty,
@@ -17,7 +17,7 @@ import type { Option } from "~/shared/types/form";
 import { Label } from "../label";
 
 export interface Props {
-  options: Option[];
+  options: Option<unknown>[];
   placeholder?: string;
   label?: string;
   className?: string;
@@ -43,14 +43,15 @@ export function Combobox({
 
   const handleChange = React.useCallback(
     (selectedLabel: string) => {
-
       const value = options.find(({ label }) => label === selectedLabel)?.value;
 
-      onChange(value ?? undefined);
+      const safeValue = value ? String(value) : undefined;
+
+      onChange(safeValue);
       setOpen(false);
     },
     [setOpen, onChange, options],
-  );
+  );  
 
   return (
     <div className={cn("flex flex-col justify-center space-y-4", className)}>
@@ -64,8 +65,8 @@ export function Combobox({
             aria-expanded={open}
             className="w-full justify-between"
           >
-            {value
-              ? options.find((option) => option.value === value)?.label
+            {isFalsyValueButNotZero(value)
+              ? options.find((option) => option.value == value)?.label
               : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -79,7 +80,7 @@ export function Combobox({
               <CommandGroup>
                 {options.map((option) => (
                   <CommandItem
-                    key={option.id ?? option.value}
+                    key={option.id ?? option.label}
                     value={option.label} // https://github.com/shadcn-ui/ui/issues/458
                     onSelect={handleChange}
                   >

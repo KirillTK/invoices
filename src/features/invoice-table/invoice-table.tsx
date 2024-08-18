@@ -18,7 +18,8 @@ import {
 import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
-import { UNIT_OPTIONS } from '~/shared/constants/unit.const';
+import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
+import { InvoiceUtils } from "~/shared/utils/invoice";
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -45,6 +46,7 @@ interface Props {
 
 export function InvoiceTable({ form }: Props) {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
+  const { setValue, getValues, watch } = form;
 
   const [removeLineBtn, setShowRemoveLineBtn] = useState<
     Record<string, boolean>
@@ -99,6 +101,25 @@ export function InvoiceTable({ form }: Props) {
     [remove],
   );
 
+  const calculateTotals = (index: number) => {
+    const { quantity, unitPrice, vat } = getValues(`details.${index}`);
+
+    const gross = InvoiceUtils.getTotalGrossPrice(+quantity, +unitPrice);
+
+    const numberVat = +vat;
+    let vatAmount = 0;
+
+    if (numberVat) {
+      vatAmount = InvoiceUtils.getVatAmount(+gross, +vat);
+    }
+
+    const totalNetAmount = InvoiceUtils.getTotalNetPrice(gross, vatAmount);
+
+    setValue(`details.${index}.totalGrossPrice`, gross);
+    setValue(`details.${index}.vatAmount`, vatAmount);
+    setValue(`details.${index}.totalNetPrice`, totalNetAmount);
+  };
+
   return (
     <Table
       onMouseEnter={handleMouseEnterTable}
@@ -146,29 +167,34 @@ export function InvoiceTable({ form }: Props) {
                   form={form}
                   fieldName={`details.${index}.quantity`}
                   type="number"
+                  manualChange={() => calculateTotals(index)}
                 />
               </TableCell>
               <TableCell>
                 <InputField
                   form={form}
+                  type="number"
                   fieldName={`details.${index}.unitPrice`}
+                  manualChange={() => calculateTotals(index)}
                 />
               </TableCell>
               <TableCell>
-                <span>{item.totalNetPrice}</span>
+                <span>{watch(`details.${index}.totalNetPrice`)}</span>
               </TableCell>
               <TableCell>
-                <InputField
+                <ComboboxField
+                  options={VAT_OPTIONS}
                   form={form}
                   fieldName={`details.${index}.vat`}
-                  type="number"
+                  placeholder="Select vat"
+                  manualChange={() => calculateTotals(index)}
                 />
               </TableCell>
               <TableCell>
-                <span>{item.vatAmount}</span>
+                <span>{watch(`details.${index}.vatAmount`)}</span>
               </TableCell>
               <TableCell>
-                <span>{item.totalGrossPrice}</span>
+                <span>{watch(`details.${index}.totalGrossPrice`)}</span>
 
                 {removeLineBtn[item.id] && fields.length > 1 && (
                   <MinusCircleIcon onClick={removeLine(index)} />

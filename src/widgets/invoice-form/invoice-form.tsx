@@ -28,6 +28,7 @@ export function InvoiceForm() {
   const form = useForm<InvoiceFormValues>({
     defaultValues: { details: [EMPTY_INVOICE_ROW_TABLE] },
     resolver: zodResolver(invoiceDocumentSchema),
+    mode: "onBlur",
   });
 
   const { handleSubmit, watch, setValue, getValues, setError } = form;
@@ -36,9 +37,12 @@ export function InvoiceForm() {
 
   const selectedClientId = watch("invoice.clientId");
 
-  const allValues = watch();
 
-  console.log(invoiceDocumentSchema.safeParse(allValues), "VALI");
+
+  // FOR DEBUG FORM VALUES
+  const all = watch();
+  console.log(all, '!@#');
+  
 
   useEffect(() => {
     if (selectedClientId) {
