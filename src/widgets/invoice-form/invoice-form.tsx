@@ -21,6 +21,7 @@ import {
   isCommonHttpError,
   isHttpValidationError,
 } from "~/shared/utils/http";
+import { DOM_ID } from "~/shared/constants/dom-id.const";
 
 type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -83,7 +84,11 @@ export function InvoiceForm() {
         id="invoice-form"
       >
         <div>
-          <Button type="submit">Save Invoice</Button>
+          <Button
+            type="submit"
+            className="hidden"
+            id={DOM_ID.SAVE_NEW_INVOICE}
+          />
         </div>
 
         <div className="grid gap-y-2">
