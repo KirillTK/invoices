@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { Header } from "~/shared/components/header";
+import { Toaster } from '~/shared/components/toast/toaster';
 
 import "~/styles/globals.css";
 
@@ -26,6 +27,7 @@ export default function RootLayout({
         <body className={`font-sans ${inter.variable}`}>
           <Header />
           <main className="p-4">{children}</main>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

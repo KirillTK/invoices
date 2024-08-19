@@ -22,6 +22,7 @@ import {
   isHttpValidationError,
 } from "~/shared/utils/http";
 import { DOM_ID } from "~/shared/constants/dom-id.const";
+import { useToast } from "~/shared/components/toast";
 
 type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -31,6 +32,8 @@ export function InvoiceForm() {
     resolver: zodResolver(invoiceDocumentSchema),
     mode: "onBlur",
   });
+
+  const { toast } = useToast();
 
   const { handleSubmit, watch, setValue, setError } = form;
 
@@ -58,6 +61,8 @@ export function InvoiceForm() {
         });
 
         if (!response.ok) throw await response.json();
+
+        toast({ title: "Invoice successfully saved!", variant: "success" });
       } catch (error) {
         if (isHttpValidationError(error)) {
           const formErrors = getFormErrorArray<InvoiceFormValues>(error.errors);
@@ -70,10 +75,12 @@ export function InvoiceForm() {
             type: "manual",
             message: error.message,
           });
+
+          toast({ title: error.message, variant: "destructive" });
         }
       }
     },
-    [setError],
+    [setError, toast],
   );
 
   return (
