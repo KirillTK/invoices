@@ -21,7 +21,7 @@ export class InvoicesService {
     userId: string,
     invoiceData: z.infer<typeof invoiceDocumentSchema>,
   ) {
-    await db.transaction(async (tx) => {
+    return await db.transaction(async (tx) => {
       try {
         const { details, invoice: invoiceInfo } = invoiceData;
 

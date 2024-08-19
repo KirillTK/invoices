@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await InvoicesService.saveInvoice(user.id, data);
+    const invoiceId = await InvoicesService.saveInvoice(user.id, data);
 
-    return NextResponse.json({});
+    return NextResponse.json({ invoiceId });
   } catch (error) {
     console.error(error);
 

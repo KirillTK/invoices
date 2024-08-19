@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientCombobox } from "~/widgets/client-combobox";
@@ -35,6 +36,8 @@ export function InvoiceForm() {
 
   const { toast } = useToast();
 
+  const router = useRouter();
+
   const { handleSubmit, watch, setValue, setError } = form;
 
   const { clients } = useClientQuery();
@@ -60,9 +63,12 @@ export function InvoiceForm() {
           body: JSON.stringify(values),
         });
 
+        const { invoiceId } = (await response.json()) as { invoiceId: string };
+
         if (!response.ok) throw await response.json();
 
         toast({ title: "Invoice successfully saved!", variant: "success" });
+        router.push(`/invoice/${invoiceId}`);
       } catch (error) {
         if (isHttpValidationError(error)) {
           const formErrors = getFormErrorArray<InvoiceFormValues>(error.errors);
@@ -80,7 +86,7 @@ export function InvoiceForm() {
         }
       }
     },
-    [setError, toast],
+    [setError, toast, router],
   );
 
   return (
