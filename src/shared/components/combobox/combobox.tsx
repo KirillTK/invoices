@@ -51,7 +51,7 @@ export function Combobox({
       setOpen(false);
     },
     [setOpen, onChange, options],
-  );  
+  );
 
   return (
     <div className={cn("flex flex-col justify-center space-y-4", className)}>
@@ -65,7 +65,7 @@ export function Combobox({
             aria-expanded={open}
             className="w-full justify-between"
           >
-            {isFalsyValueButNotZero(value)
+            {isFalsyValueButNotZero(value) && value !== undefined
               ? options.find((option) => option.value == value)?.label
               : placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

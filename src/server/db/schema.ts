@@ -90,8 +90,12 @@ export const invoiceDetails = createTable("invoice_details", {
     .notNull(),
   description: varchar("description", { length: 256 }).notNull(),
   unit: unitEnum("unit").notNull(),
-  quantity: doublePrecision("quantity").notNull(),
   unitPrice: doublePrecision("unit_price").notNull(),
+  quantity: doublePrecision("quantity").notNull(),
+  totalNetPrice: doublePrecision('total_net_price').default(0),
+  vat: doublePrecision('vat').default(0),
+  vatAmount: doublePrecision('vat_amount').default(0),
+  totalGrossPrice: doublePrecision('total_gross_price').default(0),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

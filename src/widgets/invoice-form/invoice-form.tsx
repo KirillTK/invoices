@@ -31,18 +31,11 @@ export function InvoiceForm() {
     mode: "onBlur",
   });
 
-  const { handleSubmit, watch, setValue, getValues, setError } = form;
+  const { handleSubmit, watch, setValue, setError } = form;
 
   const { clients } = useClientQuery();
 
   const selectedClientId = watch("invoice.clientId");
-
-
-
-  // FOR DEBUG FORM VALUES
-  const all = watch();
-  console.log(all, '!@#');
-  
 
   useEffect(() => {
     if (selectedClientId) {
@@ -57,12 +50,10 @@ export function InvoiceForm() {
 
   const onSubmit = useCallback(
     async (values: InvoiceFormValues) => {
-      console.log(values, "values");
-
       try {
         const response = await fetch("/api/invoice", {
           method: "POST",
-          body: JSON.stringify(getValues()),
+          body: JSON.stringify(values),
         });
 
         if (!response.ok) throw await response.json();
@@ -81,7 +72,7 @@ export function InvoiceForm() {
         }
       }
     },
-    [setError, getValues],
+    [setError],
   );
 
   return (

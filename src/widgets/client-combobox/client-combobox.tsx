@@ -13,7 +13,7 @@ type Props<T extends FieldValues> = UncontrolledControlProps<T>
 export const ClientCombobox = <T extends FieldValues>({ form, fieldName, ...rest }: Props<T>) => {
   const { clients } = useClientQuery();
 
-  const options: Option[] = (clients || []).map((client) => ({
+  const options: Option<string>[] = (clients || []).map((client) => ({
     id: client.id,
     label: client.name,
     value: client.id,

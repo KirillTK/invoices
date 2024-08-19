@@ -32,8 +32,12 @@ export const invoiceDetailsSchema = z.object({
     .min(1, "Description is required")
     .max(256, "Invoice description too long"),
   unit: z.string(), // TODO: need to add type here
-  quantity: z.coerce.number().min(0.1, "Quantity is required"),
   unitPrice: z.coerce.number().min(0.1, "Unit price is required"),
+  quantity: z.coerce.number().min(0.1, "Quantity is required"),
+  totalNetPrice: z.number().optional(),
+  vat: z.number().optional(),
+  vatAmount: z.number().optional(),
+  totalGrossPrice: z.number().optional(),
 });
 
 export const invoiceDocumentSchema = z.object({
