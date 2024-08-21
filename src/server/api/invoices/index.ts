@@ -62,6 +62,10 @@ export class InvoicesService {
               unit: unitEnum.enumValues[0],
               quantity: detail.quantity,
               unitPrice: detail.unitPrice,
+              totalNetPrice: detail.totalNetPrice,
+              vat: detail.vat,
+              vatAmount: detail.vatAmount,
+              totalGrossPrice: detail.totalGrossPrice,
             };
           }),
         );
