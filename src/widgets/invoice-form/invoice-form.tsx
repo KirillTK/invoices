@@ -4,7 +4,6 @@ import { useCallback, useEffect } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import type { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientCombobox } from "~/widgets/client-combobox";
 import {
   EMPTY_INVOICE_ROW_TABLE,
@@ -24,19 +23,24 @@ import {
 } from "~/shared/utils/http";
 import { DOM_ID } from "~/shared/constants/dom-id.const";
 import { useToast } from "~/shared/components/toast";
+import { zodResolver } from '@hookform/resolvers/zod';
 
-type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
+export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
-export function InvoiceForm() {
-  const form = useForm<InvoiceFormValues>({
-    defaultValues: { details: [EMPTY_INVOICE_ROW_TABLE] },
-    resolver: zodResolver(invoiceDocumentSchema),
-    mode: "onBlur",
-  });
+type Props = {
+  defaultValues?: InvoiceFormValues;
+};
 
+export function InvoiceForm({ defaultValues }: Props) {
   const { toast } = useToast();
 
   const router = useRouter();
+
+  const form = useForm<InvoiceFormValues>({
+    defaultValues: defaultValues ?? { details: [EMPTY_INVOICE_ROW_TABLE] },
+    resolver: zodResolver(invoiceDocumentSchema),
+    mode: "onBlur",
+  });
 
   const { handleSubmit, watch, setValue, setError } = form;
 

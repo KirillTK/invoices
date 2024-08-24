@@ -1,7 +1,8 @@
+'use client';
 import { CreateInvoiceHeader } from "~/features/create-invoice-header";
 import { InvoiceForm } from "~/widgets/invoice-form";
-
 import { Separator } from "~/shared/components/separator";
+
 
 export default function CreateNewInvoicePage() {
   return (
