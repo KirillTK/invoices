@@ -3,13 +3,12 @@ import { useMemo } from "react";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import type { Option, UncontrolledControlProps } from "~/shared/types/form";
 import { useClientQuery } from "~/entities/client/api";
-import { NewClientModal } from "~/features/new-client-modal";
 import { type FieldValues } from 'react-hook-form';
+import { NewClientModal } from "./components/new-client-modal";
 
 type Props<T extends FieldValues> = UncontrolledControlProps<T>
 
 
-// TODO: move to feature folder
 export const ClientCombobox = <T extends FieldValues>({ form, fieldName, ...rest }: Props<T>) => {
   const { clients } = useClientQuery();
 

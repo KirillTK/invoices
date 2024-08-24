@@ -4,12 +4,12 @@ import { useCallback, useEffect } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import type { z } from "zod";
-import { ClientCombobox } from "~/widgets/client-combobox";
+import { ClientCombobox } from "~/features/client-combobox";
 import {
   EMPTY_INVOICE_ROW_TABLE,
   InvoiceTable,
-} from "~/features/invoice-table";
-import type { InvoiceTableForm } from "~/features/invoice-table";
+} from "./components/invoice-table";
+import type { InvoiceTableForm } from "./components/invoice-table";
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
 import { useClientQuery } from "~/entities/client/api";
 import { InputField } from "~/shared/components/controls/input-field";
@@ -23,15 +23,16 @@ import {
 } from "~/shared/utils/http";
 import { DOM_ID } from "~/shared/constants/dom-id.const";
 import { useToast } from "~/shared/components/toast";
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
 type Props = {
   defaultValues?: InvoiceFormValues;
+  onFormReady?: (form: UseFormReturn<InvoiceFormValues>) => void;
 };
 
-export function InvoiceForm({ defaultValues }: Props) {
+export function InvoiceForm({ defaultValues, onFormReady }: Props) {
   const { toast } = useToast();
 
   const router = useRouter();
@@ -49,6 +50,11 @@ export function InvoiceForm({ defaultValues }: Props) {
   const selectedClientId = watch("invoice.clientId");
 
   useEffect(() => {
+    onFormReady && onFormReady(form);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (selectedClientId) {
       const client = clients.find(({ id }) => id === selectedClientId);
 
@@ -57,6 +63,7 @@ export function InvoiceForm({ defaultValues }: Props) {
         setValue("invoice.clientAddress", client.address);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
   const onSubmit = useCallback(
