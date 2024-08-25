@@ -34,6 +34,24 @@ export class InvoicesService {
   }
 
   @authRequired()
+  static async getInvoiceNameById(invoiceId: string) {
+    const user = auth();
+
+    try {
+      const [invoiceNo] = await db
+        .select({
+          invoiceNo: invoice.invoiceNo,
+        })
+        .from(invoice)
+        .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)))
+        .limit(1);
+      return invoiceNo ?? null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  @authRequired()
   static async getInvoice(invoiceId: string) {
     const user = auth();
 

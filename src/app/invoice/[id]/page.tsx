@@ -35,7 +35,10 @@ export default async function Invoice({ params }: Props) {
 
   return (
     <div>
-      <InvoiceForm defaultValues={defaultFormValues} />
+      <InvoiceForm
+        defaultValues={defaultFormValues}
+        disableFormByDefault={true}
+      />
     </div>
   );
 }

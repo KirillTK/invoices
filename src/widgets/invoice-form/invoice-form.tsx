@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import type { z } from "zod";
@@ -29,13 +29,18 @@ export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
 type Props = {
   defaultValues?: InvoiceFormValues;
-  onFormReady?: (form: UseFormReturn<InvoiceFormValues>) => void;
+  disableFormByDefault?: boolean;
 };
 
-export function InvoiceForm({ defaultValues, onFormReady }: Props) {
+export function InvoiceForm({
+  defaultValues,
+  disableFormByDefault = false,
+}: Props) {
   const { toast } = useToast();
 
   const router = useRouter();
+
+  const [isFormDisabled, setFormDisabled] = useState(disableFormByDefault);
 
   const form = useForm<InvoiceFormValues>({
     defaultValues: defaultValues ?? { details: [EMPTY_INVOICE_ROW_TABLE] },
@@ -50,11 +55,6 @@ export function InvoiceForm({ defaultValues, onFormReady }: Props) {
   const selectedClientId = watch("invoice.clientId");
 
   useEffect(() => {
-    onFormReady && onFormReady(form);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     if (selectedClientId) {
       const client = clients.find(({ id }) => id === selectedClientId);
 
@@ -63,7 +63,7 @@ export function InvoiceForm({ defaultValues, onFormReady }: Props) {
         setValue("invoice.clientAddress", client.address);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
   const onSubmit = useCallback(
@@ -100,93 +100,109 @@ export function InvoiceForm({ defaultValues, onFormReady }: Props) {
     [setError, toast, router],
   );
 
+  const handleEditForm = useCallback(() => {
+    setFormDisabled(false);
+  }, [setFormDisabled]);
+
   return (
     <Form {...form}>
-      <form
-        className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
-        onSubmit={handleSubmit(onSubmit)}
-        id="invoice-form"
-      >
-        <div>
-          <Button
-            type="submit"
-            className="hidden"
-            id={DOM_ID.SAVE_NEW_INVOICE}
-          />
-        </div>
+      {/* Should be outside fieldset since if it's disabled there if no way how normally change state */}
+      <Button
+        className="hidden"
+        id={DOM_ID.EDIT_INVOICE}
+        disabled={false}
+        onClick={handleEditForm}
+      />
+      <fieldset disabled={isFormDisabled}>
+        <form
+          className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
+          onSubmit={handleSubmit(onSubmit)}
+          id="invoice-form"
+        >
+          <div>
+            <Button
+              type="submit"
+              className="hidden"
+              disabled={false}
+              id={DOM_ID.SAVE_NEW_INVOICE}
+            />
+          </div>
 
-        <div className="grid gap-y-2">
-          <DatePickerField
-            form={form}
-            fieldName="invoice.invoiceDate"
-            label="Invoice Date"
-          />
-          <DatePickerField
-            form={form}
-            fieldName="invoice.dueDate"
-            label="Due Date"
-          />
-        </div>
+          <div className="grid gap-y-2">
+            <DatePickerField
+              form={form}
+              fieldName="invoice.invoiceDate"
+              label="Invoice Date"
+            />
+            <DatePickerField
+              form={form}
+              fieldName="invoice.dueDate"
+              label="Due Date"
+            />
+          </div>
 
-        <div className="col-span-2">
-          <InputField
-            form={form}
-            fieldName="invoice.invoiceNo"
-            label="Invoice #"
-            className="max-w-56"
-          />
-        </div>
+          <div className="col-span-2">
+            <InputField
+              form={form}
+              fieldName="invoice.invoiceNo"
+              label="Invoice #"
+              className="max-w-56"
+            />
+          </div>
 
-        <div className="grid gap-y-2">
-          <InputField
-            form={form}
-            fieldName="invoice.userName"
-            label="From:"
-            labelClassName="text-lg font-medium text-black"
-          />
+          <div className="grid gap-y-2">
+            <InputField
+              form={form}
+              fieldName="invoice.userName"
+              label="From:"
+              labelClassName="text-lg font-medium text-black"
+            />
 
-          <InputField
-            form={form}
-            fieldName="invoice.userNip"
-            label="NIP/VAT ID:"
-          />
+            <InputField
+              form={form}
+              fieldName="invoice.userNip"
+              label="NIP/VAT ID:"
+            />
 
-          <InputField
-            form={form}
-            fieldName="invoice.userAddress"
-            label="Address:"
-          />
-        </div>
+            <InputField
+              form={form}
+              fieldName="invoice.userAddress"
+              label="Address:"
+            />
+          </div>
 
-        <div className="grid gap-y-2">
-          <ClientCombobox
-            form={form}
-            fieldName="invoice.clientId"
-            label="To:"
-            labelClassName="text-lg font-medium text-black"
-          />
+          <div className="grid gap-y-2">
+            <ClientCombobox
+              form={form}
+              fieldName="invoice.clientId"
+              label="To:"
+              labelClassName="text-lg font-medium text-black"
+            />
 
-          <InputField
-            form={form}
-            fieldName="invoice.clientNip"
-            label="NIP/VAT ID:"
-          />
+            <InputField
+              form={form}
+              fieldName="invoice.clientNip"
+              label="NIP/VAT ID:"
+            />
 
-          <InputField
-            form={form}
-            fieldName="invoice.clientAddress"
-            label="Address:"
-          />
-        </div>
+            <InputField
+              form={form}
+              fieldName="invoice.clientAddress"
+              label="Address:"
+            />
+          </div>
 
-        <div className="col-span-2">
-          <InvoiceTable
-            form={
-              form as unknown as UseFormReturn<{ details: InvoiceTableForm[] }>
-            }
-          />
-        </div>
-      </form>
+          <div className="col-span-2">
+            <InvoiceTable
+              form={
+                form as unknown as UseFormReturn<{
+                  details: InvoiceTableForm[];
+                }>
+              }
+            />
+          </div>
+        </form>
+      </fieldset>
     </Form>
   );
 }
