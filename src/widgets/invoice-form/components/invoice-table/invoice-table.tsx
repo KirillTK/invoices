@@ -20,6 +20,7 @@ import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/shared/utils/invoice";
+import { cn } from "~/shared/utils";
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -42,9 +43,10 @@ export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
 
 interface Props {
   form: UseFormReturn<{ details: InvoiceTableForm[] }>;
+  disabled: boolean;
 }
 
-export function InvoiceTable({ form }: Props) {
+export function InvoiceTable({ form, disabled }: Props) {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
   const { setValue, getValues, watch } = form;
 
@@ -96,9 +98,11 @@ export function InvoiceTable({ form }: Props) {
 
   const removeLine = useCallback(
     (index: number) => () => {
+      if (disabled) return;
+
       remove(index);
     },
-    [remove],
+    [remove, disabled],
   );
 
   const calculateTotals = (index: number) => {
@@ -193,12 +197,14 @@ export function InvoiceTable({ form }: Props) {
               <TableCell>
                 <span>{watch(`details.${index}.vatAmount`)}</span>
               </TableCell>
-              <TableCell>
+              <TableCell className="flex items-center space-x-2">
                 <span>{watch(`details.${index}.totalGrossPrice`)}</span>
-
-                {removeLineBtn[item.id] && fields.length > 1 && (
-                  <MinusCircleIcon onClick={removeLine(index)} />
-                )}
+                <MinusCircleIcon
+                  onClick={removeLine(index)}
+                  className={cn("text-red-400", {
+                    hidden: !removeLineBtn[item.id] || fields.length === 1,
+                  })}
+                />
               </TableCell>
             </TableRow>
           );

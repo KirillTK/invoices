@@ -199,6 +199,7 @@ export function InvoiceForm({
                   details: InvoiceTableForm[];
                 }>
               }
+              disabled={isFormDisabled}
             />
           </div>
         </form>
