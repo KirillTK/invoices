@@ -5,11 +5,13 @@ import { useSpring, animated, config } from '@react-spring/web'
 import { Button } from '~/shared/components/button'
 import { Card, CardContent } from '~/shared/components/card/card'
 import { ChevronRight, DollarSign, PieChart, Users } from 'lucide-react'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton, useAuth, UserButton } from '@clerk/nextjs';
 import { Footer } from '~/shared/components/footer';
+import Link from 'next/link';
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
+  const auth = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -32,7 +34,6 @@ export default function HomePage() {
   }, [scrollY])
 
   const parallax1 = useSpring(createParallax(1));
-  const parallax2 = useSpring(createParallax(2));
 
   const headerAnimation = useSpring({
     from: { opacity: 0, x: -20 },
@@ -59,7 +60,7 @@ export default function HomePage() {
           style={headerAnimation}
           className="text-3xl font-bold text-gray-800"
         >
-          InvoiceApp
+          {auth?.userId ? <Link href="/invoices">InvoiceApp</Link> : 'InvoiceApp'}
         </animated.h1>
         <animated.div style={loginButtonAnimation}>
           <SignedOut>
@@ -72,10 +73,6 @@ export default function HomePage() {
           <SignedIn>
             <UserButton />
           </SignedIn>
-        
-          {/* <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            Login
-          </Button> */}
         </animated.div>
       </header>
 
