@@ -203,7 +203,8 @@ export function InvoiceTable({ form, disabled }: Props) {
                   <TableCell>
                     <span>{watch(`details.${index}.vatAmount`)}</span>
                   </TableCell>
-                  <TableCell className="flex items-center space-x-2">
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
                     <span>{watch(`details.${index}.totalGrossPrice`)}</span>
                     <MinusCircleIcon
                       onClick={removeLine(index)}
@@ -211,6 +212,8 @@ export function InvoiceTable({ form, disabled }: Props) {
                         hidden: !removeLineBtn[item.id] || fields.length === 1,
                       })}
                     />
+                    </div>
+                    
                   </TableCell>
                 </TableRow>
               );
