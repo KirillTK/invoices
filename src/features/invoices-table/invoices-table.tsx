@@ -41,7 +41,7 @@ export async function InvoicesTable() {
               ({ invoiceNo, clientName, totalNetPrice, createdAt, id }) => (
                 <TableRow key={id}>
                   <TableCell className="font-medium">
-                    <Link href={`/invoice/${id}`}>{invoiceNo}</Link>
+                    <Link href={`/invoices/${id}`}>{invoiceNo}</Link>
                   </TableCell>
                   <TableCell>{clientName}</TableCell>
                   <TableCell className="text-left">

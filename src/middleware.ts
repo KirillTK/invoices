@@ -1,13 +1,20 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
-  '/invoice(.*)',
-  '/invoices(.*)',
-  '/invoice/new(.*)',
+  '/invoices',
+  '/invoices/(.*)',
 ]);
 
 export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) auth().protect();
+  if (isProtectedRoute(req)) {
+    const { userId } = auth();
+    if (!userId) {
+      const homeUrl = new URL('/', req.url);
+      return NextResponse.redirect(homeUrl);
+    }
+    auth().protect();
+  }
 });
 
 export const config = {

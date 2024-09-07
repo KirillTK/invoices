@@ -79,7 +79,7 @@ export function InvoiceForm({
         if (!response.ok) throw await response.json();
 
         toast({ title: "Invoice successfully saved!", variant: "success" });
-        router.push(`/invoice/${invoiceId}`);
+        router.push(`/invoices/${invoiceId}`);
       } catch (error) {
         if (isHttpValidationError(error)) {
           const formErrors = getFormErrorArray<InvoiceFormValues>(error.errors);
