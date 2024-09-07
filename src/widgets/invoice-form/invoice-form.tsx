@@ -41,7 +41,7 @@ export function InvoiceForm({
 
   const router = useRouter();
 
-  const [isFormDisabled, setFormDisabled] = useState(disableFormByDefault);
+  const [isFormDisabled] = useState(disableFormByDefault);
 
   const form = useForm<InvoiceFormValues>({
     defaultValues: defaultValues ?? { details: [EMPTY_INVOICE_ROW_TABLE] },
@@ -101,19 +101,8 @@ export function InvoiceForm({
     [setError, toast, router],
   );
 
-  const handleEditForm = useCallback(() => {
-    setFormDisabled(false);
-  }, [setFormDisabled]);
-
   return (
     <Form {...form}>
-      {/* Should be outside fieldset since if it's disabled there if no way how normally change state */}
-      <Button
-        className="hidden"
-        id={DOM_ID.EDIT_INVOICE}
-        disabled={false}
-        onClick={handleEditForm}
-      />
       <fieldset disabled={isFormDisabled}>
         <form
           className="grid grid-cols-2 gap-4 p-4"
