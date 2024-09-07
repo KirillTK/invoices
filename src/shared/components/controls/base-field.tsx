@@ -1,15 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { cloneElement } from "react";
+import type { ReactElement } from "react";
 import { ErrorMessage } from "@hookform/error-message";
-import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
-import type { UncontrolledControlProps } from "~/shared/types/form";
-import { cn } from "~/shared/utils";
+import { get, type ControllerRenderProps, type FieldValues, type Path } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl } from "../form";
 import { ErrorField } from "./error-field";
-import { ReactElement, ReactNode } from "react";
-
-// type Props<T extends FieldValues> = UncontrolledControlProps<T>;
+import type { UncontrolledControlProps } from "~/shared/types/form";
+import { cn } from "~/shared/utils";
 
 export interface Props<T extends FieldValues> extends UncontrolledControlProps<T> {
   disabled?: boolean;
@@ -30,6 +25,8 @@ export function BaseField<T extends FieldValues = FieldValues>({
   disabled,
   ...rest
 }: Props<T>) {
+  const hasError = !!get(form.formState.errors, fieldName);
+
   return (
     <FormField
       control={form.control}
@@ -48,7 +45,15 @@ export function BaseField<T extends FieldValues = FieldValues>({
             </FormLabel>
           )}
           <FormControl>
-            <div className={inputClassName}>
+            <div
+              className={cn(
+                inputClassName,
+                'relative',
+                hasError && "[&>*:first-child]:border-red-500",
+                hasError && "[&>*:first-child]:border-2",
+                hasError && "[&>*:first-child]:rounded-md"
+              )}
+            >
               {renderInput(field, rest)}
               <ErrorMessage
                 name={fieldName as never}

@@ -218,7 +218,7 @@ export function InvoiceTable({ form, disabled }: Props) {
             <TableRow>
               <TableCell colSpan={9}>
                 <animated.div style={addRowButtonStyles}>
-                  <Button variant="destructive" className="w-full" onClick={addRow}>
+                  <Button variant="destructive" className="w-full" type="button" onClick={addRow}>
                     <PlusIcon />
                     Add More
                   </Button>
