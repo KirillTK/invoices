@@ -129,34 +129,34 @@ export function InvoiceForm({
             />
           </div>
 
-          <Card>
-          <CardHeader>
-            <CardTitle>Invoice Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <div className="grid gap-y-2">
-            <DatePickerField
-              form={form}
-              fieldName="invoice.invoiceDate"
-              label="Invoice Date"
-            />
-            <DatePickerField
-              form={form}
-              fieldName="invoice.dueDate"
-              label="Due Date"
-            />
-            <InputField
-              form={form}
-              fieldName="invoice.invoiceNo"
-              label="Invoice #"
-            />
-          </div>
 
-          </CardContent>
+          <div className="col-span-2 flex space-x-4">
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Invoice Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-y-2">
+                <DatePickerField
+                  form={form}
+                  fieldName="invoice.invoiceDate"
+                  label="Invoice Date"
+                />
+                <DatePickerField
+                  form={form}
+                  fieldName="invoice.dueDate"
+                  label="Due Date"
+                />
+                <InputField
+                  form={form}
+                  fieldName="invoice.invoiceNo"
+                  label="Invoice #"
+                />
+              </div>
+            </CardContent>
           </Card>
-          
 
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>From (Your Information)</CardTitle>
             </CardHeader>
@@ -184,7 +184,7 @@ export function InvoiceForm({
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>To (Client Information)</CardTitle>
             </CardHeader>
@@ -211,6 +211,9 @@ export function InvoiceForm({
               </div>
             </CardContent>
           </Card>
+          </div>
+
+       
 
           <div className="col-span-2">
             <InvoiceTable
