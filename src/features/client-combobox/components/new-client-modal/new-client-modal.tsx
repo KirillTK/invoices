@@ -24,6 +24,7 @@ import { InputField } from "~/shared/components/controls/input-field";
 
 interface Props {
   buttonClassName?: string;
+  children?: React.ReactNode;
 }
 
 type NewClientForm = z.infer<typeof clientSchema>;
@@ -37,7 +38,7 @@ const defaultValues: NewClientForm = {
   zip: "",
 };
 
-export function NewClientModal({ buttonClassName }: Props) {
+export function NewClientModal({ buttonClassName, children }: Props) {
   const title = "Create new client";
 
   const form = useForm<NewClientForm>({
@@ -81,7 +82,7 @@ export function NewClientModal({ buttonClassName }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className={buttonClassName}>{title}</Button>
+        {children ?? <Button className={buttonClassName}>{title}</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -98,7 +99,7 @@ export function NewClientModal({ buttonClassName }: Props) {
                     key={fieldName}
                     form={form}
                     fieldName={fieldName as keyof NewClientForm}
-                    className="grid grid-cols-4 items-center gap-4"
+                    className="grid grid-cols-4 items-center text-right gap-4"
                     label={fieldName}
                     labelClassName="capitalize"
                     inputClassName="col-span-3"
