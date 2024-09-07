@@ -1,6 +1,6 @@
 'use client';
 import React, { lazy, Suspense } from 'react';
-import { BarChartSkeleton } from '~/shared/components/bar-chart-skeleton';
+import { BarChartSkeleton } from '~/shared/components/skeletons';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 
 
