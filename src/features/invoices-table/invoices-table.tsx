@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { InvoicesService } from "~/server/api/invoices";
+import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 import {
   Table,
   TableBody,
@@ -21,41 +22,48 @@ export async function InvoicesTable() {
   );
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Invoice No</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead>Create Date</TableHead>
-          <TableHead>Total net price</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices.map(
-          ({ invoiceNo, clientName, totalNetPrice, createdAt, id }) => (
-            <TableRow key={id}>
-              <TableCell className="font-medium">
-                <Link href={`/invoice/${id}`}> {invoiceNo}</Link>
-              </TableCell>
-              <TableCell>{clientName}</TableCell>
+    <Card>
+      <CardHeader>
+        <CardTitle>Invoice List</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Invoice No</TableHead>
+              <TableHead>Client</TableHead>
+              <TableHead>Create Date</TableHead>
+              <TableHead>Total net price</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {invoices.map(
+              ({ invoiceNo, clientName, totalNetPrice, createdAt, id }) => (
+                <TableRow key={id}>
+                  <TableCell className="font-medium">
+                    <Link href={`/invoice/${id}`}>{invoiceNo}</Link>
+                  </TableCell>
+                  <TableCell>{clientName}</TableCell>
+                  <TableCell className="text-left">
+                    {DateUtils.formatDate(createdAt)}
+                  </TableCell>
+                  <TableCell>
+                    {MoneyUtils.fromNumberToMoney(totalNetPrice)}
+                  </TableCell>
+                </TableRow>
+              )
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3}>Total</TableCell>
               <TableCell className="text-left">
-                {DateUtils.formatDate(createdAt)}
-              </TableCell>
-              <TableCell>
-                {MoneyUtils.fromNumberToMoney(totalNetPrice)}
+                {MoneyUtils.fromNumberToMoney(totalsAmount)}
               </TableCell>
             </TableRow>
-          ),
-        )}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-left">
-            {MoneyUtils.fromNumberToMoney(totalsAmount)}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+          </TableFooter>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
