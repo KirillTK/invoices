@@ -21,6 +21,7 @@ import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/shared/utils/invoice";
 import { cn } from "~/shared/utils";
+import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -125,101 +126,109 @@ export function InvoiceTable({ form, disabled }: Props) {
   };
 
   return (
-    <Table
-      onMouseEnter={handleMouseEnterTable}
-      onMouseLeave={handleMouseLeaveTable}
-      className="overflow-hidden"
-    >
-      <TableHeader>
-        <TableRow>
-          <TableHead>Id</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Unit</TableHead>
-          <TableHead>Quantity</TableHead>
-          <TableHead>Unit net price</TableHead>
-          <TableHead>Total net price</TableHead>
-          <TableHead>VAT rate</TableHead>
-          <TableHead>VAT amount</TableHead>
-          <TableHead>Total gross price</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {fields.map((item, index) => {
-          return (
-            <TableRow
-              key={item.id}
-              onMouseEnter={handleMouseEnterTableRow(item.id)}
-              onMouseLeave={handleMouseLeaveTableRow(item.id)}
-            >
-              <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell>
-                <InputField
-                  form={form}
-                  fieldName={`details.${index}.description`}
-                />
-              </TableCell>
-              <TableCell>
-                <ComboboxField
-                  options={UNIT_OPTIONS}
-                  form={form}
-                  fieldName={`details.${index}.unit`}
-                  placeholder="Select Unit"
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  form={form}
-                  fieldName={`details.${index}.quantity`}
-                  type="number"
-                  manualChange={() => calculateTotals(index)}
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  form={form}
-                  type="number"
-                  fieldName={`details.${index}.unitPrice`}
-                  manualChange={() => calculateTotals(index)}
-                />
-              </TableCell>
-              <TableCell>
-                <span>{watch(`details.${index}.totalNetPrice`)}</span>
-              </TableCell>
-              <TableCell>
-                <ComboboxField
-                  options={VAT_OPTIONS}
-                  form={form}
-                  fieldName={`details.${index}.vat`}
-                  placeholder="Select vat"
-                  manualChange={() => calculateTotals(index)}
-                />
-              </TableCell>
-              <TableCell>
-                <span>{watch(`details.${index}.vatAmount`)}</span>
-              </TableCell>
-              <TableCell className="flex items-center space-x-2">
-                <span>{watch(`details.${index}.totalGrossPrice`)}</span>
-                <MinusCircleIcon
-                  onClick={removeLine(index)}
-                  className={cn("text-red-400", {
-                    hidden: !removeLineBtn[item.id] || fields.length === 1,
-                  })}
-                />
+    <Card>
+      <CardHeader>
+        <CardTitle>Invoice Items</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table
+          onMouseEnter={handleMouseEnterTable}
+          onMouseLeave={handleMouseLeaveTable}
+          className="overflow-hidden"
+        >
+          <TableHeader>
+            <TableRow>
+              <TableHead>Id</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Unit</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Unit net price</TableHead>
+              <TableHead>Total net price</TableHead>
+              <TableHead>VAT rate</TableHead>
+              <TableHead>VAT amount</TableHead>
+              <TableHead>Total gross price</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {fields.map((item, index) => {
+              return (
+                <TableRow
+                  key={item.id}
+                  onMouseEnter={handleMouseEnterTableRow(item.id)}
+                  onMouseLeave={handleMouseLeaveTableRow(item.id)}
+                >
+                  <TableCell className="font-medium">{index + 1}</TableCell>
+                  <TableCell>
+                    <InputField
+                      form={form}
+                      fieldName={`details.${index}.description`}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <ComboboxField
+                      options={UNIT_OPTIONS}
+                      form={form}
+                      fieldName={`details.${index}.unit`}
+                      placeholder="Select Unit"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputField
+                      form={form}
+                      fieldName={`details.${index}.quantity`}
+                      type="number"
+                      manualChange={() => calculateTotals(index)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InputField
+                      form={form}
+                      type="number"
+                      fieldName={`details.${index}.unitPrice`}
+                      manualChange={() => calculateTotals(index)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span>{watch(`details.${index}.totalNetPrice`)}</span>
+                  </TableCell>
+                  <TableCell>
+                    <ComboboxField
+                      options={VAT_OPTIONS}
+                      form={form}
+                      fieldName={`details.${index}.vat`}
+                      placeholder="Select vat"
+                      manualChange={() => calculateTotals(index)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span>{watch(`details.${index}.vatAmount`)}</span>
+                  </TableCell>
+                  <TableCell className="flex items-center space-x-2">
+                    <span>{watch(`details.${index}.totalGrossPrice`)}</span>
+                    <MinusCircleIcon
+                      onClick={removeLine(index)}
+                      className={cn("text-red-400", {
+                        hidden: !removeLineBtn[item.id] || fields.length === 1,
+                      })}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+            <TableRow>
+              <TableCell colSpan={9}>
+                <animated.div style={addRowButtonStyles}>
+                  <Button variant="destructive" className="w-full" onClick={addRow}>
+                    <PlusIcon />
+                    Add More
+                  </Button>
+                </animated.div>
               </TableCell>
             </TableRow>
-          );
-        })}
-        <TableRow>
-          <TableCell colSpan={9}>
-            <animated.div style={addRowButtonStyles}>
-              <Button variant="destructive" className="w-full" onClick={addRow}>
-                <PlusIcon />
-                Add More
-              </Button>
-            </animated.div>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+    
   );
 }

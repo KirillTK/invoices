@@ -12,7 +12,7 @@ interface Props {
   variant?: VariantProps<typeof buttonVariants>['variant'];
 }
 
-export function InvoiceButton({ action, title, variant = "outline" }: Props) {
+export function InvoiceButton({ action, title, variant = "default" }: Props) {
   const handleClick = useCallback(() => {
     const saveFormBtn = document.getElementById(action) as
       | HTMLButtonElement

@@ -9,7 +9,7 @@ export default function InvoicesPage() {
     <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Invoices</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button>
             <Link href="/invoices/new" className="flex"><PlusIcon className="mr-2 h-4 w-4" />New Invoice</Link>
         </Button>
       </div>

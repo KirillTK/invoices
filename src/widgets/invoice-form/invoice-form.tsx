@@ -24,6 +24,7 @@ import {
 import { DOM_ID } from "~/shared/constants/dom-id.const";
 import { useToast } from "~/shared/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 
 export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -115,7 +116,7 @@ export function InvoiceForm({
       />
       <fieldset disabled={isFormDisabled}>
         <form
-          className="grid grid-cols-2 gap-4 p-4 shadow-[0_0.5em_1.5em_-0.5em_rgba(0,0,0,0.5)]"
+          className="grid grid-cols-2 gap-4 p-4"
           onSubmit={handleSubmit(onSubmit)}
           id="invoice-form"
         >
@@ -128,6 +129,11 @@ export function InvoiceForm({
             />
           </div>
 
+          <Card>
+          <CardHeader>
+            <CardTitle>Invoice Details</CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className="grid gap-y-2">
             <DatePickerField
               form={form}
@@ -139,58 +145,72 @@ export function InvoiceForm({
               fieldName="invoice.dueDate"
               label="Due Date"
             />
-          </div>
-
-          <div className="col-span-2">
             <InputField
               form={form}
               fieldName="invoice.invoiceNo"
               label="Invoice #"
-              className="max-w-56"
             />
           </div>
 
-          <div className="grid gap-y-2">
-            <InputField
-              form={form}
-              fieldName="invoice.userName"
-              label="From:"
-              labelClassName="text-lg font-medium text-black"
-            />
+          </CardContent>
+          </Card>
+          
 
-            <InputField
-              form={form}
-              fieldName="invoice.userNip"
-              label="NIP/VAT ID:"
-            />
+          <Card>
+            <CardHeader>
+              <CardTitle>From (Your Information)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-y-2">
+                <InputField
+                  form={form}
+                  fieldName="invoice.userName"
+                  label="Name:"
+                  labelClassName="text-lg font-medium text-black"
+                />
 
-            <InputField
-              form={form}
-              fieldName="invoice.userAddress"
-              label="Address:"
-            />
-          </div>
+                <InputField
+                  form={form}
+                  fieldName="invoice.userNip"
+                  label="NIP/VAT ID:"
+                />
 
-          <div className="grid gap-y-2">
-            <ClientCombobox
-              form={form}
-              fieldName="invoice.clientId"
-              label="To:"
-              labelClassName="text-lg font-medium text-black"
-            />
+                <InputField
+                  form={form}
+                  fieldName="invoice.userAddress"
+                  label="Address:"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-            <InputField
-              form={form}
-              fieldName="invoice.clientNip"
-              label="NIP/VAT ID:"
-            />
+          <Card>
+            <CardHeader>
+              <CardTitle>To (Client Information)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-y-2">
+                <ClientCombobox
+                  form={form}
+                  fieldName="invoice.clientId"
+                  label="Name:"
+                  labelClassName="text-lg font-medium text-black"
+                />
 
-            <InputField
-              form={form}
-              fieldName="invoice.clientAddress"
-              label="Address:"
-            />
-          </div>
+                <InputField
+                  form={form}
+                  fieldName="invoice.clientNip"
+                  label="NIP/VAT ID:"
+                />
+
+                <InputField
+                  form={form}
+                  fieldName="invoice.clientAddress"
+                  label="Address:"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="col-span-2">
             <InvoiceTable
