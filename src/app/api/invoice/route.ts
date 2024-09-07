@@ -1,19 +1,15 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { type User } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import type { z } from "zod";
 import { InvoicesService } from "~/server/api/invoices";
-import { isPostgresError } from "~/server/utils/db.utils";
+import { authenticateUser, handleError } from '~/server/utils/api.utils';
 import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
 
 export async function POST(req: NextRequest) {
-  const user = await currentUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const user = await authenticateUser();
+  if (!user) return user; // This is the NextResponse from authenticateUser
 
   const data = (await req.json()) as z.infer<typeof invoiceDocumentSchema>;
-
   const validationResult = invoiceDocumentSchema.safeParse(data);
 
   if (!validationResult.success) {
@@ -26,28 +22,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const invoiceId = await InvoicesService.saveInvoice(user.id, data);
-
+    const invoiceId = await InvoicesService.saveInvoice((user as User).id, data);
     return NextResponse.json({ invoiceId });
   } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        message: isPostgresError(error) ? error.detail : "Internal Error",
-      },
-      { status: 500 },
-    );
+    return handleError(error);
   }
 }
 
-
 export async function GET(req: NextRequest) {
-  const user = await currentUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const user = await authenticateUser();
+  if (!user) return user; // This is the NextResponse from authenticateUser
 
   const { searchParams } = new URL(req.url);
   const invoiceId = searchParams.get('invoiceId');
@@ -58,20 +42,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const invoice = await InvoicesService.getInvoice(invoiceId);
-
     if (!invoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
-
     return NextResponse.json(invoice);
   } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        message: isPostgresError(error) ? error.detail : "Internal Error",
-      },
-      { status: 500 },
-    );
+    return handleError(error);
   }
 }

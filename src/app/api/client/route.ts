@@ -1,27 +1,20 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { ClientsService } from "~/server/api/clients";
 import type { ClientModel } from "~/server/db/schema";
-import { isPostgresError } from "~/server/utils/db.utils";
 import { clientSchema } from "~/shared/schemas/client.schema";
+import { authenticateUser, handleError } from '~/server/utils/api.utils';
+import { type User } from '@clerk/nextjs/server';
 
 export async function GET() {
-  const user = await currentUser();
+  const user = await authenticateUser();
+  if (!user) return user; // This is the NextResponse from authenticateUser
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  return NextResponse.json(await ClientsService.getClients(user?.id));
+  return NextResponse.json(await ClientsService.getClients((user as User).id));
 }
 
 export async function POST(req: NextRequest) {
-  const user = await currentUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const user = await authenticateUser();
+  if (!user) return user; // This is the NextResponse from authenticateUser
 
   const data = (await req.json()) as ClientModel;
 
@@ -39,15 +32,10 @@ export async function POST(req: NextRequest) {
   try {
     const resp = await ClientsService.saveClient({
       ...data,
-      userId: user.id,
+      userId: (user as User).id,
     });
     return NextResponse.json(resp);
   } catch (error) {
-    return NextResponse.json(
-      {
-        message: isPostgresError(error) ? error.detail : "Internal Error",
-      },
-      { status: 500 },
-    );
+    return handleError(error);
   }
 }
