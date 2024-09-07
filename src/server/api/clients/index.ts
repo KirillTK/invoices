@@ -4,7 +4,7 @@ import { authRequired } from '~/server/decorators/auth.decorator';
 
 
 export class ClientsService {
-  @authRequired()
+  // @authRequired()
   static getClients(userId: string) {
     return db.query.clients.findMany({
       where: (model, { eq }) => eq(model.userId, userId),
