@@ -40,3 +40,38 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
+export async function GET(req: NextRequest) {
+  const user = await currentUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const invoiceId = searchParams.get('invoiceId');
+
+  if (!invoiceId) {
+    return NextResponse.json({ error: "Invoice ID is required" }, { status: 400 });
+  }
+
+  try {
+    const invoice = await InvoicesService.getInvoice(invoiceId);
+
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(invoice);
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        message: isPostgresError(error) ? error.detail : "Internal Error",
+      },
+      { status: 500 },
+    );
+  }
+}

@@ -4,7 +4,7 @@ import type { InvoiceModel } from "./invoice.model";
 
 export function useInvoiceQuery(id: string) {
   const { data, error, isLoading } = useSWR<InvoiceModel, Error>(
-    `/api/invoice/${encodeURIComponent(id)}`,
+    `/api/invoice/?invoiceId=${encodeURIComponent(id)}`,
     fetcher,
   );
 
