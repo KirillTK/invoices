@@ -1,8 +1,8 @@
 'use client';
-import { FileDown, Trash2 } from 'lucide-react';
+import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
-import { useInvoiceQuery } from '~/entities/invoice/api';
+import { useInvoicePdfDownload, useInvoiceQuery } from '~/entities/invoice/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
 
@@ -10,6 +10,7 @@ type Props = { params: { id: string } };
 
 export default function Invoice({ params }: Props) {
   const { invoice, isLoading, error } = useInvoiceQuery(params.id);
+  const { downloadPdf, isLoading: isDownloadingPdf } = useInvoicePdfDownload(params.id);
 
   if(isLoading) return <InvoiceSkeleton />;
 
@@ -45,11 +46,25 @@ export default function Invoice({ params }: Props) {
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
         <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoice.invoiceNo ?? ""}</h1>
         <div className="flex space-x-2">
-          <Button>Save Changes</Button>
-          <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-            <FileDown className="mr-2 h-4 w-4" /> Export
+          <Button disabled={isDownloadingPdf}>Save Changes</Button>
+          <Button 
+            onClick={downloadPdf} 
+            variant="outline" 
+            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            disabled={isDownloadingPdf}
+          >
+            {isDownloadingPdf ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FileDown className="mr-2 h-4 w-4" />
+            )}
+            Export
           </Button>
-          <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+          <Button 
+            variant="outline" 
+            className="border-red-600 text-red-600 hover:bg-red-50"
+            disabled={isDownloadingPdf}
+          >
             <Trash2 className="mr-2 h-4 w-4" /> Delete
           </Button>
         </div>

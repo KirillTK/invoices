@@ -1,4 +1,2 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-export const fetcher = (...args: unknown[]) => fetch(...args).then(res => res.json())
+export const fetcher = <T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> => 
+  fetch(input, init).then(res => res.json() as Promise<T>)

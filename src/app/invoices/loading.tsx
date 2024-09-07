@@ -7,20 +7,12 @@ export default function InvoicesPageSkeleton() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <Skeleton className="h-9 w-40" />
-        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-9 w-40 border bg-card" />
+        <Skeleton className="h-10 w-32 inline-block border bg-card" />
       </div>
+
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle><Skeleton className="h-6 w-48" /></CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[200px] w-full" />
-          </CardContent>
-        </Card>
-        
+      <div className="grid grid-cols-1 gap-6 mb-8">
         <Card>
           <CardHeader>
             <CardTitle><Skeleton className="h-6 w-48" /></CardTitle>
