@@ -2,7 +2,6 @@ import { useState } from 'react';
 import useSWR from "swr";
 import { fetcher } from "~/shared/utils/fetcher";
 import type { InvoiceModel } from "./invoice.model";
-import saveAs from 'file-saver';
 import FileSaver from 'file-saver';
 
 export function useInvoiceQuery(id: string) {

@@ -23,39 +23,114 @@ export async function POST(req: NextRequest) {
 
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage();
+    const page = pdfDoc.addPage([600, 800]); // Set custom page size
     const { width, height } = page.getSize();
     const fontSize = 12;
 
-    // Add content to the PDF
-    page.drawText(`Invoice #${invoice.invoice.invoiceNo ?? ""}`, {
+    // Add Invoice Details section
+    page.drawText('Invoice Details', {
       x: 50,
-      y: height - 4 * fontSize,
-      size: fontSize * 2,
+      y: height - 50,
+      size: 16,
       color: rgb(0, 0, 0),
     });
 
-    // Add more invoice details...
-    page.drawText(`Date: ${invoice.invoice.invoiceDate}`, {
+    page.drawText(`Invoice Date: ${invoice.invoice.invoiceDate}`, {
       x: 50,
-      y: height - 8 * fontSize,
+      y: height - 80,
       size: fontSize,
     });
 
     page.drawText(`Due Date: ${invoice.invoice.dueDate}`, {
       x: 50,
-      y: height - 10 * fontSize,
+      y: height - 100,
       size: fontSize,
     });
 
-    page.drawText(`Client: ${invoice.invoice.clientId}`, {
+    page.drawText(`Invoice #: ${invoice.invoice.invoiceNo ?? ""}`, {
       x: 50,
-      y: height - 12 * fontSize,
+      y: height - 120,
       size: fontSize,
     });
 
-    // Add more fields as needed...
+    // Add From (Your Information) section
+    page.drawText('From (Your Information)', {
+      x: 50,
+      y: height - 160,
+      size: 16,
+      color: rgb(0, 0, 0),
+    });
 
+    page.drawText(`Name: ${invoice.invoice.userName}`, {
+      x: 50,
+      y: height - 190,
+      size: fontSize,
+    });
+
+    page.drawText(`NIP/VAT ID: ${invoice.invoice.userNip}`, {
+      x: 50,
+      y: height - 210,
+      size: fontSize,
+    });
+
+    page.drawText(`Address: ${invoice.invoice.userAddress}`, {
+      x: 50,
+      y: height - 230,
+      size: fontSize,
+    });
+
+    // Add To (Client Information) section
+    page.drawText('To (Client Information)', {
+      x: 300,
+      y: height - 160,
+      size: 16,
+      color: rgb(0, 0, 0),
+    });
+
+    page.drawText(`Name: ${invoice.invoice.clientId}`, {
+      x: 300,
+      y: height - 190,
+      size: fontSize,
+    });
+
+    page.drawText(`NIP/VAT ID: ${invoice.invoice.clientNip}`, {
+      x: 300,
+      y: height - 210,
+      size: fontSize,
+    });
+
+    page.drawText(`Address: ${invoice.invoice.clientAddress}`, {
+      x: 300,
+      y: height - 230,
+      size: fontSize,
+    });
+
+    // Add Invoice Items section
+    page.drawText('Invoice Items', {
+      x: 50,
+      y: height - 280,
+      size: 16,
+      color: rgb(0, 0, 0),
+    });
+
+    // Draw table headers
+    const tableHeaders = ['ID', 'Description', 'Unit', 'Quantity', 'Unit net price', 'Total net price', 'VAT rate', 'VAT amount', 'Total gross price'];
+    tableHeaders.forEach((header, index) => {
+      page.drawText(header, {
+        x: 50 + index * 60,
+        y: height - 310,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+    });
+
+    // Draw invoice items
+    invoice.details.forEach((item, index) => {
+      const y = height - 330 - index * 20;
+      page.drawText(`${index + 1}`, { x: 50, y, size: 10 });
+      page.drawText(item.description, { x: 110, y, size: 10 });
+      page.drawText(item.unit, { x: 170, y, size: 10 });
+    });
     // Serialize the PDF to bytes
     const pdfBytes = await pdfDoc.save();
 
@@ -67,7 +142,7 @@ export async function POST(req: NextRequest) {
         'Content-Disposition': `attachment; filename="invoice_${invoice.invoice.invoiceNo}.pdf"`,
       },
     });
-
+   
   } catch (error) {
     return handleError(error);
   }

@@ -1,1 +1,1 @@
-export { InvoiceHeader } from './invoice-header';
+export { InvoiceHeader } from './ui/invoice-header';

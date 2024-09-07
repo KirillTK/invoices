@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
-export function Header() {
+export function InvoiceHeader() {
   return (
     <nav className="flex w-full items-center justify-between border-b p-4 text-xl font-semibold">
       <Link href="/invoices">Invoices</Link>
