@@ -1,5 +1,4 @@
-
-import { FileQuestion, ArrowLeft } from "lucide-react";
+import { FileQuestion } from "lucide-react";
 import Link from 'next/link';
 import { Button } from '~/shared/components/button';
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
@@ -18,10 +17,7 @@ export default function InvoiceNotFound() {
             We couldn't find the invoice you're looking for. It may have been deleted or the link might be incorrect.
           </p>
           <div className="space-y-2">
-            <Button className="w-full" onClick={() => window.history.back()}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
-            </Button>
-            <Button variant="outline" className="w-full" onClick={() => window.location.href = '/invoices'}>
+            <Button variant="outline" className="w-full">
               <Link href="/invoices">
                 View All Invoices
               </Link>

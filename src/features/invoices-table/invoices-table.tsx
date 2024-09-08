@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { InvoicesService } from "~/server/api/invoices";
+import { type InvoiceListModel } from '~/entities/invoice/invoice.model';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 import {
   Table,
@@ -13,9 +13,7 @@ import {
 import { DateUtils } from "~/shared/utils/date";
 import { MoneyUtils } from "~/shared/utils/money";
 
-export async function InvoicesTable() {
-  const invoices = await InvoicesService.getInvoiceList();
-
+export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
   const totalsAmount = invoices.reduce(
     (accum, item) => accum + item.totalNetPrice,
     0,
@@ -33,12 +31,13 @@ export async function InvoicesTable() {
               <TableHead>Invoice No</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Create Date</TableHead>
+              <TableHead>Due Date</TableHead>
               <TableHead>Total net price</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {invoices.map(
-              ({ invoiceNo, clientName, totalNetPrice, createdAt, id }) => (
+              ({ invoiceNo, clientName, totalNetPrice, createdAt, dueDate, id }) => (
                 <TableRow key={id}>
                   <TableCell className="font-medium">
                     <Link href={`/invoices/${id}`}>{invoiceNo}</Link>
@@ -46,6 +45,9 @@ export async function InvoicesTable() {
                   <TableCell>{clientName}</TableCell>
                   <TableCell className="text-left">
                     {DateUtils.formatDate(createdAt)}
+                  </TableCell>
+                  <TableCell>
+                    {dueDate ? DateUtils.formatDate(dueDate) : '-'}
                   </TableCell>
                   <TableCell>
                     {MoneyUtils.fromNumberToMoney(totalNetPrice)}
@@ -56,7 +58,7 @@ export async function InvoicesTable() {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={3}>Total</TableCell>
+              <TableCell colSpan={4}>Total</TableCell>
               <TableCell className="text-left">
                 {MoneyUtils.fromNumberToMoney(totalsAmount)}
               </TableCell>

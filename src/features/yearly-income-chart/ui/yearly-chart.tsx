@@ -6,6 +6,7 @@ import {
   LinearScale,
   BarElement,
 } from 'chart.js';
+import { type InvoiceListModel } from '~/entities/invoice/invoice.model';
 
 ChartJS.register(
   CategoryScale,
@@ -13,33 +14,52 @@ ChartJS.register(
   BarElement
 );
 
-const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-    },
-    title: {
-      display: true,
-      text: 'Yearly Income by Month',
-    },
-  },
-};
 
-const chartData = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  datasets: [
-    {
-      label: 'Monthly Income',
-      data: [1200, 1900, 3000, 1000, 3000, 3000, 3100, 3800, 3200, 4100, 2800, 1500],
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
+export const YearlyChart: React.FC<{ invoices: InvoiceListModel[] }> = React.memo(({ invoices }) => {
+  const currentYear = new Date().getFullYear();
+  const currentYearInvoices = invoices.filter(invoice => new Date(invoice.dueDate ?? '').getFullYear() === currentYear);
+  const monthlyData = Array(12).fill(0);
+
+  currentYearInvoices.forEach(invoice => {
+    const invoiceDate = new Date(invoice.dueDate ?? '');
+    const month = invoiceDate.getMonth();
+    monthlyData[month] += invoice.totalNetPrice;
+  });
+
+  const chartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Monthly Income',
+        data: monthlyData,
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: `Yearly Income by Month (${currentYear})`,
+      },
     },
-  ],
-};
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Income',
+        },
+      },
+    },
+  };
 
-
-const YearlyChart: React.FC = () => {
   return <Bar options={chartOptions} data={chartData} />;
-};
+});
 
-export default YearlyChart;
+YearlyChart.displayName = 'YearlyChart';

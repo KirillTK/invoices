@@ -2,12 +2,12 @@
 import React, { lazy, Suspense } from 'react';
 import { BarChartSkeleton } from '~/shared/components/skeletons';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
+import { type InvoiceListModel } from '~/entities/invoice/invoice.model';
 
 
-const LazyYearlyChart = lazy(() => import('./yearly-chart'));
+const LazyYearlyChart = lazy(() => import('./yearly-chart').then(module => ({ default: module.YearlyChart })));
 
-
-export const YearlyIncomeChart: React.FC = () => {
+export const YearlyIncomeChart: React.FC<{ invoices: InvoiceListModel[] }> = ({ invoices }) => {
   return (
     <Card>
       <CardHeader>
@@ -15,7 +15,7 @@ export const YearlyIncomeChart: React.FC = () => {
       </CardHeader>
       <CardContent>
       <Suspense fallback={<BarChartSkeleton/>}>
-          <LazyYearlyChart />
+          <LazyYearlyChart invoices={invoices} />
         </Suspense>
       </CardContent>
     </Card>

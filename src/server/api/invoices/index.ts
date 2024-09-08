@@ -24,6 +24,7 @@ export class InvoicesService {
         clientName: clients.name,
         totalNetPrice: sql<number>`SUM(${invoiceDetails.totalNetPrice})`,
         createdAt: invoice.createdAt,
+        dueDate: invoice.dueDate,
       })
       .from(invoice)
       .innerJoin(clients, eq(invoice.clientId, clients.id))
