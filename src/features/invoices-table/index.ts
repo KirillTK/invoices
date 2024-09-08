@@ -1,1 +1,1 @@
-export { InvoicesTable } from './invoices-table';
+export { InvoicesTable } from './ui/invoices-table';

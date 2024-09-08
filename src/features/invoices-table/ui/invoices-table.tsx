@@ -12,6 +12,7 @@ import {
 } from "~/shared/components/table/table";
 import { DateUtils } from "~/shared/utils/date";
 import { MoneyUtils } from "~/shared/utils/money";
+import { InvoiceTableActions } from '../components';
 
 export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
   const totalsAmount = invoices.reduce(
@@ -28,6 +29,7 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Actions</TableHead>
               <TableHead>Invoice No</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Create Date</TableHead>
@@ -39,6 +41,9 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
             {invoices.map(
               ({ invoiceNo, clientName, totalNetPrice, createdAt, dueDate, id }) => (
                 <TableRow key={id}>
+                   <TableCell>
+                    <InvoiceTableActions invoiceId={id} />
+                  </TableCell>
                   <TableCell className="font-medium">
                     <Link href={`/invoices/${id}`}>{invoiceNo}</Link>
                   </TableCell>
@@ -58,7 +63,7 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={4}>Total</TableCell>
+              <TableCell colSpan={5}>Total</TableCell>
               <TableCell className="text-left">
                 {MoneyUtils.fromNumberToMoney(totalsAmount)}
               </TableCell>

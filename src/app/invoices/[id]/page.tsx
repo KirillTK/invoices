@@ -2,7 +2,7 @@
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
-import { useInvoicePdfDownload, useInvoiceQuery } from '~/entities/invoice/api';
+import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
 
@@ -10,7 +10,7 @@ type Props = { params: { id: string } };
 
 export default function Invoice({ params }: Props) {
   const { invoice, isLoading, error } = useInvoiceQuery(params.id);
-  const { downloadPdf, isLoading: isDownloadingPdf } = useInvoicePdfDownload(params.id);
+  const { downloadPdf, isLoading: isDownloadingPdf } = useInvoiceMutations(params.id);
 
   if(isLoading) return <InvoiceSkeleton />;
 

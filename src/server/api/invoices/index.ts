@@ -10,7 +10,7 @@ import {
   unitEnum,
 } from "~/server/db/schema";
 import type { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, like, sql } from "drizzle-orm";
 
 export class InvoicesService {
   @authRequired()
@@ -117,6 +117,82 @@ export class InvoicesService {
         );
 
         return savedInvoice.invoiceId;
+      } catch (error) {
+        tx.rollback();
+        return error;
+      }
+    });
+  }
+
+
+  @authRequired()
+  static async copyInvoice(invoiceId: string) {
+    const user = auth();
+    const [invoiceToCopy] = await db.select().from(invoice).where(eq(invoice.id, invoiceId)).limit(1);
+
+    if (!invoiceToCopy) {
+      throw new Error("Invoice not found");
+    }
+
+    const details = await db.select().from(invoiceDetails).where(eq(invoiceDetails.invoice, invoiceId));
+
+    return db.transaction(async (tx) => {
+      try {
+          // Generate a unique invoice number
+      const baseInvoiceNo = invoiceToCopy.invoiceNo;
+      const baseInvoiceNoWithoutCopy = baseInvoiceNo.replace(/ \(Copy( \d+)?\)$/, '').trim();
+      const countResult = await tx
+        .select({ count: sql<number>`count(*)` })
+        .from(invoice)
+        .where(
+          and(
+            eq(invoice.userId, user.userId!),
+            like(invoice.invoiceNo, `${baseInvoiceNoWithoutCopy} (Copy%)`)
+          )
+        );
+
+      const count = countResult[0]?.count ?? 0;
+
+      const newInvoiceNo = count === 0 
+        ? `${baseInvoiceNoWithoutCopy} (Copy)`
+        : `${baseInvoiceNoWithoutCopy} (Copy ${+count + 1})`;
+
+        const [savedInvoice] = await tx.insert(invoice).values({
+          ...invoiceToCopy,
+          id: undefined,
+          createdAt: new Date(),
+          updatedAt: null,
+          invoiceNo: newInvoiceNo,
+        }).returning({ invoiceId: invoice.id });
+  
+        if (!savedInvoice?.invoiceId) {
+          throw new Error("Failed to copy new invoice");
+        }
+        
+        await tx.insert(invoiceDetails).values(
+          details.map(detail => ({
+            ...detail,
+            id: undefined, // Remove the id to create new detail entries
+            invoice: savedInvoice.invoiceId // Link to the new invoice
+          }))
+        );
+  
+        return savedInvoice.invoiceId;
+      } catch (error) {
+        tx.rollback();
+        return error;
+      }
+    });
+  }
+
+  @authRequired()
+  static async deleteInvoice(invoiceId: string) {
+    const user = auth();
+
+    return db.transaction(async (tx) => {
+      try {
+        await tx.delete(invoice).where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
+        return true;
       } catch (error) {
         tx.rollback();
         return error;
