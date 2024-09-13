@@ -1,7 +1,8 @@
 'use client'
-import { Copy, Trash2 } from 'lucide-react'
+import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useInvoiceMutations } from '~/entities/invoice/api'
+import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal'
 import { Button } from '~/shared/components/button'
 import { toast } from '~/shared/components/toast/use-toast'
 
@@ -42,12 +43,17 @@ export const InvoiceTableActions = ({ invoiceId }: Props) => {
 
   return (
     <div className="flex space-x-2">
+      <Button variant="outline" size="icon" onClick={() => router.push(`/invoices/${invoiceId}`)} disabled={isLoading}>
+        <Pencil className="h-4 w-4" />
+      </Button>
       <Button variant="outline" size="icon" onClick={handleDuplicate} disabled={isLoading}>
         <Copy className="h-4 w-4" />
       </Button>
-      <Button variant="outline" size="icon" onClick={handleDelete} disabled={isLoading}>
-        <Trash2 className="h-4 w-4 text-red-600" />
-      </Button>
+      <ConfirmRemoveInvoiceModal invoiceNumber={invoiceId} handleConfirm={handleDelete}>
+        <Button variant="outline" size="icon" disabled={isLoading}>
+          <Trash2 className="h-4 w-4 text-red-600" />
+        </Button>
+      </ConfirmRemoveInvoiceModal>
     </div>
   )
 }

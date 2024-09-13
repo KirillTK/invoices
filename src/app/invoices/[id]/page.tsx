@@ -1,16 +1,20 @@
 'use client';
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
 import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
+import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal';
+import { toast } from '~/shared/components/toast/use-toast';
 
 type Props = { params: { id: string } };
 
 export default function Invoice({ params }: Props) {
+  const router = useRouter();
   const { invoice, isLoading, error } = useInvoiceQuery(params.id);
-  const { downloadPdf, isLoading: isDownloadingPdf } = useInvoiceMutations(params.id);
+  const { downloadPdf, isLoading: isDownloadingPdf, deleteInvoice } = useInvoiceMutations(params.id);
 
   if(isLoading) return <InvoiceSkeleton />;
 
@@ -41,6 +45,21 @@ export default function Invoice({ params }: Props) {
     })),
   };
 
+  const handleDeleteInvoice = async () => {
+    try {
+      await deleteInvoice();
+
+      router.push('/invoices');
+    } catch (error) {
+      console.error('Failed to delete invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete invoice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
@@ -60,13 +79,16 @@ export default function Invoice({ params }: Props) {
             )}
             Export
           </Button>
-          <Button 
-            variant="outline" 
-            className="border-red-600 text-red-600 hover:bg-red-50"
+          <ConfirmRemoveInvoiceModal invoiceNumber={invoice.invoice.invoiceNo} handleConfirm={handleDeleteInvoice}>
+            <Button 
+              variant="outline" 
+              className="border-red-600 text-red-600 hover:bg-red-50"
             disabled={isDownloadingPdf}
-          >
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
-          </Button>
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </Button>
+          </ConfirmRemoveInvoiceModal>
+          
         </div>
       </div>
       

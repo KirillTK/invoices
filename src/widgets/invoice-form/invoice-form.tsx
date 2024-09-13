@@ -200,9 +200,6 @@ export function InvoiceForm({
             </CardContent>
           </Card>
           </div>
-
-       
-
           <div className="col-span-2">
             <InvoiceTable
               form={
