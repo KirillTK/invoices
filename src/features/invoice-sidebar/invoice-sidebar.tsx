@@ -1,11 +1,11 @@
 'use client'
 
-import { LayoutDashboard, FileText, Users, PieChart } from 'lucide-react';
+import { FileText, Users, PieChart } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { href: '/invoices', icon: FileText, label: 'Invoices', className: 'ml-4' },
+  { href: '/invoices', icon: FileText, label: 'Invoices' },
   { href: '/invoices/clients', icon: Users, label: 'Clients' },
   { href: '/invoices/reports', icon: PieChart, label: 'Reports' },
 ];
@@ -17,6 +17,8 @@ export default function InvoiceSidebar() {
     if (path === '/invoices' && pathname === '/invoices') return true;
     return pathname.startsWith(path) && path !== '/invoices';
   };
+
+  const isInvoiceDetailRoute = pathname.match(/^\/invoices\/(new|\w{8}-\w{4}-\w{4}-\w{4}-\w{12})$/);
 
   const NavLink = ({ href, icon: Icon, label, className = '' }: { href: string; icon: React.ElementType; label: string; className?: string }) => (
     <li className={className}>
@@ -37,14 +39,19 @@ export default function InvoiceSidebar() {
   return (
     <nav className="w-64 bg-white p-4 shadow-md">
       <ul className="space-y-2">
-        <li>
-          <div className="flex items-center space-x-2 text-gray-600 p-2">
-            <LayoutDashboard className="h-5 w-5" />
-            <span>Dashboard</span>
-          </div>
-        </li>
         {navItems.map((item) => (
-          <NavLink key={item.href} {...item} />
+          <>
+            <NavLink {...item} key={item.href} />
+            {item.href === '/invoices' && isInvoiceDetailRoute && (
+              <NavLink
+                key={item.href}
+                href={pathname}
+                icon={FileText}
+                label="Invoice"
+                className="ml-4"
+              />
+            )}
+          </>
         ))}
       </ul>
     </nav>

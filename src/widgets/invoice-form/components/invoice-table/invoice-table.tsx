@@ -19,7 +19,7 @@ import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
-import { InvoiceUtils } from "~/shared/utils/invoice";
+import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
 import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 

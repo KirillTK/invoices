@@ -9,7 +9,7 @@ import {
   type InvoiceDetailsModel,
   unitEnum,
 } from "~/server/db/schema";
-import type { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
+import type { invoiceDocumentSchema, invoiceDocumentSchemaWithDetailsId } from "~/shared/schemas/invoice.schema";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 
 export class InvoicesService {
@@ -193,6 +193,41 @@ export class InvoicesService {
       try {
         await tx.delete(invoice).where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
         return true;
+      } catch (error) {
+        tx.rollback();
+        return error;
+      }
+    });
+  }
+
+  @authRequired()
+  static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithDetailsId>) {
+    const user = auth();
+
+    return db.transaction(async (tx) => {
+      try {
+        const updatedInvoiceData = {
+          ...invoiceData.invoice,
+          dueDate: new Date(invoiceData.invoice.dueDate).toISOString(),
+          invoiceDate: new Date(invoiceData.invoice.invoiceDate).toISOString(),
+          updatedAt: sql`NOW()`,
+        };
+
+        await tx.update(invoice)
+          .set(updatedInvoiceData)
+          .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
+
+        await Promise.all(invoiceData.details.map(detail =>
+          tx.update(invoiceDetails)
+            .set({
+              ...detail,
+              updatedAt: sql`NOW()`,
+              unit: detail.unit as InvoiceDetailsModel['unit'] | undefined
+            })
+            .where(and(eq(invoiceDetails.invoice, invoiceId), eq(invoiceDetails.id, detail.id)))
+        ));
+
+        return true; // Indicate successful update
       } catch (error) {
         tx.rollback();
         return error;

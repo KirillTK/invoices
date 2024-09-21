@@ -51,25 +51,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PATCH(req: NextRequest) {
-  const user = await authenticateUser();
-  if (!user) return user; // This is the NextResponse from authenticateUser
-
-  const data = await req.json() as { invoiceId: string };
-  const { invoiceId } = data;
-
-  if (!invoiceId) {
-    return NextResponse.json({ error: "Invoice ID is required" }, { status: 400 });
-  }
-
-  try {
-    const copiedInvoiceId = await InvoicesService.copyInvoice(invoiceId);
-    return NextResponse.json({ invoiceId: copiedInvoiceId });
-  } catch (error) {
-    return handleError(error);
-  }
-}
-
 export async function DELETE(req: NextRequest) {
   const user = await authenticateUser();
   if (!user) return user; // This is the NextResponse from authenticateUser

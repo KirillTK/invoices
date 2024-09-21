@@ -1,20 +1,23 @@
 'use client';
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type { z } from 'zod';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
-import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/api';
+import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/model/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
 import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal';
 import { toast } from '~/shared/components/toast/use-toast';
+import { InvoiceButton } from '~/features/invoice-button';
+import { DOM_ID } from '~/shared/constants/dom-id.const';
 
 type Props = { params: { id: string } };
 
 export default function Invoice({ params }: Props) {
   const router = useRouter();
   const { invoice, isLoading, error } = useInvoiceQuery(params.id);
-  const { downloadPdf, isLoading: isDownloadingPdf, deleteInvoice } = useInvoiceMutations(params.id);
+  const { downloadPdf, isLoading: isDownloadingPdf, deleteInvoice, updateInvoice } = useInvoiceMutations(params.id);
 
   if(isLoading) return <InvoiceSkeleton />;
 
@@ -42,6 +45,7 @@ export default function Invoice({ params }: Props) {
       totalGrossPrice: detail.totalGrossPrice ?? 0,
       vat: detail.vat ?? 0,
       vatAmount: detail.vatAmount ?? 0,
+      id: detail.id,
     })),
   };
 
@@ -60,12 +64,22 @@ export default function Invoice({ params }: Props) {
     }
   };
 
+  const handleUpdateInvoice = async (values: InvoiceFormValues) => {
+    const response = await updateInvoice(params.id, values);
+
+    if(response?.ok) {
+      toast({ title: "Invoice successfully updated!", variant: "success" });
+    }
+
+    return response;
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
         <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoice.invoiceNo ?? ""}</h1>
         <div className="flex space-x-2">
-          <Button disabled={isDownloadingPdf}>Save Changes</Button>
+          <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" />
           <Button 
             onClick={downloadPdf} 
             variant="outline" 
@@ -93,7 +107,9 @@ export default function Invoice({ params }: Props) {
       </div>
       
       <InvoiceForm
+        submit={handleUpdateInvoice}
         defaultValues={defaultFormValues}
+        shouldUnregister={false}
       />
     </div>
   );

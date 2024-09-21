@@ -6,7 +6,7 @@ import {
   LinearScale,
   BarElement,
 } from 'chart.js';
-import { type InvoiceListModel } from '~/entities/invoice/invoice.model';
+import { type InvoiceListModel } from '~/entities/invoice/model/invoice.model';
 
 ChartJS.register(
   CategoryScale,

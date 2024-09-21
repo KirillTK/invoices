@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { type InvoiceListModel } from '~/entities/invoice/invoice.model';
+import { type InvoiceListModel } from '~/entities/invoice/model/invoice.model';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 import {
   Table,
@@ -42,7 +42,7 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
               ({ invoiceNo, clientName, totalNetPrice, createdAt, dueDate, id }) => (
                 <TableRow key={id}>
                    <TableCell>
-                    <InvoiceTableActions invoiceId={id} />
+                    <InvoiceTableActions invoiceId={id} invoiceNo={invoiceNo} />
                   </TableCell>
                   <TableCell className="font-medium">
                     <Link href={`/invoices/${id}`}>{invoiceNo}</Link>

@@ -1,7 +1,7 @@
 'use client'
 import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useInvoiceMutations } from '~/entities/invoice/api'
+import { useInvoiceMutations } from '~/entities/invoice/model/api'
 import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal'
 import { Button } from '~/shared/components/button'
 import { toast } from '~/shared/components/toast/use-toast'
@@ -9,9 +9,10 @@ import { toast } from '~/shared/components/toast/use-toast'
 
 type Props = {
   invoiceId: string
+  invoiceNo: string;
 }
 
-export const InvoiceTableActions = ({ invoiceId }: Props) => {
+export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
   const router = useRouter();
   const { copyInvoice, deleteInvoice, isLoading } = useInvoiceMutations(invoiceId);
 
@@ -49,7 +50,7 @@ export const InvoiceTableActions = ({ invoiceId }: Props) => {
       <Button variant="outline" size="icon" onClick={handleDuplicate} disabled={isLoading}>
         <Copy className="h-4 w-4" />
       </Button>
-      <ConfirmRemoveInvoiceModal invoiceNumber={invoiceId} handleConfirm={handleDelete}>
+      <ConfirmRemoveInvoiceModal invoiceNumber={invoiceNo} handleConfirm={handleDelete}>
         <Button variant="outline" size="icon" disabled={isLoading}>
           <Trash2 className="h-4 w-4 text-red-600" />
         </Button>

@@ -22,7 +22,7 @@ export function isCommonHttpError(error: unknown): error is Error {
 export function getFormErrorArray<T>(errors: ValidationHttpError[]) {
   return errors.map((error) => ({
     type: "manual",
-    name: error.path[0] as keyof T,
+    name: error.path.join('.') as keyof T,
     message: error.message,
   }));
 }

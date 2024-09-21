@@ -6,8 +6,8 @@ export const invoiceSchema = z.object({
     .string()
     .min(1, "Invoice # is required")
     .max(50, "Invoice # too long"),
-  dueDate: z.coerce.date(),
-  invoiceDate: z.coerce.date(),
+  dueDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
+  invoiceDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
   vatInvoice: z.boolean().default(false),
   // user
   // userId: z.string().min(1, "userId is required"),
@@ -40,7 +40,16 @@ export const invoiceDetailsSchema = z.object({
   totalGrossPrice: z.number().optional(),
 });
 
+export const invoiceDetailsSchemaWithId = invoiceDetailsSchema.extend({
+  id: z.string().min(1, "Id is required"),
+});
+
 export const invoiceDocumentSchema = z.object({
   invoice: invoiceSchema,
   details: invoiceDetailsSchema.array(),
+});
+
+
+export const invoiceDocumentSchemaWithDetailsId = invoiceDocumentSchema.extend({
+  details: invoiceDetailsSchemaWithId.array(),
 });

@@ -30,11 +30,15 @@ export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 type Props = {
   defaultValues?: InvoiceFormValues;
   disableFormByDefault?: boolean;
+  submit: (values: InvoiceFormValues) => Promise<Response | undefined>;
+  shouldUnregister?: boolean;
 };
 
 export function InvoiceForm({
   defaultValues,
+  submit,
   disableFormByDefault = false,
+  shouldUnregister = true,
 }: Props) {
   const { toast } = useToast();
 
@@ -46,13 +50,18 @@ export function InvoiceForm({
     defaultValues: defaultValues ?? { details: [EMPTY_INVOICE_ROW_TABLE] },
     resolver: zodResolver(invoiceDocumentSchema),
     mode: "onBlur",
+    shouldUnregister,
   });
 
-  const { handleSubmit, watch, setValue, setError } = form;
+  const { handleSubmit, watch, setValue, setError, getValues } = form;
 
   const { clients } = useClientQuery();
 
-  const selectedClientId = watch("invoice.clientId");
+  const selectedClientId = watch("invoice.clientId");  
+
+
+  console.log(watch());
+  
 
   useEffect(() => {
     if (selectedClientId) {
@@ -67,19 +76,19 @@ export function InvoiceForm({
   }, [JSON.stringify(clients), selectedClientId, setValue]);
 
   const onSubmit = useCallback(
-    async (values: InvoiceFormValues) => {
-      try {
-        const response = await fetch("/api/invoice", {
-          method: "POST",
-          body: JSON.stringify(values),
-        });
+    async () => {
+      try {        
+        const response = await submit(getValues());
 
-        const { invoiceId } = (await response.json()) as { invoiceId: string };
+        if(!response) throw new Error("Failed to process request");
 
         if (!response.ok) throw await response.json();
 
-        toast({ title: "Invoice successfully saved!", variant: "success" });
-        router.push(`/invoices/${invoiceId}`);
+        const { invoiceId } = (await response.json()) as { invoiceId: string };
+
+        if(invoiceId) {
+          router.push(`/invoices/${invoiceId}`);
+        }
       } catch (error) {
         if (isHttpValidationError(error)) {
           const formErrors = getFormErrorArray<InvoiceFormValues>(error.errors);
@@ -97,7 +106,7 @@ export function InvoiceForm({
         }
       }
     },
-    [setError, toast, router],
+    [setError, toast, router, submit, getValues],
   );
 
   return (
