@@ -5,5 +5,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized'},  { status :401 });
   }
 
+
+  console.log('CRON JOB CALLED');
+  
+
   return NextResponse.json({ ok: true });
 }
