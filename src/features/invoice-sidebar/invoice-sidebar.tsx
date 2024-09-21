@@ -37,7 +37,7 @@ export default function InvoiceSidebar() {
   );
 
   return (
-    <nav className="w-64 bg-white p-4 shadow-md">
+    <nav className="w-44 bg-white p-4 shadow-md">
       <ul className="space-y-2">
         {navItems.map((item) => (
           <>
