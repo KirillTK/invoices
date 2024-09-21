@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/currencies",
-      "schedule": "0 5 * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }
