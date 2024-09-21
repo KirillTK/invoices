@@ -1,7 +1,12 @@
-export default function ReportsPage() {
+import { YearlyIncomeChart } from '~/features/yearly-income-chart';
+import { InvoicesService } from '~/server/api/invoices';
+
+export default async function ReportsPage() {
+  const invoices = await InvoicesService.getInvoiceList();
+  
   return (
-    <div>
-      <h1>Reports</h1>
-    </div>
+    <>
+      <YearlyIncomeChart invoices={invoices} />
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import type { z } from "zod";
 import { MinusCircleIcon, PlusIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFieldArray } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 import { animated, useSpring } from "@react-spring/web";
@@ -45,9 +45,10 @@ export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
 interface Props {
   form: UseFormReturn<{ details: InvoiceTableForm[] }>;
   disabled: boolean;
+  vatInvoice?: boolean;
 }
 
-export function InvoiceTable({ form, disabled }: Props) {
+export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
   const [showAddLineBtn, setShowAddLineBtn] = useState(false);
   const { setValue, getValues, watch } = form;
 
@@ -64,6 +65,12 @@ export function InvoiceTable({ form, disabled }: Props) {
     control: form.control,
     name: "details",
   });
+
+  useEffect(() => {
+    fields.forEach((_, index) => {
+      calculateTotals(index);
+    });
+  }, [vatInvoice, fields])
 
   const handleMouseEnterTable = useCallback(() => {
     setShowAddLineBtn(true);
@@ -106,7 +113,7 @@ export function InvoiceTable({ form, disabled }: Props) {
     [remove, disabled],
   );
 
-  const calculateTotals = (index: number) => {
+  function calculateTotals(index: number) {
     const { quantity, unitPrice, vat } = getValues(`details.${index}`);
 
     const gross = InvoiceUtils.getTotalGrossPrice(+quantity, +unitPrice);
@@ -114,11 +121,10 @@ export function InvoiceTable({ form, disabled }: Props) {
     const numberVat = +vat;
     let vatAmount = 0;
 
-    if (numberVat) {
-      vatAmount = InvoiceUtils.getVatAmount(+gross, +vat);
-    }
+    vatAmount = numberVat && vatInvoice ? InvoiceUtils.getVatAmount(+gross, numberVat) : 0;
+    
 
-    const totalNetAmount = InvoiceUtils.getTotalNetPrice(gross, vatAmount);
+    const totalNetAmount = InvoiceUtils.getTotalNetPrice(gross, vatAmount);    
 
     setValue(`details.${index}.totalGrossPrice`, gross);
     setValue(`details.${index}.vatAmount`, vatAmount);
@@ -144,8 +150,12 @@ export function InvoiceTable({ form, disabled }: Props) {
               <TableHead>Quantity</TableHead>
               <TableHead>Unit net price</TableHead>
               <TableHead>Total net price</TableHead>
-              <TableHead>VAT rate</TableHead>
-              <TableHead>VAT amount</TableHead>
+              {vatInvoice && (
+                <>
+                  <TableHead>VAT rate</TableHead>
+                  <TableHead>VAT amount</TableHead>
+                </>
+              )}
               <TableHead>Total gross price</TableHead>
             </TableRow>
           </TableHeader>
@@ -191,18 +201,22 @@ export function InvoiceTable({ form, disabled }: Props) {
                   <TableCell>
                     <span>{watch(`details.${index}.totalNetPrice`)}</span>
                   </TableCell>
-                  <TableCell>
-                    <ComboboxField
-                      options={VAT_OPTIONS}
-                      form={form}
-                      fieldName={`details.${index}.vat`}
-                      placeholder="Select vat"
-                      manualChange={() => calculateTotals(index)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <span>{watch(`details.${index}.vatAmount`)}</span>
-                  </TableCell>
+                  {vatInvoice && (
+                    <>
+                      <TableCell>
+                        <ComboboxField
+                          options={VAT_OPTIONS}
+                          form={form}
+                          fieldName={`details.${index}.vat`}
+                          placeholder="Select vat"
+                          manualChange={() => calculateTotals(index)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <span>{watch(`details.${index}.vatAmount`)}</span>
+                      </TableCell>
+                    </>
+                  )}
                   <TableCell>
                     <div className="flex items-center space-x-2">
                     <span>{watch(`details.${index}.totalGrossPrice`)}</span>

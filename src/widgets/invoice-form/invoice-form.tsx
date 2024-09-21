@@ -24,6 +24,7 @@ import { DOM_ID } from "~/shared/constants/dom-id.const";
 import { useToast } from "~/shared/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
+import { CheckboxField } from '~/shared/components/controls/checkbox-field';
 
 export type InvoiceFormValues = z.infer<typeof invoiceDocumentSchema>;
 
@@ -59,10 +60,8 @@ export function InvoiceForm({
 
   const selectedClientId = watch("invoice.clientId");  
 
-
-  console.log(watch());
+  const isVatInvoice = watch("invoice.vatInvoice");  
   
-
   useEffect(() => {
     if (selectedClientId) {
       const client = clients.find(({ id }) => id === selectedClientId);
@@ -129,8 +128,11 @@ export function InvoiceForm({
 
           <div className="col-span-2 flex space-x-4">
           <Card className="flex-1">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Invoice Details</CardTitle>
+              <CheckboxField form={form} id="vatInvoice" fieldName="invoice.vatInvoice">
+                VAT invoice
+              </CheckboxField>
             </CardHeader>
             <CardContent>
               <div className="grid gap-y-2">
@@ -217,6 +219,7 @@ export function InvoiceForm({
                 }>
               }
               disabled={isFormDisabled}
+              vatInvoice={isVatInvoice}
             />
           </div>
         </form>

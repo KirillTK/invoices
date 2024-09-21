@@ -10,9 +10,10 @@ interface Props {
   action: string;
   title: string;
   variant?: VariantProps<typeof buttonVariants>['variant'];
+  disabled?: boolean;
 }
 
-export function InvoiceButton({ action, title, variant = "default" }: Props) {
+export function InvoiceButton({ action, title, variant = "default", disabled = false }: Props) {
   const handleClick = useCallback(() => {
     const saveFormBtn = document.getElementById(action) as
       | HTMLButtonElement
@@ -24,7 +25,7 @@ export function InvoiceButton({ action, title, variant = "default" }: Props) {
   }, [action]);
 
   return (
-    <Button variant={variant} onClick={handleClick}>
+    <Button variant={variant} onClick={handleClick} disabled={disabled}>
       {title}
     </Button>
   );

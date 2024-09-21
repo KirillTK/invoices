@@ -1,7 +1,6 @@
 'use client';
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type { z } from 'zod';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
 import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/model/api';
@@ -79,7 +78,7 @@ export default function Invoice({ params }: Props) {
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
         <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoice.invoiceNo ?? ""}</h1>
         <div className="flex space-x-2">
-          <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" />
+          <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" disabled={isDownloadingPdf} />
           <Button 
             onClick={downloadPdf} 
             variant="outline" 
