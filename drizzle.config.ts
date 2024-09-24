@@ -9,4 +9,5 @@ export default {
   },
   dialect: 'postgresql',
   tablesFilter: ["factura_*"],
+  out: './drizzle/migrations',
 } satisfies Config;

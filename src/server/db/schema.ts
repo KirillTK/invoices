@@ -34,9 +34,16 @@ export const user = createTable("users", {
   taxIndex: varchar("tax_index", { length: 50 }).notNull().unique(),
 });
 
+export const currency = createTable("currencies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 50 }).notNull().unique(),
+  symbol: varchar("symbol", { length: 50 }).notNull(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+});
+
 export const exchange_rate = createTable("exchange_rates", {
   id: uuid("id").primaryKey().defaultRandom(),
-  currencyName: varchar("currency_name", { length: 256 }).notNull(),
+  currencyId: uuid("currency_id").references(() => currency.id, { onDelete: "cascade" }).notNull(),
   value: doublePrecision("value").default(0.01),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
