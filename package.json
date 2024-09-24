@@ -8,6 +8,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "tsx ./src/server/db/migrate.ts",
+    "db:apply": "drizzle-kit migrate",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
