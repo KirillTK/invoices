@@ -1,7 +1,5 @@
 {
-  "id": "f2613f5e-6265-4e49-b0b3-3eab4c6a07ae",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "6",
+  "version": "7",
   "dialect": "postgresql",
   "tables": {
     "public.factura_clients": {
@@ -64,19 +62,22 @@
       "uniqueConstraints": {
         "factura_clients_name_unique": {
           "name": "factura_clients_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "factura_clients_tax_index_unique": {
           "name": "factura_clients_tax_index_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "tax_index"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_currencies": {
       "name": "factura_currencies",
@@ -114,19 +115,22 @@
       "uniqueConstraints": {
         "factura_currencies_name_unique": {
           "name": "factura_currencies_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "factura_currencies_code_unique": {
           "name": "factura_currencies_code_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "code"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_exchange_rates": {
       "name": "factura_exchange_rates",
@@ -171,19 +175,22 @@
         "factura_exchange_rates_currency_id_factura_currencies_id_fk": {
           "name": "factura_exchange_rates_currency_id_factura_currencies_id_fk",
           "tableFrom": "factura_exchange_rates",
-          "tableTo": "factura_currencies",
           "columnsFrom": [
             "currency_id"
           ],
+          "tableTo": "factura_currencies",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_invoices": {
       "name": "factura_invoices",
@@ -282,27 +289,30 @@
         "factura_invoices_client_id_factura_clients_id_fk": {
           "name": "factura_invoices_client_id_factura_clients_id_fk",
           "tableFrom": "factura_invoices",
-          "tableTo": "factura_clients",
           "columnsFrom": [
             "client_id"
           ],
+          "tableTo": "factura_clients",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "factura_invoices_invoice_no_unique": {
           "name": "factura_invoices_invoice_no_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "invoice_no"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_invoice_details": {
       "name": "factura_invoice_details",
@@ -393,19 +403,22 @@
         "factura_invoice_details_invoice_id_factura_invoices_id_fk": {
           "name": "factura_invoice_details_invoice_id_factura_invoices_id_fk",
           "tableFrom": "factura_invoice_details",
-          "tableTo": "factura_invoices",
           "columnsFrom": [
             "invoice_id"
           ],
+          "tableTo": "factura_invoices",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_users": {
       "name": "factura_users",
@@ -460,19 +473,22 @@
       "uniqueConstraints": {
         "factura_users_name_unique": {
           "name": "factura_users_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "factura_users_tax_index_unique": {
           "name": "factura_users_tax_index_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "tax_index"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
@@ -486,8 +502,14 @@
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "f2613f5e-6265-4e49-b0b3-3eab4c6a07ae",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

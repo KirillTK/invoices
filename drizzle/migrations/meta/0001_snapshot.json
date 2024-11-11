@@ -1,7 +1,5 @@
 {
-  "id": "e4897a8f-9511-4c03-a9af-bb25c188be7e",
-  "prevId": "f2613f5e-6265-4e49-b0b3-3eab4c6a07ae",
-  "version": "6",
+  "version": "7",
   "dialect": "postgresql",
   "tables": {
     "public.factura_clients": {
@@ -76,7 +74,10 @@
           ],
           "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_currencies": {
       "name": "factura_currencies",
@@ -126,7 +127,10 @@
           ],
           "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_exchange_rates": {
       "name": "factura_exchange_rates",
@@ -183,7 +187,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_invoices": {
       "name": "factura_invoices",
@@ -302,7 +309,10 @@
           ],
           "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_invoice_details": {
       "name": "factura_invoice_details",
@@ -405,7 +415,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.factura_users": {
       "name": "factura_users",
@@ -472,7 +485,10 @@
           ],
           "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
@@ -486,8 +502,14 @@
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "e4897a8f-9511-4c03-a9af-bb25c188be7e",
+  "prevId": "f2613f5e-6265-4e49-b0b3-3eab4c6a07ae",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

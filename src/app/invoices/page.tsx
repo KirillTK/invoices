@@ -6,6 +6,9 @@ import { Button } from "~/shared/components/button";
 
 export default async function InvoicesPage() {
   const invoices = await InvoicesService.getInvoiceList();
+  const invoicesFull = await InvoicesService.getInvoiceListFull();
+
+  console.log(invoicesFull);
   
   return (
     <>

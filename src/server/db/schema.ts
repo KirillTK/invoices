@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 import {
   pgTableCreator,
@@ -97,12 +97,12 @@ export type InvoiceModel = InferSelectModel<typeof invoice>;
 
 export const invoiceDetails = createTable("invoice_details", {
   id: uuid("id").primaryKey().defaultRandom(),
-  invoice: uuid("invoice_id")
+  invoiceId: uuid("invoice_id")
     .references(() => invoice.id, { onDelete: "cascade" })
     .notNull(),
   description: varchar("description", { length: 256 }).notNull(),
   unit: unitEnum("unit").notNull(),
-  unitPrice: doublePrecision("unit_price").notNull(),
+  unitPrice: doublePrecision("unit_price").notNull(), 
   quantity: doublePrecision("quantity").notNull(),
   totalNetPrice: doublePrecision('total_net_price').default(0),
   vat: doublePrecision('vat').default(0),
@@ -113,5 +113,19 @@ export const invoiceDetails = createTable("invoice_details", {
     .notNull(),
   updatedAt: timestamp("updatedAt"),
 });
+
+export const invoiceDetailsRelations = relations(invoiceDetails, ({ one }) => ({
+  invoice: one(invoice, {
+    fields: [invoiceDetails.invoiceId],
+    references: [invoice.id],
+    relationName: 'invoiceDetails',
+  }),
+}));
+
+export const invoiceRelations = relations(invoice, ({ many }) => ({
+  details: many(invoiceDetails, {
+    relationName: 'invoiceDetails',
+  }),
+}));
 
 export type InvoiceDetailsModel = InferSelectModel<typeof invoiceDetails>;

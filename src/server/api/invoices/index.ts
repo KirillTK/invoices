@@ -28,10 +28,19 @@ export class InvoicesService {
       })
       .from(invoice)
       .innerJoin(clients, eq(invoice.clientId, clients.id))
-      .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoice))
+      .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoiceId))
       .groupBy(invoice.invoiceNo, clients.name, invoice.createdAt, invoice.id)
       .where(eq(invoice.userId, user.userId!))
       .orderBy(desc(invoice.createdAt));
+  }
+
+  @authRequired()
+  static async getInvoiceListFull() {
+    return db.query.invoice.findMany({
+      with: {
+        details: true,
+      },
+    });
   }
 
   @authRequired()
@@ -59,7 +68,7 @@ export class InvoicesService {
     const invoiceRes = await db
       .select()
       .from(invoice)
-      .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoice))
+      .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoiceId))
       .groupBy(invoice.id, invoiceDetails.id)
       .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
 
@@ -105,7 +114,7 @@ export class InvoicesService {
         await tx.insert(invoiceDetails).values(
           details.map((detail) => {
             return {
-              invoice: savedInvoice.invoiceId,
+              invoiceId: savedInvoice.invoiceId,
               description: detail.description,
               unit: unitEnum.enumValues[0],
               quantity: detail.quantity,
@@ -136,7 +145,7 @@ export class InvoicesService {
       throw new Error("Invoice not found");
     }
 
-    const details = await db.select().from(invoiceDetails).where(eq(invoiceDetails.invoice, invoiceId));
+    const details = await db.select().from(invoiceDetails).where(eq(invoiceDetails.invoiceId, invoiceId));
 
     return db.transaction(async (tx) => {
       try {
@@ -228,7 +237,7 @@ export class InvoicesService {
               updatedAt: sql`NOW()`,
               unit: detail.unit as InvoiceDetailsModel['unit'] | undefined
             })
-            .where(and(eq(invoiceDetails.invoice, invoiceId), eq(invoiceDetails.id, detail.id)))
+            .where(and(eq(invoiceDetails.invoiceId, invoiceId), eq(invoiceDetails.id, detail.id)))
         ));
 
         return true; // Indicate successful update
