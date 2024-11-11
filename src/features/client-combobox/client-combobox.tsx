@@ -5,6 +5,7 @@ import type { Option, UncontrolledControlProps } from "~/shared/types/form";
 import { useClientQuery } from "~/entities/client/api";
 import { type FieldValues } from 'react-hook-form';
 import { NewClientModal } from "./components/new-client-modal";
+import { twMerge } from 'tailwind-merge';
 
 type Props<T extends FieldValues> = UncontrolledControlProps<T>
 
@@ -18,7 +19,7 @@ export const ClientCombobox = <T extends FieldValues>({ form, fieldName, ...rest
     value: client.id,
   }));
 
-  const topElement = useMemo(() => <NewClientModal buttonClassName="my-2 w-full" />, []);
+  const topElement = useMemo(() => <NewClientModal buttonClassName={twMerge('flex w-[140px] mx-auto my-[10px]')} />, []);
 
   return (
     <ComboboxField

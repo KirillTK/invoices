@@ -18,10 +18,11 @@ import {
 import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
-import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
+import { UNIT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
 import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
+import { MoneyUtils } from '~/shared/utils/money';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -116,12 +117,13 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
   function calculateTotals(index: number) {
     const { quantity, unitPrice, vat } = getValues(`details.${index}`);
 
+    const vatPercent = +Number.parseFloat((vat / 100).toFixed(2));
+
     const gross = InvoiceUtils.getTotalGrossPrice(+quantity, +unitPrice);
 
-    const numberVat = +vat;
     let vatAmount = 0;
 
-    vatAmount = numberVat && vatInvoice ? InvoiceUtils.getVatAmount(+gross, numberVat) : 0;
+    vatAmount = vatPercent && vatInvoice ? InvoiceUtils.getVatAmount(+gross, vatPercent) : 0;
     
 
     const totalNetAmount = InvoiceUtils.getTotalNetPrice(gross, vatAmount);    
@@ -200,27 +202,26 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
                     />
                   </TableCell>
                   <TableCell>
-                    <span>{watch(`details.${index}.totalNetPrice`)}</span>
+                    <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.totalNetPrice`))}</span>
                   </TableCell>
                   {vatInvoice && (
                     <>
                       <TableCell>
-                        <ComboboxField
-                          options={VAT_OPTIONS}
+                        <InputField
                           form={form}
+                          type="number"
                           fieldName={`details.${index}.vat`}
-                          placeholder="Select vat"
                           manualChange={() => calculateTotals(index)}
                         />
                       </TableCell>
                       <TableCell>
-                        <span>{watch(`details.${index}.vatAmount`)}</span>
+                        <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.vatAmount`))}</span>
                       </TableCell>
                     </>
                   )}
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                    <span>{watch(`details.${index}.totalGrossPrice`)}</span>
+                    <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.totalGrossPrice`))}</span>
                     <MinusCircleIcon
                       onClick={removeLine(index)}
                       className={cn("text-red-400", {
