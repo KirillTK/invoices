@@ -83,10 +83,10 @@ export const invoice = createTable("invoices", {
     .notNull(),
   clientAddress: varchar("client_address", { length: 250 }),
   clientNip: varchar("client_nip", { length: 50 }),
-  exchangeRate: doublePrecision("exchange_rate").default(1),
-  currencyId: uuid("currency_id")
-    .references(() => currency.id)
-    .notNull(),
+  // exchangeRate: doublePrecision("exchange_rate").default(1),
+  // currencyId: uuid("currency_id")
+  //   .references(() => currency.id)
+  //   .notNull(),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

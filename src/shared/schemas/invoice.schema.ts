@@ -23,7 +23,6 @@ export const invoiceSchema = z.object({
     .min(1, "User address is required")
     .max(250, "User address too long"),
   clientNip: z.string().min(1, "User Nip is required").max(50, "Nip too long"),
-  currencyId: z.array(z.string()),
 });
 
 export const invoiceDetailsSchema = z.object({

@@ -26,8 +26,6 @@ export default function Invoice(props: Props) {
 
   const defaultFormValues: InvoiceFormValues = {
     invoice: {
-      // TODO: need to set currencyId correctly
-      currencyId: [invoice.invoice.currencyId],
       invoiceNo: invoice.invoice.invoiceNo,
       dueDate: new Date(invoice.invoice.dueDate!),
       invoiceDate: new Date(invoice.invoice.invoiceDate!),

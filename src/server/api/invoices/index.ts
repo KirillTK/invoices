@@ -12,6 +12,7 @@ import {
 import type { invoiceDocumentSchema, invoiceDocumentSchemaWithDetailsId } from "~/shared/schemas/invoice.schema";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 
+// TODO: add cache
 export class InvoicesService {
   @authRequired()
   static async getInvoiceList() {
@@ -36,7 +37,11 @@ export class InvoicesService {
 
   @authRequired()
   static async getInvoiceListFull() {
+    const user = await auth();
+
     return db.query.invoice.findMany({
+      where: and(eq(invoice.userId, user.userId!)),
+      orderBy: desc(invoice.createdAt),
       with: {
         details: true,
       },
@@ -100,9 +105,7 @@ export class InvoicesService {
             userId,
             dueDate: invoiceInfo.dueDate as unknown as string,
             invoiceDate: invoiceInfo.invoiceDate as unknown as string,
-            vatInvoice: false,
-            // TODO: it should be correct currencyId
-            currencyId: '',
+            vatInvoice: invoiceInfo.vatInvoice,
           })
           .returning({ invoiceId: invoice.id });
 
@@ -222,8 +225,6 @@ export class InvoicesService {
           dueDate: new Date(invoiceData.invoice.dueDate).toISOString(),
           invoiceDate: new Date(invoiceData.invoice.invoiceDate).toISOString(),
           updatedAt: sql`NOW()`,
-          // TODO: it should be correct currencyId
-          currencyId: '',
         };
 
         await tx.update(invoice)
