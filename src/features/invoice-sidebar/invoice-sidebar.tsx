@@ -1,5 +1,5 @@
 'use client'
-
+import React from 'react';
 import { FileText, Users, PieChart } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -37,11 +37,11 @@ export default function InvoiceSidebar() {
   );
 
   return (
-    <nav className="w-44 bg-white p-4 shadow-md">
-      <ul className="space-y-2">
+    <nav className="w-44 bg-white p-4 shadow-md" key="test2">
+      <ul className="space-y-2" key="test">
         {navItems.map((item) => (
-          <>
-            <NavLink {...item} key={item.href} />
+          <React.Fragment key={item.href}>
+            <NavLink {...item} />
             {item.href === '/invoices' && isInvoiceDetailRoute && (
               <NavLink
                 key={item.href}
@@ -51,7 +51,7 @@ export default function InvoiceSidebar() {
                 className="ml-4"
               />
             )}
-          </>
+          </React.Fragment>
         ))}
       </ul>
     </nav>

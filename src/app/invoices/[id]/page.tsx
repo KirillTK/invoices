@@ -1,4 +1,5 @@
-'use client';
+'use client';;
+import { use } from "react";
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/shared/components/button';
@@ -11,9 +12,10 @@ import { toast } from '~/shared/components/toast/use-toast';
 import { InvoiceButton } from '~/features/invoice-button';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function Invoice({ params }: Props) {
+export default function Invoice(props: Props) {
+  const params = use(props.params);
   const router = useRouter();
   const { invoice, isLoading, error } = useInvoiceQuery(params.id);
   const { downloadPdf, isLoading: isDownloadingPdf, deleteInvoice, updateInvoice } = useInvoiceMutations(params.id);
@@ -24,6 +26,8 @@ export default function Invoice({ params }: Props) {
 
   const defaultFormValues: InvoiceFormValues = {
     invoice: {
+      // TODO: need to set currencyId correctly
+      currencyId: [invoice.invoice.currencyId],
       invoiceNo: invoice.invoice.invoiceNo,
       dueDate: new Date(invoice.invoice.dueDate!),
       invoiceDate: new Date(invoice.invoice.invoiceDate!),

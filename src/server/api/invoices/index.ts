@@ -15,7 +15,7 @@ import { and, desc, eq, like, sql } from "drizzle-orm";
 export class InvoicesService {
   @authRequired()
   static async getInvoiceList() {
-    const user = auth();
+    const user = await auth();
 
     return db
       .select({
@@ -36,7 +36,7 @@ export class InvoicesService {
 
   @authRequired()
   static async getInvoiceNameById(invoiceId: string) {
-    const user = auth();
+    const user = await auth();
 
     try {
       const [invoiceNo] = await db
@@ -54,7 +54,7 @@ export class InvoicesService {
 
   @authRequired()
   static async getInvoice(invoiceId: string) {
-    const user = auth();
+    const user = await auth();
 
     const invoiceRes = await db
       .select()
@@ -92,6 +92,8 @@ export class InvoicesService {
             dueDate: invoiceInfo.dueDate as unknown as string,
             invoiceDate: invoiceInfo.invoiceDate as unknown as string,
             vatInvoice: false,
+            // TODO: it should be correct currencyId
+            currencyId: '',
           })
           .returning({ invoiceId: invoice.id });
 
@@ -127,7 +129,7 @@ export class InvoicesService {
 
   @authRequired()
   static async copyInvoice(invoiceId: string) {
-    const user = auth();
+    const user = await auth();;
     const [invoiceToCopy] = await db.select().from(invoice).where(eq(invoice.id, invoiceId)).limit(1);
 
     if (!invoiceToCopy) {
@@ -187,7 +189,7 @@ export class InvoicesService {
 
   @authRequired()
   static async deleteInvoice(invoiceId: string) {
-    const user = auth();
+    const user = await auth();;
 
     return db.transaction(async (tx) => {
       try {
@@ -202,7 +204,7 @@ export class InvoicesService {
 
   @authRequired()
   static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithDetailsId>) {
-    const user = auth();
+    const user = await auth();;
 
     return db.transaction(async (tx) => {
       try {
@@ -211,6 +213,8 @@ export class InvoicesService {
           dueDate: new Date(invoiceData.invoice.dueDate).toISOString(),
           invoiceDate: new Date(invoiceData.invoice.invoiceDate).toISOString(),
           updatedAt: sql`NOW()`,
+          // TODO: it should be correct currencyId
+          currencyId: '',
         };
 
         await tx.update(invoice)

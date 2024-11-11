@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <html lang="en" className={`font-sans ${inter.variable}`}>
         <body>
           <main>{children}</main>

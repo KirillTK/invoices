@@ -10,8 +10,8 @@ export function authRequired<T>() {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    descriptor.value = function (...args: unknown[]) {
-      const user = auth();
+    descriptor.value = async function (...args: unknown[]) {
+      const user = await auth();
       
       if (!user.userId) {
         throw new Error("Unauthorized");

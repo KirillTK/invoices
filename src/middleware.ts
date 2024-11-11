@@ -6,14 +6,14 @@ const isProtectedRoute = createRouteMatcher([
   '/invoices/(.*)',
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
       const homeUrl = new URL('/', req.url);
       return NextResponse.redirect(homeUrl);
     }
-    auth().protect();
+    await auth.protect();
   }
 });
 
