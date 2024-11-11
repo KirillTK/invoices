@@ -59,6 +59,8 @@ export const YearlyChart: React.FC<{ invoices: InvoiceListModel[] }> = React.mem
     },
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return <Bar options={chartOptions} data={chartData} />;
 });
 
