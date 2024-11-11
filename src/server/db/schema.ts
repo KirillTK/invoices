@@ -41,6 +41,8 @@ export const currency = createTable("currencies", {
   code: varchar("code", { length: 50 }).notNull().unique(),
 });
 
+export type CurrencyModel = InferSelectModel<typeof currency>;
+
 export const exchange_rate = createTable("exchange_rates", {
   id: uuid("id").primaryKey().defaultRandom(),
   currencyId: uuid("currency_id").references(() => currency.id, { onDelete: "cascade" }).notNull(),

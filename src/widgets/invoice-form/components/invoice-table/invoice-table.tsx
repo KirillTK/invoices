@@ -22,6 +22,7 @@ import { UNIT_OPTIONS, VAT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
 import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
+import { CurrencyPicker } from '~/features/currency-picker';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -43,7 +44,7 @@ export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
 };
 
 interface Props {
-  form: UseFormReturn<{ details: InvoiceTableForm[] }>;
+  form: UseFormReturn<{ details: InvoiceTableForm[]; invoice: { currencyId: string[] } }>;
   disabled: boolean;
   vatInvoice?: boolean;
 }
@@ -133,8 +134,9 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="space-y-4">
         <CardTitle>Invoice Items</CardTitle>
+        <CurrencyPicker fieldName="invoice.currencyId" form={form} />
       </CardHeader>
       <CardContent>
         <Table

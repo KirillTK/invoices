@@ -60,7 +60,7 @@ export default function HomePage() {
           style={headerAnimation}
           className="text-3xl font-bold text-gray-800"
         >
-          {auth?.userId ? <Link href="/invoices">InvoiceApp</Link> : 'InvoiceApp'}
+          {auth?.userId ? <Link href="/invoices" prefetch>InvoiceApp</Link> : 'InvoiceApp'}
         </animated.h1>
         <animated.div style={loginButtonAnimation}>
           <SignedOut>

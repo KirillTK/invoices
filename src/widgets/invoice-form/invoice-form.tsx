@@ -61,6 +61,10 @@ export function InvoiceForm({
   const selectedClientId = watch("invoice.clientId");  
 
   const isVatInvoice = watch("invoice.vatInvoice");  
+
+  const currencies = watch("invoice.currencyId");
+
+  console.log(currencies, 'currencies');
   
   useEffect(() => {
     if (selectedClientId) {
@@ -216,6 +220,7 @@ export function InvoiceForm({
               form={
                 form as unknown as UseFormReturn<{
                   details: InvoiceTableForm[];
+                  invoice: { currencyId: string[] };
                 }>
               }
               disabled={isFormDisabled}
