@@ -10,8 +10,7 @@ export const env = createEnv({
     POSTGRES_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
-      .default("development"),
-    CURRENCY_API: z.string(),
+      .default("development")
   },
 
   /**
@@ -30,7 +29,6 @@ export const env = createEnv({
   runtimeEnv: {
     POSTGRES_URL: process.env.POSTGRES_URL,
     NODE_ENV: process.env.NODE_ENV,
-    CURRENCY_API: process.env.CURRENCY_API,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
