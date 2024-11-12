@@ -141,14 +141,18 @@ export class InvoicesService {
 
   @authRequired()
   static async copyInvoice(invoiceId: string) {
-    const user = await auth();;
-    const [invoiceToCopy] = await db.select().from(invoice).where(eq(invoice.id, invoiceId)).limit(1);
+    const user = await auth();
+
+    const invoiceToCopy = await db.query.invoice.findFirst({
+      where: and(eq(invoice.userId, user.userId!), eq(invoice.id, invoiceId)),
+      with: {
+        details: true,
+      },
+    });
 
     if (!invoiceToCopy) {
       throw new Error("Invoice not found");
     }
-
-    const details = await db.select().from(invoiceDetails).where(eq(invoiceDetails.invoiceId, invoiceId));
 
     return db.transaction(async (tx) => {
       try {
@@ -184,10 +188,10 @@ export class InvoicesService {
         }
         
         await tx.insert(invoiceDetails).values(
-          details.map(detail => ({
+          invoiceToCopy.details.map(detail => ({
             ...detail,
             id: undefined, // Remove the id to create new detail entries
-            invoice: savedInvoice.invoiceId // Link to the new invoice
+            invoiceId: savedInvoice.invoiceId // Link to the new invoice
           }))
         );
   
