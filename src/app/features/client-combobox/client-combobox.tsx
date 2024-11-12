@@ -9,7 +9,6 @@ import { twMerge } from 'tailwind-merge';
 
 type Props<T extends FieldValues> = UncontrolledControlProps<T>
 
-
 export const ClientCombobox = <T extends FieldValues>({ form, fieldName, ...rest }: Props<T>) => {
   const { clients } = useClientQuery();
 

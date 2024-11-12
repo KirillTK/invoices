@@ -3,7 +3,7 @@ import { use } from "react";
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/shared/components/button';
-import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
+import { InvoiceForm, type InvoiceFormValues } from '~/widgets/invoice-form';
 import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/model/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
