@@ -14,11 +14,11 @@ type Props = {
 
 export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
   const router = useRouter();
-  const { copyInvoice, deleteInvoice, isLoading } = useInvoiceMutations(invoiceId);
+  const { copyInvoice, deleteInvoice } = useInvoiceMutations(invoiceId);
 
   const handleDelete = async () => {
     try {
-      await deleteInvoice();
+      await deleteInvoice.mutateAsync();
       router.refresh();
     } catch (error) {
       toast({
@@ -31,7 +31,7 @@ export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
 
   const handleDuplicate = async () => {
     try {
-      await copyInvoice();
+      await copyInvoice.mutateAsync();
       router.refresh();
     } catch (error) {
       toast({
@@ -41,6 +41,8 @@ export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
       });
     }
   }
+
+  const isLoading = deleteInvoice.isPending || copyInvoice.isPending;
 
   return (
     <div className="flex space-x-2">

@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { Toaster } from '~/shared/components/toast/toaster';
+import Providers from './providers';
 
 import "~/styles/globals.css";
 
@@ -24,7 +25,7 @@ export default function RootLayout({
     <ClerkProvider dynamic>
       <html lang="en" className={`font-sans ${inter.variable}`}>
         <body>
-          <main>{children}</main>
+          <Providers>{children}</Providers>
           <Toaster />
         </body>
       </html>

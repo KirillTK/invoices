@@ -17,10 +17,12 @@ type Props = { params: Promise<{ id: string }> };
 export default function Invoice(props: Props) {
   const params = use(props.params);
   const router = useRouter();
-  const { invoice, isLoading, error } = useInvoiceQuery(params.id);
-  const { downloadPdf, isLoading: isDownloadingPdf, deleteInvoice, updateInvoice } = useInvoiceMutations(params.id);
+  const { invoice, isLoading: isLoadingInvoice, error } = useInvoiceQuery(params.id);
+  const { downloadPdf, deleteInvoice, updateInvoice } = useInvoiceMutations(params.id);
 
-  if(isLoading) return <InvoiceSkeleton />;
+  const isLoading = downloadPdf.isPending || updateInvoice.isPending;
+
+  if(isLoadingInvoice) return <InvoiceSkeleton />;
 
   if(error ?? !invoice) return <InvoiceNotFound />;
 
@@ -52,7 +54,7 @@ export default function Invoice(props: Props) {
 
   const handleDeleteInvoice = async () => {
     try {
-      await deleteInvoice();
+      await deleteInvoice.mutateAsync();
 
       router.push('/invoices');
     } catch (error) {
@@ -66,7 +68,7 @@ export default function Invoice(props: Props) {
   };
 
   const handleUpdateInvoice = async (values: InvoiceFormValues) => {
-    const response = await updateInvoice(params.id, values);
+    const response = await updateInvoice.mutateAsync(values);
 
     if(response?.ok) {
       toast({ title: "Invoice successfully updated!", variant: "success" });
@@ -80,14 +82,14 @@ export default function Invoice(props: Props) {
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
         <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoice.invoiceNo ?? ""}</h1>
         <div className="flex space-x-2">
-          <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" disabled={isDownloadingPdf} />
+          <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" disabled={isLoading} />
           <Button 
-            onClick={downloadPdf} 
+            onClick={() => downloadPdf.mutateAsync()} 
             variant="outline" 
             className="border-blue-600 text-blue-600 hover:bg-blue-50"
-            disabled={isDownloadingPdf}
+            disabled={isLoading}
           >
-            {isDownloadingPdf ? (
+            {downloadPdf.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <FileDown className="mr-2 h-4 w-4" />
@@ -98,7 +100,7 @@ export default function Invoice(props: Props) {
             <Button 
               variant="outline" 
               className="border-red-600 text-red-600 hover:bg-red-50"
-            disabled={isDownloadingPdf}
+              disabled={isLoading}
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete
             </Button>
