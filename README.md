@@ -57,3 +57,22 @@ To run the app locally, follow these steps:
    ```
 
 Your app should now be running locally at `http://localhost:3000`.
+
+
+## How to run database migrations with Drizzle
+
+To manage your database schema and run migrations with Drizzle, follow these steps:
+
+1. **Apply Migrations**: To apply existing migrations, run the following command:
+   ```sh
+   npx drizzle-kit migrate --config=drizzle.config.ts
+   ```
+
+2. **Create New Migration**: To create a new migration, use the following command and provide a name for the migration (e.g., `init`):
+   ```sh
+   npx drizzle-kit generate --config=drizzle.config.ts --name=init
+   ```
+
+This will generate a new migration file in the specified migrations folder and allow you to define the changes you want to make to your database schema.
+
+For more information on Drizzle and its migration capabilities, refer to the [Drizzle documentation](https://orm.drizzle.team).
