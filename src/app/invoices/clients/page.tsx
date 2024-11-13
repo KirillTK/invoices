@@ -16,7 +16,7 @@ const clients: ClientModel[] = [
 ] as ClientModel[]
 
 export default function ClientsPage() {
-  const [editingClient, setEditingClient] = useState<ClientModel | null>(null);
+  const [, setEditingClient] = useState<ClientModel | null>(null);
 
   const handleEditClient = (client: ClientModel) => {
     setEditingClient(client);

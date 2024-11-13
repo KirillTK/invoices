@@ -39,6 +39,7 @@ export function CurrencyPicker<T extends FieldValues>(props: Props<T>) {
       selectedCurrencyIds.current = [currencyId];
     }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(currencies)]);
 
 

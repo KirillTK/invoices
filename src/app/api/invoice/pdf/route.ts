@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([600, 800]); // Set custom page size
-    const { width, height } = page.getSize();
+    const { height } = page.getSize();
     const fontSize = 12;
 
     // Add Invoice Details section

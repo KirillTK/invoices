@@ -71,6 +71,7 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
     fields.forEach((_, index) => {
       calculateTotals(index);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vatInvoice, fields])
 
   const handleMouseEnterTable = useCallback(() => {

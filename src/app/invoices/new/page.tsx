@@ -9,7 +9,7 @@ export default function CreateNewInvoicePage() {
   const { createInvoice } = useInvoiceMutations();
 
   const handleSubmit = async (values: InvoiceFormValues) => {
-    const response = await createInvoice(values);
+    const response = await createInvoice.mutateAsync(values);
 
     if(response?.ok) {
       toast({ title: "Invoice successfully saved!", variant: "success" });

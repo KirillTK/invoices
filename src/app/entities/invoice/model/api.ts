@@ -69,7 +69,7 @@ export function useInvoiceMutations(id?: string) {
   },);
 
   const createInvoice = useMutation({
-    mutationFn: async <T>(invoice: T) => {
+    mutationFn: async (invoice: unknown) => {
       const response = await fetch('/api/invoice', { method: 'POST', body: JSON.stringify(invoice) });
       return response;
     },
