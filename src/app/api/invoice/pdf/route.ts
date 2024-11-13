@@ -1,7 +1,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, rgb } from 'pdf-lib';
-import { InvoicesService } from "~/server/api/invoices";
+import { InvoicesService } from "~/server/routes/invoices/invoices.route";
 import { authenticateUser, handleError } from '~/server/utils/api.utils';
 
 export async function POST(req: NextRequest) {

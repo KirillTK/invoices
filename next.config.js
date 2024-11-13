@@ -5,6 +5,11 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  // TODO: uncomment this when is't stable
+  // experimental: {
+  //   dynamicIO: true,
+  // },
+};
 
 export default config;

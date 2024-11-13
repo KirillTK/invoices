@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { ClientsService } from "~/server/api/clients";
+import { ClientsService } from "~/server/routes/clients/clients.route";
 import type { ClientModel } from "~/server/db/schema";
 import { clientSchema } from "~/shared/schemas/client.schema";
 import { authenticateUser, handleError } from '~/server/utils/api.utils';

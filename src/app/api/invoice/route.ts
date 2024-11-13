@@ -1,7 +1,7 @@
 import { type User } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import type { z } from "zod";
-import { InvoicesService } from "~/server/api/invoices";
+import { InvoicesService } from "~/server/routes/invoices/invoices.route";
 import { authenticateUser, handleError } from '~/server/utils/api.utils';
 import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
 

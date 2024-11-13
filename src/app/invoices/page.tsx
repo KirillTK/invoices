@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react';
 import Link from "next/link";
 import { InvoicesTable } from "~/features/invoices-table";
-import { InvoicesService } from '~/server/api/invoices';
+import { InvoicesService } from '~/server/routes/invoices/invoices.route';
 import { Button } from "~/shared/components/button";
 
 export default async function InvoicesPage() {

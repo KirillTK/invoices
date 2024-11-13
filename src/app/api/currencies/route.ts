@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { CurrencyService } from '~/server/api/currencies';
+import { CurrencyService } from '~/server/routes/currencies/currencies.route';
 
 
 export async function GET() {
