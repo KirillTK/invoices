@@ -26,16 +26,16 @@ export default function Invoice(props: Props) {
 
   const defaultFormValues: InvoiceFormValues = {
     invoice: {
-      invoiceNo: invoice.invoice.invoiceNo,
-      dueDate: new Date(invoice.invoice.dueDate!),
-      invoiceDate: new Date(invoice.invoice.invoiceDate!),
-      vatInvoice: invoice.invoice.vatInvoice!,
-      userName: invoice.invoice.userName,
-      userAddress: invoice.invoice.userAddress!,
-      userNip: invoice.invoice.userNip!,
-      clientId: invoice.invoice.clientId,
-      clientAddress: invoice.invoice.clientAddress!,
-      clientNip: invoice.invoice.clientNip!,
+      invoiceNo: invoice.invoiceNo,
+      dueDate: new Date(invoice.dueDate!),
+      invoiceDate: new Date(invoice.invoiceDate!),
+      vatInvoice: invoice.vatInvoice!,
+      userName: invoice.userName,
+      userAddress: invoice.userAddress!,
+      userNip: invoice.userNip!,
+      clientId: invoice.clientId,
+      clientAddress: invoice.clientAddress!,
+      clientNip: invoice.clientNip!,
     },
     details: invoice.details.map((detail) => ({
       description: detail.description,
@@ -57,7 +57,7 @@ export default function Invoice(props: Props) {
   return (
     <div>
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
-        <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoice.invoiceNo ?? ""}</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.invoiceNo ?? ""}</h1>
         <div className="flex space-x-2">
           <InvoiceButton action={DOM_ID.SAVE_NEW_INVOICE} title="Save Changes" disabled={isLoading} />
           <Button 
@@ -73,7 +73,7 @@ export default function Invoice(props: Props) {
             )}
             Export
           </Button>
-          <ConfirmRemoveInvoiceModal invoiceNumber={invoice.invoice.invoiceNo} handleConfirm={handleDeleteInvoice}>
+          <ConfirmRemoveInvoiceModal invoiceNumber={invoice.invoiceNo} handleConfirm={handleDeleteInvoice}>
             <Button 
               variant="outline" 
               className="border-red-600 text-red-600 hover:bg-red-50"

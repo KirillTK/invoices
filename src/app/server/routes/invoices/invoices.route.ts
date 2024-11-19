@@ -70,23 +70,17 @@ export class InvoicesService {
   static async getInvoice(invoiceId: string) {
     const user = await auth();
 
-    const invoiceRes = await db
-      .select()
-      .from(invoice)
-      .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoiceId))
-      .groupBy(invoice.id, invoiceDetails.id)
-      .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
 
-    if (!invoiceRes.length) return null;
+    const invoiceRes = await db.query.invoice.findFirst({
+      where: and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)),
+      with: {
+        details: true,
+      },
+    });
 
-    return {
-      invoice: invoiceRes[0]!.invoices,
-      details: invoiceRes.reduce<InvoiceDetailsModel[]>((accum, item) => {
-        accum.push(item.invoice_details);
+    if (!invoiceRes) return null;
 
-        return accum;
-      }, []),
-    };
+    return invoiceRes;
   }
 
   @authRequired()
