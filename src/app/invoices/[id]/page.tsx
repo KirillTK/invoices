@@ -1,14 +1,12 @@
 'use client';;
 import { use } from "react";
 import { FileDown, Loader2, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { Button } from '~/shared/components/button';
 import { InvoiceForm, type InvoiceFormValues } from '~/widgets/invoice-form';
-import { useInvoiceMutations, useInvoiceQuery } from '~/entities/invoice/model/api';
+import { useDownloadInvoiceMutation, useInvoiceDeleteMutation, useInvoiceQuery, useInvoiceUpdateMutation } from '~/entities/invoice/api/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
 import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal';
-import { toast } from '~/shared/components/toast/use-toast';
 import { InvoiceButton } from '~/features/invoice-button';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
 
@@ -16,10 +14,10 @@ type Props = { params: Promise<{ id: string }> };
 
 export default function Invoice(props: Props) {
   const params = use(props.params);
-  const router = useRouter();
   const { invoice, isLoading: isLoadingInvoice, error } = useInvoiceQuery(params.id);
-  const { downloadPdf, deleteInvoice, updateInvoice } = useInvoiceMutations(params.id);
-
+  const downloadPdf = useDownloadInvoiceMutation(params.id);
+  const updateInvoice =  useInvoiceUpdateMutation(params.id);
+  const deleteInvoice = useInvoiceDeleteMutation(params.id, '/invoices');
   const isLoading = downloadPdf.isPending || updateInvoice.isPending;
 
   if(isLoadingInvoice) return <InvoiceSkeleton />;
@@ -52,30 +50,9 @@ export default function Invoice(props: Props) {
     })),
   };
 
-  const handleDeleteInvoice = async () => {
-    try {
-      await deleteInvoice.mutateAsync();
+  const handleDeleteInvoice = async () => deleteInvoice.mutateAsync();
 
-      router.push('/invoices');
-    } catch (error) {
-      console.error('Failed to delete invoice:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete invoice. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateInvoice = async (values: InvoiceFormValues) => {
-    const response = await updateInvoice.mutateAsync(values);
-
-    if(response?.ok) {
-      toast({ title: "Invoice successfully updated!", variant: "success" });
-    }
-
-    return response;
-  }
+  const handleUpdateInvoice = async (values: InvoiceFormValues) => updateInvoice.mutateAsync(values);
 
   return (
     <div>

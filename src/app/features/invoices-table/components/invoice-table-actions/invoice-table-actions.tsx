@@ -1,11 +1,9 @@
 'use client'
 import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useInvoiceMutations } from '~/entities/invoice/model/api'
+import { useInvoiceDeleteMutation, useInvoiceCopyMutation } from '~/entities/invoice/api/api'
 import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal'
 import { Button } from '~/shared/components/button'
-import { toast } from '~/shared/components/toast/use-toast'
-
 
 type Props = {
   invoiceId: string
@@ -14,32 +12,14 @@ type Props = {
 
 export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
   const router = useRouter();
-  const { copyInvoice, deleteInvoice } = useInvoiceMutations(invoiceId);
+  const deleteInvoice = useInvoiceDeleteMutation(invoiceId);
+  const copyInvoice = useInvoiceCopyMutation(invoiceId);
 
-  const handleDelete = async () => {
-    try {
-      await deleteInvoice.mutateAsync();
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete invoice. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }
+  const handleDelete = () => deleteInvoice.mutateAsync();
 
   const handleDuplicate = async () => {
-    try {
-      await copyInvoice.mutateAsync();
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy invoice. Please try again.",
-        variant: "destructive",
-      });
-    }
+    await copyInvoice.mutateAsync();
+    router.refresh();
   }
 
   const isLoading = deleteInvoice.isPending || copyInvoice.isPending;

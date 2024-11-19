@@ -1,22 +1,13 @@
 'use client';
-import { useInvoiceMutations } from '~/entities/invoice/model/api';
+import { useCreateInvoiceMutation } from '~/entities/invoice/api/api';
 import { InvoiceButton } from '~/features/invoice-button';
-import { toast } from '~/shared/components/toast/use-toast';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
 import { InvoiceForm, type InvoiceFormValues } from "~/widgets/invoice-form";
 
 export default function CreateNewInvoicePage() {
-  const { createInvoice } = useInvoiceMutations();
+  const createInvoice = useCreateInvoiceMutation();
 
-  const handleSubmit = async (values: InvoiceFormValues) => {
-    const response = await createInvoice.mutateAsync(values);
-
-    if(response?.ok) {
-      toast({ title: "Invoice successfully saved!", variant: "success" });
-    }
-
-    return response;
-  }
+  const handleSubmit = (values: InvoiceFormValues) => createInvoice.mutateAsync(values);
 
   return (
     <section>
