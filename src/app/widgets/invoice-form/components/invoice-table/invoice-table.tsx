@@ -22,7 +22,8 @@ import { UNIT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
 import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
-import { MoneyUtils } from '~/shared/utils/money';
+import { FormatterUtils } from '~/shared/utils/formatter';
+import { MathUtils } from '~/shared/utils/math';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -118,7 +119,8 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
   function calculateTotals(index: number) {
     const { quantity, unitPrice, vat } = getValues(`details.${index}`);
 
-    const vatPercent = +Number.parseFloat((vat / 100).toFixed(2));
+
+    const vatPercent = MathUtils.divide(vat ?? 0, 100);
 
     const gross = InvoiceUtils.getTotalGrossPrice(+quantity, +unitPrice);
 
@@ -203,7 +205,7 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
                     />
                   </TableCell>
                   <TableCell>
-                    <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.totalNetPrice`))}</span>
+                    <span>{FormatterUtils.fromNumberToMoney(watch(`details.${index}.totalNetPrice`))}</span>
                   </TableCell>
                   {vatInvoice && (
                     <>
@@ -216,13 +218,13 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
                         />
                       </TableCell>
                       <TableCell>
-                        <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.vatAmount`))}</span>
+                        <span>{FormatterUtils.fromNumberToMoney(watch(`details.${index}.vatAmount`))}</span>
                       </TableCell>
                     </>
                   )}
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                    <span>{MoneyUtils.fromNumberToMoney(watch(`details.${index}.totalGrossPrice`))}</span>
+                    <span>{FormatterUtils.fromNumberToMoney(watch(`details.${index}.totalGrossPrice`))}</span>
                     <MinusCircleIcon
                       onClick={removeLine(index)}
                       className={cn("text-red-400", {

@@ -9,6 +9,7 @@ import InvoiceNotFound from './not-found';
 import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal';
 import { InvoiceButton } from '~/features/invoice-button';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
+import { MathUtils } from '~/shared/utils/math';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -44,7 +45,7 @@ export default function Invoice(props: Props) {
       quantity: detail.quantity,
       totalNetPrice: detail.totalNetPrice ?? 0,
       totalGrossPrice: detail.totalGrossPrice ?? 0,
-      vat: detail.vat ?? 0,
+      vat: MathUtils.toPercentageWithTwoDecimals(detail.vat ?? 0),
       vatAmount: detail.vatAmount ?? 0,
       id: detail.id,
     })),

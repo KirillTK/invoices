@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "~/shared/components/table/table";
 import { DateUtils } from "~/shared/utils/date";
-import { MoneyUtils } from "~/shared/utils/money";
+import { FormatterUtils } from "~/shared/utils/formatter";
 import { InvoiceTableActions } from '../components';
 
 export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
@@ -55,7 +55,7 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
                     {dueDate ? DateUtils.formatDate(dueDate) : '-'}
                   </TableCell>
                   <TableCell>
-                    {MoneyUtils.fromNumberToMoney(totalNetPrice)}
+                    {FormatterUtils.fromNumberToMoney(totalNetPrice)}
                   </TableCell>
                 </TableRow>
               )
@@ -65,7 +65,7 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
             <TableRow>
               <TableCell colSpan={5}>Total</TableCell>
               <TableCell className="text-left">
-                {MoneyUtils.fromNumberToMoney(totalsAmount)}
+                {FormatterUtils.fromNumberToMoney(totalsAmount)}
               </TableCell>
             </TableRow>
           </TableFooter>

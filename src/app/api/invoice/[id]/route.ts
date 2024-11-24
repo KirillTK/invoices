@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { InvoicesService } from '~/server/routes/invoices/invoices.route';
 import { authenticateUser, handleError } from '~/server/utils/api.utils';
 import { invoiceDocumentSchemaWithDetailsId } from '~/shared/schemas/invoice.schema';
+import { MathUtils } from '~/shared/utils/math';
 
 export async function POST(req: NextRequest) {
   const user = await authenticateUser();
@@ -46,6 +47,11 @@ export async function PATCH(req: NextRequest) {
       { status: 400 },
     );
   }
+
+  data.details = data.details.map(detail => ({
+    ...detail,
+    vat: detail.vat ? MathUtils.divide(detail.vat, 100) : 0,
+  }));
 
   try {
     await InvoicesService.updateInvoice(invoiceId, data);

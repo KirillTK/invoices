@@ -1,7 +1,7 @@
 import { CURRENCY } from "../constants/currency.const";
 import { LONG_DASH } from "../constants/symbols.const";
 
-export class MoneyUtils {
+export class FormatterUtils {
   static fromNumberToMoney(val: number, currency = CURRENCY.USD): string {
     if (!val) {
       return LONG_DASH;
