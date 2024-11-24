@@ -36,6 +36,13 @@
       "when": 1731346995283,
       "tag": "0004_remove-multiple-currency",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1732459966316,
+      "tag": "0005_add_units_table",
+      "breakpoints": true
     }
   ]
 }
