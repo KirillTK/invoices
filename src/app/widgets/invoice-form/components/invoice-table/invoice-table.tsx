@@ -17,13 +17,12 @@ import {
 } from "~/shared/components/table/table";
 import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
-import { ComboboxField } from "~/shared/components/controls/combobox-field";
-import { UNIT_OPTIONS } from "~/shared/constants/option.const";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
 import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 import { FormatterUtils } from '~/shared/utils/formatter';
 import { MathUtils } from '~/shared/utils/math';
+import { UnitCombobox } from '~/features/unit-combobox/ui/unit-combobox';
 
 export interface InvoiceTableForm
   extends Omit<z.infer<typeof invoiceDetailsSchema>, "invoiceId"> {
@@ -35,7 +34,7 @@ export interface InvoiceTableForm
 
 export const EMPTY_INVOICE_ROW_TABLE: InvoiceTableForm = {
   description: "",
-  unit: UNIT_OPTIONS[0]!.value,
+  unitId: 0,
   unitPrice: 0,
   quantity: 0,
   totalNetPrice: 0,
@@ -181,11 +180,9 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
                     />
                   </TableCell>
                   <TableCell>
-                    <ComboboxField
-                      options={UNIT_OPTIONS}
+                    <UnitCombobox
                       form={form}
-                      fieldName={`details.${index}.unit`}
-                      placeholder="Select Unit"
+                      fieldName={`details.${index}.unitId`}
                     />
                   </TableCell>
                   <TableCell>

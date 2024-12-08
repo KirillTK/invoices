@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSWRConfig } from "swr";
 import type { z } from "zod";
-import type { ClientModel } from "~/entities/client/client.model";
+import type { ClientModel } from "~/entities/client/model/client.model";
 import { Button } from "~/shared/components/button";
 import {
   Dialog,

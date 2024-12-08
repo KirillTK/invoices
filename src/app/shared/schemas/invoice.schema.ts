@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const NumberOrStringNumber = z.union([z.number(), z.string()]).optional().transform((val) => {
+  // Convert string to number if it's a string
+  if (typeof val === 'string') {
+    return Number(val);
+  }
+  return val; // Return the number as is
+});
+
 
 export const invoiceSchema = z.object({
   invoiceNo: z
@@ -30,17 +38,11 @@ export const invoiceDetailsSchema = z.object({
     .string()
     .min(1, "Description is required")
     .max(256, "Invoice description too long"),
-  unitId: z.number(),
+  unitId: NumberOrStringNumber,
   unitPrice: z.coerce.number().min(0.1, "Unit price is required"),
   quantity: z.coerce.number().min(0.1, "Quantity is required"),
   totalNetPrice: z.number().optional(),
-  vat: z.union([z.number(), z.string()]).optional().transform((val) => {
-    // Convert string to number if it's a string
-    if (typeof val === 'string') {
-      return Number(val);
-    }
-    return val; // Return the number as is
-  }),
+  vat: NumberOrStringNumber,
   vatAmount: z.number().optional(),
   totalGrossPrice: z.number().optional(),
 });

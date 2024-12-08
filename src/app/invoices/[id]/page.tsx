@@ -51,6 +51,8 @@ export default function Invoice(props: Props) {
     })),
   };
 
+  console.log(defaultFormValues, 'defaultFormValues');
+
   const handleDeleteInvoice = async () => deleteInvoice.mutateAsync();
 
   const handleUpdateInvoice = async (values: InvoiceFormValues) => updateInvoice.mutateAsync(values);

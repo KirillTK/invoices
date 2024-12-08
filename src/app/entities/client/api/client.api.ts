@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from "~/shared/utils/fetcher";
-import type { ClientModel } from "./client.model";
+import type { ClientModel } from "../model/client.model";
 
 export function useClientQuery() {
   const { data, error, isLoading } = useQuery({

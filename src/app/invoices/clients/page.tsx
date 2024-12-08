@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { PlusIcon, Search, Edit2, Trash2 } from 'lucide-react';
 import { NewClientModal } from '~/features/client-combobox/components/new-client-modal';
-import { type ClientModel } from '~/entities/client/client.model';
+import { type ClientModel } from '~/entities/client/model/client.model';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from '~/shared/components/table/table';
 import { Input } from '~/shared/components/input';

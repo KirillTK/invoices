@@ -10,7 +10,7 @@ import {
 } from "./components/invoice-table";
 import type { InvoiceTableForm } from "./components/invoice-table";
 import { DatePickerField } from "~/shared/components/controls/date-picker-field";
-import { useClientQuery } from "~/entities/client/api";
+import { useClientQuery } from "~/entities/client/api/client.api";
 import { InputField } from "~/shared/components/controls/input-field";
 import { Form } from "~/shared/components/form";
 import { invoiceDocumentSchema } from "~/shared/schemas/invoice.schema";
@@ -55,6 +55,8 @@ export function InvoiceForm({
   });
 
   const { handleSubmit, watch, setValue, setError, getValues } = form;
+
+  console.log(watch());
 
   const { clients } = useClientQuery();
 
@@ -201,7 +203,6 @@ export function InvoiceForm({
                   fieldName="invoice.clientNip"
                   label="NIP/VAT ID:"
                 />
-
                 <InputField
                   form={form}
                   fieldName="invoice.clientAddress"

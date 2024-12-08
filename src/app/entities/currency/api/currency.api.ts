@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '~/shared/utils/fetcher';
-import { type CurrencyModel } from './currency.model';
-
+import type { CurrencyModel } from '../model/currency.model';
 
 export function useCurrencyQuery() {
   const { data, error, isLoading } = useQuery({

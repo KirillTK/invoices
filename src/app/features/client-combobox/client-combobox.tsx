@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { ComboboxField } from "~/shared/components/controls/combobox-field";
 import type { Option, UncontrolledControlProps } from "~/shared/types/form";
-import { useClientQuery } from "~/entities/client/api";
+import { useClientQuery } from "~/entities/client/api/client.api";
 import { type FieldValues } from 'react-hook-form';
 import { NewClientModal } from "./components/new-client-modal";
 import { twMerge } from 'tailwind-merge';
