@@ -1,4 +1,4 @@
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { db } from '~/server/db';
 import { type ClientModel, clients } from '~/server/db/schema';
 import { authRequired } from '~/server/decorators/auth.decorator';
@@ -7,19 +7,21 @@ import { CacheTags } from '~/server/enums/cache';
 
 export class ClientsService {
   @authRequired()
-  static getClients(userId: string) {
+  static getClients(userId: string, query: string) {
     return db.query.clients.findMany({
-      where: (model, { eq }) => eq(model.userId, userId),
+      where: (model, { eq, and, ilike, or }) => 
+        and(
+          eq(model.userId, userId),
+          or(  
+            ilike(model.name, `%${query}%`),
+            ilike(model.taxIndex, `%${query}%`),
+            ilike(model.country, `%${query}%`),
+            ilike(model.city, `%${query}%`)
+          ),
+        ),
       orderBy: (model, { desc }) => desc(model.name),
     });
   };
-
-  static getCachedClients(userId: string) {
-    return unstable_cache(
-      () => this.getClients(userId),
-      [`${CacheTags.CLIENTS}:${userId}`],
-    );
-  }
 
   @authRequired()
   static async saveClient(client: ClientModel) {

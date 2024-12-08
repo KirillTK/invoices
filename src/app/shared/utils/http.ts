@@ -26,3 +26,6 @@ export function getFormErrorArray<T>(errors: ValidationHttpError[]) {
     message: error.message,
   }));
 }
+
+
+export const sleep = (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms))

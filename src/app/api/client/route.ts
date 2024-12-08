@@ -5,11 +5,14 @@ import { clientSchema } from "~/shared/schemas/client.schema";
 import { authenticateUser, handleError } from '~/server/utils/api.utils';
 import { type User } from '@clerk/nextjs/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const user = await authenticateUser();
   if (!user) return user; // This is the NextResponse from authenticateUser
 
-  return NextResponse.json(await ClientsService.getClients((user as User).id));
+
+  const query = req.nextUrl.searchParams.get("query");
+
+  return NextResponse.json(await ClientsService.getClients((user as User).id, query ?? ''));
 }
 
 export async function POST(req: NextRequest) {
