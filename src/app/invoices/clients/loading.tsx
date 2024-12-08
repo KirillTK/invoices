@@ -1,4 +1,4 @@
-import { SkeletonClientsTable } from '~/features/clients-table/ui/skeleton-clients-table';
+import { SkeletonClientsTable } from '~/features/clients-table/components/skeleton-clients-table';
 import { Card, CardContent } from '~/shared/components/card/card';
 import { Skeleton } from '~/shared/components/skeletons';
 

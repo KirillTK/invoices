@@ -1,3 +1,4 @@
+import { and, eq } from 'drizzle-orm';
 import { revalidateTag } from 'next/cache';
 import { db } from '~/server/db';
 import { type ClientModel, clients } from '~/server/db/schema';
@@ -30,4 +31,12 @@ export class ClientsService {
     revalidateTag(`${CacheTags.CLIENTS}:${client.userId}`);
     return res;
   };
+
+  @authRequired()
+  static async deleteClient(userId: string, clientId: string) {
+    const res = await db.delete(clients).where(and(eq(clients.userId, userId), eq(clients.id, clientId)));
+
+    revalidateTag(`${CacheTags.CLIENTS}:${userId}`);
+    return res;
+  }
 }

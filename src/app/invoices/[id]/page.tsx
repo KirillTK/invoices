@@ -6,7 +6,7 @@ import { InvoiceForm, type InvoiceFormValues } from '~/widgets/invoice-form';
 import { useDownloadInvoiceMutation, useInvoiceDeleteMutation, useInvoiceQuery, useInvoiceUpdateMutation } from '~/entities/invoice/api/api';
 import { InvoiceSkeleton } from '~/features/invoice-skeleton';
 import InvoiceNotFound from './not-found';
-import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal';
+import { ConfirmRemoveModal } from '~/features/confirm-remove-modal';
 import { InvoiceButton } from '~/features/invoice-button';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
 import { MathUtils } from '~/shared/utils/math';
@@ -55,6 +55,8 @@ export default function Invoice(props: Props) {
 
   const handleUpdateInvoice = async (values: InvoiceFormValues) => updateInvoice.mutateAsync(values);
 
+  const deleteMessage = `Are you sure you want to delete Invoice #${invoice.invoiceNo}? This action cannot be undone.`;
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6 p-4 pb-0">
@@ -74,7 +76,7 @@ export default function Invoice(props: Props) {
             )}
             Export
           </Button>
-          <ConfirmRemoveInvoiceModal invoiceNumber={invoice.invoiceNo} handleConfirm={handleDeleteInvoice}>
+          <ConfirmRemoveModal message={deleteMessage} handleConfirm={handleDeleteInvoice}>
             <Button 
               variant="outline" 
               className="border-red-600 text-red-600 hover:bg-red-50"
@@ -82,7 +84,7 @@ export default function Invoice(props: Props) {
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete
             </Button>
-          </ConfirmRemoveInvoiceModal>
+          </ConfirmRemoveModal>
           
         </div>
       </div>

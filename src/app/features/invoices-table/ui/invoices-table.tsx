@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { type InvoiceListModel } from '~/entities/invoice/model/invoice.model';
-import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
+import { type InvoiceListModel } from "~/entities/invoice/model/invoice.model";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/shared/components/card/card";
 import {
   Table,
   TableBody,
@@ -12,9 +17,13 @@ import {
 } from "~/shared/components/table/table";
 import { DateUtils } from "~/shared/utils/date";
 import { FormatterUtils } from "~/shared/utils/formatter";
-import { InvoiceTableActions } from '../components';
+import { EmptyInvoiceItems, InvoiceTableActions } from "../components";
 
-export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
+export async function InvoicesTable({
+  invoices,
+}: {
+  invoices: InvoiceListModel[];
+}) {
   const totalsAmount = invoices.reduce(
     (accum, item) => accum + item.totalNetPrice,
     0,
@@ -39,9 +48,16 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
           </TableHeader>
           <TableBody>
             {invoices.map(
-              ({ invoiceNo, clientName, totalNetPrice, createdAt, dueDate, id }) => (
+              ({
+                invoiceNo,
+                clientName,
+                totalNetPrice,
+                createdAt,
+                dueDate,
+                id,
+              }) => (
                 <TableRow key={id}>
-                   <TableCell>
+                  <TableCell>
                     <InvoiceTableActions invoiceId={id} invoiceNo={invoiceNo} />
                   </TableCell>
                   <TableCell className="font-medium">
@@ -52,23 +68,34 @@ export async function InvoicesTable({ invoices }: { invoices: InvoiceListModel[]
                     {DateUtils.formatDate(createdAt)}
                   </TableCell>
                   <TableCell>
-                    {dueDate ? DateUtils.formatDate(dueDate) : '-'}
+                    {dueDate ? DateUtils.formatDate(dueDate) : "-"}
                   </TableCell>
                   <TableCell>
                     {FormatterUtils.fromNumberToMoney(totalNetPrice)}
                   </TableCell>
                 </TableRow>
-              )
+              ),
+            )}
+
+            {invoices.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7}>
+                  <EmptyInvoiceItems />
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={5}>Total</TableCell>
-              <TableCell className="text-left">
-                {FormatterUtils.fromNumberToMoney(totalsAmount)}
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+
+          {invoices.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={5}>Total</TableCell>
+                <TableCell className="text-left">
+                  {FormatterUtils.fromNumberToMoney(totalsAmount)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </CardContent>
     </Card>

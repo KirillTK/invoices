@@ -2,7 +2,7 @@
 import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useInvoiceDeleteMutation, useInvoiceCopyMutation } from '~/entities/invoice/api/api'
-import { ConfirmRemoveInvoiceModal } from '~/features/confirm-remove-invoice-modal'
+import { ConfirmRemoveModal } from '~/features/confirm-remove-modal'
 import { Button } from '~/shared/components/button'
 
 type Props = {
@@ -24,6 +24,8 @@ export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
 
   const isLoading = deleteInvoice.isPending || copyInvoice.isPending;
 
+  const deleteMessage = `Are you sure you want to delete Invoice #${invoiceNo}? This action cannot be undone.`;
+
   return (
     <div className="flex space-x-2">
       <Button variant="outline" size="icon" onClick={() => router.push(`/invoices/${invoiceId}`)} disabled={isLoading}>
@@ -32,11 +34,11 @@ export const InvoiceTableActions = ({ invoiceId, invoiceNo }: Props) => {
       <Button variant="outline" size="icon" onClick={handleDuplicate} disabled={isLoading}>
         <Copy className="h-4 w-4" />
       </Button>
-      <ConfirmRemoveInvoiceModal invoiceNumber={invoiceNo} handleConfirm={handleDelete}>
+      <ConfirmRemoveModal message={deleteMessage} handleConfirm={handleDelete}>
         <Button variant="outline" size="icon" disabled={isLoading}>
           <Trash2 className="h-4 w-4 text-red-600" />
         </Button>
-      </ConfirmRemoveInvoiceModal>
+      </ConfirmRemoveModal>
     </div>
   )
 }
