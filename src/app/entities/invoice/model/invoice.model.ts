@@ -4,5 +4,4 @@ export type InvoiceModel = Invoice & {
   details: Details[];
 };
 
-
 export type InvoiceListModel = Pick<Invoice, 'id' | 'invoiceNo' | 'dueDate' | 'createdAt'> & { totalNetPrice: number; clientName: string };

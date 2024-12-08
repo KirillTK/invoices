@@ -43,6 +43,13 @@
       "when": 1732459966316,
       "tag": "0005_add_units_table",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1733673971059,
+      "tag": "0006_add_unit_id",
+      "breakpoints": true
     }
   ]
 }

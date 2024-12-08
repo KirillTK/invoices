@@ -9,6 +9,11 @@ export const invoiceDetailsRelations = relations(invoiceDetails, ({ one }) => ({
     references: [invoice.id],
     relationName: 'invoiceDetails',
   }),
+  unit: one(unitTypes, {
+    fields: [invoiceDetails.unitId],
+    references: [unitTypes.id],
+    relationName: 'unitType',
+  }),
 }));
 
 export const invoiceRelations = relations(invoice, ({ many }) => ({

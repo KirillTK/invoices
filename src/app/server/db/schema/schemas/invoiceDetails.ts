@@ -1,8 +1,8 @@
 import { createTable } from "../utils/createTable";
-import { uuid, varchar, doublePrecision, timestamp } from "drizzle-orm/pg-core";
-import { unitEnum } from "../enums";
+import { uuid, varchar, doublePrecision, timestamp, integer } from "drizzle-orm/pg-core";
 import { invoice } from "./invoices";
 import { type InferSelectModel, sql } from 'drizzle-orm';
+import { unitTypes } from './unitType';
 
 export const invoiceDetails = createTable("invoice_details", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -10,7 +10,9 @@ export const invoiceDetails = createTable("invoice_details", {
     .references(() => invoice.id, { onDelete: "cascade" })
     .notNull(),
   description: varchar("description", { length: 256 }).notNull(),
-  unit: unitEnum("unit").notNull(),
+  unitId: integer("unit_id")
+  .references(() => unitTypes.id, { onDelete: "cascade" })
+  .notNull(),
   unitPrice: doublePrecision("unit_price").notNull(), 
   quantity: doublePrecision("quantity").notNull(),
   totalNetPrice: doublePrecision('total_net_price').default(0),

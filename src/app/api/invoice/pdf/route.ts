@@ -35,19 +35,19 @@ export async function POST(req: NextRequest) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`Invoice Date: ${invoice.invoice.invoiceDate}`, {
+    page.drawText(`Invoice Date: ${invoice.invoiceDate}`, {
       x: 50,
       y: height - 80,
       size: fontSize,
     });
 
-    page.drawText(`Due Date: ${invoice.invoice.dueDate}`, {
+    page.drawText(`Due Date: ${invoice.dueDate}`, {
       x: 50,
       y: height - 100,
       size: fontSize,
     });
 
-    page.drawText(`Invoice #: ${invoice.invoice.invoiceNo ?? ""}`, {
+    page.drawText(`Invoice #: ${invoice.invoiceNo ?? ""}`, {
       x: 50,
       y: height - 120,
       size: fontSize,
@@ -61,19 +61,19 @@ export async function POST(req: NextRequest) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`Name: ${invoice.invoice.userName}`, {
+    page.drawText(`Name: ${invoice.userName}`, {
       x: 50,
       y: height - 190,
       size: fontSize,
     });
 
-    page.drawText(`NIP/VAT ID: ${invoice.invoice.userNip}`, {
+    page.drawText(`NIP/VAT ID: ${invoice.userNip}`, {
       x: 50,
       y: height - 210,
       size: fontSize,
     });
 
-    page.drawText(`Address: ${invoice.invoice.userAddress}`, {
+    page.drawText(`Address: ${invoice.userAddress}`, {
       x: 50,
       y: height - 230,
       size: fontSize,
@@ -87,19 +87,19 @@ export async function POST(req: NextRequest) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`Name: ${invoice.invoice.clientId}`, {
+    page.drawText(`Name: ${invoice.clientId}`, {
       x: 300,
       y: height - 190,
       size: fontSize,
     });
 
-    page.drawText(`NIP/VAT ID: ${invoice.invoice.clientNip}`, {
+    page.drawText(`NIP/VAT ID: ${invoice.clientNip}`, {
       x: 300,
       y: height - 210,
       size: fontSize,
     });
 
-    page.drawText(`Address: ${invoice.invoice.clientAddress}`, {
+    page.drawText(`Address: ${invoice.clientAddress}`, {
       x: 300,
       y: height - 230,
       size: fontSize,
@@ -129,7 +129,6 @@ export async function POST(req: NextRequest) {
       const y = height - 330 - index * 20;
       page.drawText(`${index + 1}`, { x: 50, y, size: 10 });
       page.drawText(item.description, { x: 110, y, size: 10 });
-      page.drawText(item.unit, { x: 170, y, size: 10 });
     });
     // Serialize the PDF to bytes
     const pdfBytes = await pdfDoc.save();
@@ -139,7 +138,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="invoice_${invoice.invoice.invoiceNo}.pdf"`,
+        'Content-Disposition': `attachment; filename="invoice_${invoice.invoiceNo}.pdf"`,
       },
     });
    

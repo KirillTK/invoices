@@ -40,7 +40,7 @@ export default function Invoice(props: Props) {
     },
     details: invoice.details.map((detail) => ({
       description: detail.description,
-      unit: detail.unit,
+      unitId: detail.unitId,
       unitPrice: detail.unitPrice,
       quantity: detail.quantity,
       totalNetPrice: detail.totalNetPrice ?? 0,
