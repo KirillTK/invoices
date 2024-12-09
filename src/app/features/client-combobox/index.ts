@@ -1,1 +1,1 @@
-export { ClientCombobox } from './client-combobox';
+export { ClientCombobox } from './ui/client-combobox';

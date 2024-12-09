@@ -6,7 +6,6 @@ import {
   clients,
   invoice,
   invoiceDetails,
-  type InvoiceDetailsModel,
 } from "~/server/db/schema";
 import type { invoiceDocumentSchema, invoiceDocumentSchemaWithDetailsId } from "~/shared/schemas/invoice.schema";
 import { and, desc, eq, like, sql } from "drizzle-orm";
@@ -112,7 +111,7 @@ export class InvoicesService {
             return {
               invoiceId: savedInvoice.invoiceId,
               description: detail.description,
-              unitId: detail.unitId,
+              unitId: detail.unitId ?? 0,
               quantity: detail.quantity,
               unitPrice: detail.unitPrice,
               totalNetPrice: detail.totalNetPrice,
@@ -233,7 +232,6 @@ export class InvoicesService {
             .set({
               ...detail,
               updatedAt: sql`NOW()`,
-              unitId: detail.unitId as InvoiceDetailsModel['unitId'] | undefined
             })
             .where(and(eq(invoiceDetails.invoiceId, invoiceId), eq(invoiceDetails.id, detail.id)))
         ));

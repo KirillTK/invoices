@@ -57,3 +57,53 @@ export function useClientDeleteMutation(query?: string) {
     }
   });
 }
+
+export function useClientCreateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (client: Omit<ClientModel, "id" | "userId">) => fetcher(`/api/client`, { method: "POST", body: JSON.stringify(client) }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast({
+        title: "Success",
+        description: "Client created successfully.",
+        variant: "success",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to create client:', error);
+
+      toast({
+        title: "Error",
+        description: "Failed to create client. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+}
+
+export function useClientUpdateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (client: Omit<ClientModel, "userId">) => fetcher(`/api/client/${client.id}`, { method: "PUT", body: JSON.stringify(client) }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast({
+        title: "Success",
+        description: "Client updated successfully.",
+        variant: "success",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to update client:', error);
+
+      toast({
+        title: "Error",
+        description: "Failed to update client. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+}

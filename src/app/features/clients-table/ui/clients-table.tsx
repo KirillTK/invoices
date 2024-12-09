@@ -21,6 +21,7 @@ import {
 } from "~/entities/client/api/client.api";
 import { SkeletonClientsTable } from "../components/skeleton-clients-table";
 import { ConfirmRemoveModal } from "~/features/confirm-remove-modal";
+import { ClientModal } from "~/features/client-combobox/components/client-modal";
 
 type Props = {
   query: string;
@@ -32,12 +33,11 @@ export const ClientsTable = ({ query }: Props) => {
 
   if (isLoading) return <SkeletonClientsTable />;
 
-
   const noItemsText = !query ? "No clients" : "No clients found";
 
   const noItemsDescription = !query
     ? "Get started by adding a new client."
-      : "No clients found with the current filter.";
+    : "No clients found with the current filter.";
 
   return (
     <Card>
@@ -60,9 +60,11 @@ export const ClientsTable = ({ query }: Props) => {
               <TableRow key={client.id}>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="icon">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
+                    <ClientModal buttonClassName="bg-blue-600 hover:bg-blue-700 text-white" client={client}>
+                      <Button variant="outline" size="icon">
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </ClientModal>
 
                     <ConfirmRemoveModal
                       message={

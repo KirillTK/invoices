@@ -1,6 +1,7 @@
 import { z  } from 'zod';
 
 export const clientSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1, "Name is required"),
   city: z.string().max(50, 'Max length 50 symbols').min(1, "City is required"),
   country: z.string().max(50, 'Max length 50 symbols').min(1, "Country is required"),

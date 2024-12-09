@@ -1,9 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSWRConfig } from "swr";
 import type { z } from "zod";
-import type { ClientModel } from "~/entities/client/model/client.model";
 import { Button } from "~/shared/components/button";
 import {
   Dialog,
@@ -21,13 +19,16 @@ import {
 import { clientSchema } from "~/shared/schemas/client.schema";
 import { Form } from "~/shared/components/form";
 import { InputField } from "~/shared/components/controls/input-field";
+import { useClientCreateMutation, useClientUpdateMutation } from "~/entities/client/api/client.api";
+import { useEffect } from 'react';
+
+type NewClientForm = z.infer<typeof clientSchema>;
 
 interface Props {
   buttonClassName?: string;
   children?: React.ReactNode;
+  client?: NewClientForm;
 }
-
-type NewClientForm = z.infer<typeof clientSchema>;
 
 const defaultValues: NewClientForm = {
   name: "",
@@ -38,13 +39,20 @@ const defaultValues: NewClientForm = {
   zip: "",
 };
 
-export function NewClientModal({ buttonClassName, children }: Props) {
-  const title = "Create new client";
+export function ClientModal({ buttonClassName, children, client = defaultValues }: Props) {
+  const title = client.id ? "Edit client" : "Create new client";
+  
+  const clientCreateMutation = useClientCreateMutation();
+  const clientUpdateMutation = useClientUpdateMutation();
 
   const form = useForm<NewClientForm>({
-    defaultValues,
+    defaultValues: client,
     resolver: zodResolver(clientSchema),
   });
+
+  useEffect(() => {
+    form.reset(client);
+  }, [client, form]);
 
   const {
     handleSubmit,
@@ -53,19 +61,17 @@ export function NewClientModal({ buttonClassName, children }: Props) {
     setError,
   } = form;
 
-  const { mutate } = useSWRConfig();
-
   const saveClient = async () => {
+    const client = getValues();
+
     try {
-      const response = await fetch("/api/client", {
-        method: "POST",
-        body: JSON.stringify(getValues()),
-      });
+      const { id, ...clientData } = client;
 
-      if (!response.ok) throw await response.json();
-
-      const data = (await response.json()) as ClientModel;
-      await mutate("/api/client", data);
+      if (id) {
+        await clientUpdateMutation.mutateAsync({ id, ...clientData });
+      } else {
+        await clientCreateMutation.mutateAsync(clientData);
+      }
     } catch (error) {
       if (isHttpValidationError(error)) {
         const formErrors = getFormErrorArray<NewClientForm>(error.errors);
@@ -82,7 +88,11 @@ export function NewClientModal({ buttonClassName, children }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {children ?? <Button className={buttonClassName}>{title}</Button>}
+        {children ?? (
+          <Button className={buttonClassName}>
+            {title}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -99,7 +109,7 @@ export function NewClientModal({ buttonClassName, children }: Props) {
                     key={fieldName}
                     form={form}
                     fieldName={fieldName as keyof NewClientForm}
-                    className="grid grid-cols-4 items-center text-right gap-4"
+                    className="grid grid-cols-4 items-center gap-4 text-right"
                     label={fieldName}
                     labelClassName="capitalize"
                     inputClassName="col-span-3"
