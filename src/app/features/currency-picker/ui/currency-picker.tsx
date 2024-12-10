@@ -5,7 +5,7 @@ import { Check, Loader2, Plus } from "lucide-react"
 import { cn } from '~/shared/utils'
 import { Button } from '~/shared/components/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/shared/components/dropdown-menu'
-import { useCurrencyQuery } from '~/entities/currency/model/api'
+import { useCurrencyQuery } from '~/entities/currency/api/currency.api'
 import type { Path, FieldValues } from 'react-hook-form'
 import { type UncontrolledControlProps } from '~/shared/types/form'
 import { BaseField } from '~/shared/components/controls/base-field'
