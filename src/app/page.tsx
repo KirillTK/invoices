@@ -9,6 +9,9 @@ import { SignedIn, SignedOut, SignInButton, useAuth, UserButton } from '@clerk/n
 import { Footer } from '~/shared/components/footer';
 import Link from 'next/link';
 
+const AnimatedH1 = animated.h1;
+
+
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
   const auth = useAuth();
@@ -56,12 +59,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <header className="container mx-auto px-4 py-8 flex justify-between items-center">
-        <animated.h1 
+        <AnimatedH1 
           style={headerAnimation}
           className="text-3xl font-bold text-gray-800"
         >
           {auth?.userId ? <Link href="/invoices" prefetch>InvoiceApp</Link> : 'InvoiceApp'}
-        </animated.h1>
+        </AnimatedH1>
+        
         <animated.div style={loginButtonAnimation}>
           <SignedOut>
             <SignInButton>
