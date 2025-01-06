@@ -1,7 +1,7 @@
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/shared/components/button";
-import { TableEmpty } from '~/shared/components/table/table';
+import { TableEmpty } from '~/shared/components/table/ui/table';
 
 export function EmptyInvoiceItems() {
   return (

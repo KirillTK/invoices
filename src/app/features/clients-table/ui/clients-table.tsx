@@ -1,4 +1,9 @@
-import { Edit2, Trash2 } from "lucide-react";
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import {
   Card,
   CardContent,
@@ -8,28 +13,38 @@ import {
 import {
   TableHeader,
   TableRow,
-  TableHead,
   TableBody,
   TableCell,
   Table,
   TableEmpty,
-} from "~/shared/components/table/table";
-import { Button } from "~/shared/components/button";
-import {
-  useClientDeleteMutation,
-  useClientQueryWithFilter,
+} from "~/shared/components/table/ui/table";
+import {  
+  useClientQuery,
 } from "~/entities/client/api/client.api";
+import { TableFilterUtils } from "~/shared/components/table";
 import { SkeletonClientsTable } from "../components/skeleton-clients-table";
-import { ConfirmRemoveModal } from "~/features/confirm-remove-modal";
-import { ClientModal } from "~/features/client-combobox/components/client-modal";
+import { CLIENTS_TABLE_COLUMNS } from '../constants/clients-table-table';
 
 type Props = {
   query: string;
+  setGlobalFilter: (filter: string) => void;
 };
 
-export const ClientsTable = ({ query }: Props) => {
-  const { clients, isLoading } = useClientQueryWithFilter(query);
-  const deleteClient = useClientDeleteMutation(query);
+export const ClientsTable = ({ query, setGlobalFilter }: Props) => {
+  const { clients, isLoading } = useClientQuery();
+
+  const table = useReactTable({
+    data: clients,
+    columns: CLIENTS_TABLE_COLUMNS,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter: query,
+    },
+    getRowId: (row) => row.id,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, value, addMeta) => TableFilterUtils.globalSearch(row, columnId, value, addMeta),
+  });
 
   if (isLoading) return <SkeletonClientsTable />;
 
@@ -47,45 +62,26 @@ export const ClientsTable = ({ query }: Props) => {
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Actions</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Tax Index</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>City</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {clients.map((client) => (
-              <TableRow key={client.id}>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <ClientModal buttonClassName="bg-blue-600 hover:bg-blue-700 text-white" client={client}>
-                      <Button variant="outline" size="icon">
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                    </ClientModal>
-
-                    <ConfirmRemoveModal
-                      message={
-                        "Are you sure you want to remove this client? This action cannot be undone. This will also remove all related invoices."
-                      }
-                      handleConfirm={() => deleteClient.mutateAsync(client.id)}
-                    >
-                      <Button variant="outline" size="icon">
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </ConfirmRemoveModal>
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium">{client.name}</TableCell>
-                <TableCell>{client.taxIndex}</TableCell>
-                <TableCell>{client.country}</TableCell>
-                <TableCell>{client.city}</TableCell>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id + 'clients-table-header'}>
+                {headerGroup.headers.map((header) => (
+                  flexRender(header.column.columnDef.header, header.getContext())
+                ))}
               </TableRow>
             ))}
-
-            {clients.length === 0 && (
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id + 'clients-table-row'}>
+                {row.getVisibleCells().map((cell) => (
+                     <TableCell key={cell.id + 'clients-table-cell'}>{flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}</TableCell>   
+                ))}
+              </TableRow>
+            ))}
+            {table.getRowModel().rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5}>
                   <TableEmpty

@@ -78,7 +78,7 @@ export default function HomePage() {
             <UserButton />
           </SignedIn>
         </animated.div>
-      </header>
+      </header> 
 
       <main className="container mx-auto px-4 py-12">
         <animated.section className="text-center mb-16" style={fadeInUp}>

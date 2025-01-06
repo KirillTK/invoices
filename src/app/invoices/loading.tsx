@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 import { Skeleton } from '~/shared/components/skeletons';
-import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from '~/shared/components/table/table';
+import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from '~/shared/components/table/ui/table';
 
 
 export default function InvoicesPageSkeleton() {

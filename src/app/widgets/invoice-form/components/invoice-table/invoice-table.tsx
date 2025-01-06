@@ -14,7 +14,7 @@ import {
   TableBody,
   TableCell,
   Table,
-} from "~/shared/components/table/table";
+} from "~/shared/components/table/ui/table";
 import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";

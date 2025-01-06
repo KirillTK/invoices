@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "~/shared/components/table/table";
+} from "~/shared/components/table/ui/table";
 import { DateUtils } from "~/shared/utils/date";
 import { FormatterUtils } from "~/shared/utils/formatter";
 import { EmptyInvoiceItems, InvoiceTableActions } from "../components";

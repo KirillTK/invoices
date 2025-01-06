@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useDeferredValue } from "react";
 import { ClientsTable } from "~/features/clients-table/ui/clients-table";
@@ -16,7 +15,7 @@ export const ClientsTableWithFilter = () => {
         placeholder="Search clients..."
         onChange={(e) => setQuery(e.target.value)}
       />
-      <ClientsTable query={deferredQuery} />
+      <ClientsTable query={deferredQuery} setGlobalFilter={setQuery} />
     </>
   );
 };
