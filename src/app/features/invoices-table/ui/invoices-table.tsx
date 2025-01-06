@@ -1,33 +1,24 @@
-import Link from "next/link";
-import { type InvoiceListModel } from "~/entities/invoice/model/invoice.model";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/shared/components/card/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/shared/components/table/ui/table";
-import { DateUtils } from "~/shared/utils/date";
-import { FormatterUtils } from "~/shared/utils/formatter";
-import { EmptyInvoiceItems, InvoiceTableActions } from "../components";
+'use client';
 
-export async function InvoicesTable({
-  invoices,
-}: {
-  invoices: InvoiceListModel[];
-}) {
-  const totalsAmount = invoices.reduce(
-    (accum, item) => accum + item.totalNetPrice,
-    0,
-  );
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { type InvoiceListModel } from '~/entities/invoice/model/invoice.model';
+import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
+import { Table, TableBody, TableCell, TableFooter, TableRow, UncontrolledBody, UncontrolledHeader } from '~/shared/components/table/ui/table';
+import { EmptyInvoiceItems } from '../components';
+import { INVOICES_TABLE_COLUMNS } from '../constants/invoices-table';
+import { FormatterUtils } from '~/shared/utils/formatter';
+
+export function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
+  const table = useReactTable({
+    data: invoices,
+    columns: INVOICES_TABLE_COLUMNS,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id,
+  });
+
+  const rowsToDisplay = table.getRowModel().rows;
+
+  const totalsAmount = invoices.reduce((accum, item) => accum + item.totalNetPrice, 0);
 
   return (
     <Card>
@@ -36,48 +27,12 @@ export async function InvoicesTable({
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Actions</TableHead>
-              <TableHead>Invoice No</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Create Date</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Total net price</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invoices.map(
-              ({
-                invoiceNo,
-                clientName,
-                totalNetPrice,
-                createdAt,
-                dueDate,
-                id,
-              }) => (
-                <TableRow key={id}>
-                  <TableCell>
-                    <InvoiceTableActions invoiceId={id} invoiceNo={invoiceNo} />
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <Link href={`/invoices/${id}`}>{invoiceNo}</Link>
-                  </TableCell>
-                  <TableCell>{clientName}</TableCell>
-                  <TableCell className="text-left">
-                    {DateUtils.formatDate(createdAt)}
-                  </TableCell>
-                  <TableCell>
-                    {dueDate ? DateUtils.formatDate(dueDate) : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {FormatterUtils.fromNumberToMoney(totalNetPrice)}
-                  </TableCell>
-                </TableRow>
-              ),
-            )}
+          <UncontrolledHeader headers={table.getHeaderGroups()} />
 
-            {invoices.length === 0 && (
+          <TableBody>
+            <UncontrolledBody rows={rowsToDisplay} />
+
+            {rowsToDisplay.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7}>
                   <EmptyInvoiceItems />
@@ -86,7 +41,7 @@ export async function InvoicesTable({
             )}
           </TableBody>
 
-          {invoices.length > 0 && (
+          {rowsToDisplay.length > 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={5}>Total</TableCell>
@@ -96,6 +51,7 @@ export async function InvoicesTable({
               </TableRow>
             </TableFooter>
           )}
+
         </Table>
       </CardContent>
     </Card>

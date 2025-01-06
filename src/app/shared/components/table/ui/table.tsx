@@ -1,3 +1,4 @@
+import { flexRender, type HeaderGroup, type Row } from '@tanstack/react-table';
 import { FileText } from 'lucide-react';
 import * as React from "react";
 import { cn } from "~/shared/utils";
@@ -125,6 +126,36 @@ const TableEmpty = React.forwardRef<
 ));
 TableEmpty.displayName = "TableEmpty";
 
+const UncontrolledBody = ({ rows }: { rows: Row<unknown>[] }) => {
+  return (
+    <>
+      {rows.map((row) => (
+        <TableRow key={row.id}>
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+    </>
+  );
+};
+UncontrolledBody.displayName = "UncontrolledBody";
+
+const UncontrolledHeader = <TData,>({ headers }: { headers: HeaderGroup<TData>[] }) => {
+  return (
+    <TableHeader>
+      {headers.map((headerGroup) => (
+        <TableRow key={headerGroup.id}>
+          {headerGroup.headers.map((header) => flexRender(header.column.columnDef.header, header.getContext()))}
+        </TableRow>
+      ))}
+    </TableHeader>
+  );
+};
+UncontrolledHeader.displayName = "UncontrolledHeader";
+
 export {
   Table,
   TableHeader,
@@ -135,4 +166,6 @@ export {
   TableCell,
   TableCaption,
   TableEmpty,
+  UncontrolledBody,
+  UncontrolledHeader,
 };

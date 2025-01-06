@@ -1,5 +1,4 @@
 import {
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
@@ -11,12 +10,13 @@ import {
   CardTitle,
 } from "~/shared/components/card/card";
 import {
-  TableHeader,
   TableRow,
   TableBody,
   TableCell,
   Table,
   TableEmpty,
+  UncontrolledBody,
+  UncontrolledHeader,
 } from "~/shared/components/table/ui/table";
 import {  
   useClientQuery,
@@ -54,6 +54,8 @@ export const ClientsTable = ({ query, setGlobalFilter }: Props) => {
     ? "Get started by adding a new client."
     : "No clients found with the current filter.";
 
+  const rowsToDisplay = table.getRowModel().rows;
+
   return (
     <Card>
       <CardHeader>
@@ -61,27 +63,12 @@ export const ClientsTable = ({ query, setGlobalFilter }: Props) => {
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id + 'clients-table-header'}>
-                {headerGroup.headers.map((header) => (
-                  flexRender(header.column.columnDef.header, header.getContext())
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
+          <UncontrolledHeader headers={table.getHeaderGroups()} />
+
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id + 'clients-table-row'}>
-                {row.getVisibleCells().map((cell) => (
-                     <TableCell key={cell.id + 'clients-table-cell'}>{flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}</TableCell>   
-                ))}
-              </TableRow>
-            ))}
-            {table.getRowModel().rows.length === 0 && (
+            <UncontrolledBody rows={rowsToDisplay} />
+
+            {rowsToDisplay.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5}>
                   <TableEmpty
