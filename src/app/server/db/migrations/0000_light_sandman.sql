@@ -25,19 +25,6 @@ CREATE TABLE IF NOT EXISTS "factura_currencies" (
 	CONSTRAINT "factura_currencies_name_unique" UNIQUE("name"),
 	CONSTRAINT "factura_currencies_code_unique" UNIQUE("code")
 );
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "factura_exchange_rates" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"currency_id" uuid NOT NULL,
-	"value" double precision DEFAULT 0.01,
-	"created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updatedAt" timestamp
-);
-
-DO $$ 
-BEGIN
-    ALTER TABLE "factura_exchange_rates" ALTER COLUMN "currency_id" TYPE uuid USING "currency_id"::uuid;
-END $$;
 
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "factura_invoices" (
@@ -84,12 +71,7 @@ CREATE TABLE IF NOT EXISTS "factura_users" (
 	CONSTRAINT "factura_users_name_unique" UNIQUE("name"),
 	CONSTRAINT "factura_users_tax_index_unique" UNIQUE("tax_index")
 );
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "factura_exchange_rates" ADD CONSTRAINT "factura_exchange_rates_currency_id_factura_currencies_id_fk" FOREIGN KEY ("currency_id") REFERENCES "public"."factura_currencies"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "factura_invoices" ADD CONSTRAINT "factura_invoices_client_id_factura_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."factura_clients"("id") ON DELETE cascade ON UPDATE no action;

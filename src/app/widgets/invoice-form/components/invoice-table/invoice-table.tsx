@@ -18,7 +18,6 @@ import {
 import { InputField } from "~/shared/components/controls/input-field";
 import type { invoiceDetailsSchema } from "~/shared/schemas/invoice.schema";
 import { InvoiceUtils } from "~/entities/invoice/lib/invoice";
-import { cn } from "~/shared/utils";
 import { Card, CardHeader, CardTitle, CardContent } from '~/shared/components/card/card';
 import { FormatterUtils } from '~/shared/utils/formatter';
 import { MathUtils } from '~/shared/utils/math';
