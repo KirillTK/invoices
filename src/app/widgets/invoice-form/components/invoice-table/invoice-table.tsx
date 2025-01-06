@@ -5,7 +5,7 @@ import { MinusCircleIcon, PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
-import { animated, useSpring } from "@react-spring/web";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "~/shared/components/button";
 import {
   TableHeader,
@@ -56,11 +56,6 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
   const [removeLineBtn, setShowRemoveLineBtn] = useState<
     Record<string, boolean>
   >({});
-
-  const addRowButtonStyles = useSpring({
-    opacity: showAddLineBtn ? 1 : 0,
-    y: showAddLineBtn ? 0 : 20,
-  });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -139,7 +134,6 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
     <Card>
       <CardHeader className="space-y-4">
         <CardTitle>Invoice Items</CardTitle>
-        {/* <CurrencyPicker fieldName="invoice.currencyId" form={form} /> */}
       </CardHeader>
       <CardContent>
         <Table
@@ -165,12 +159,17 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {fields.map((item, index) => {
-              return (
-                <TableRow
+            <AnimatePresence>
+              {fields.map((item, index) => (
+                <motion.tr
                   key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
                   onMouseEnter={handleMouseEnterTableRow(item.id)}
                   onMouseLeave={handleMouseLeaveTableRow(item.id)}
+                  className="tr"
                 >
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>
@@ -221,33 +220,46 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
                   )}
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                    <span>{FormatterUtils.fromNumberToMoney(watch(`details.${index}.totalGrossPrice`))}</span>
-                    <MinusCircleIcon
-                      onClick={removeLine(index)}
-                      className={cn("text-red-400", {
-                        hidden: !removeLineBtn[item.id] || fields.length === 1,
-                      })}
-                    />
+                      <span>{FormatterUtils.fromNumberToMoney(watch(`details.${index}.totalGrossPrice`))}</span>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: removeLineBtn[item.id] && fields.length > 1 ? 1 : 0 }}
+                      >
+                        <MinusCircleIcon
+                          onClick={removeLine(index)}
+                          className="text-red-400 cursor-pointer"
+                        />
+                      </motion.div>
                     </div>
-                    
                   </TableCell>
-                </TableRow>
-              );
-            })}
+                </motion.tr>
+              ))}
+            </AnimatePresence>
             <TableRow>
               <TableCell colSpan={9}>
-                <animated.div style={addRowButtonStyles}>
-                  <Button variant="destructive" className="w-full" type="button" onClick={addRow}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: showAddLineBtn ? 1 : 0,
+                    y: showAddLineBtn ? 0 : 20 
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Button 
+                    variant="destructive" 
+                    className="w-full" 
+                    type="button" 
+                    onClick={addRow}
+                  >
                     <PlusIcon />
                     Add More
                   </Button>
-                </animated.div>
+                </motion.div>
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </CardContent>
     </Card>
-    
   );
 }
