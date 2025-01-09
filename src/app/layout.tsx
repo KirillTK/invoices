@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from '~/shared/components/toast/toaster';
 import Providers from './providers';
 
@@ -27,6 +28,7 @@ export default function RootLayout({
         <body>
           <Providers>{children}</Providers>
           <Toaster />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
