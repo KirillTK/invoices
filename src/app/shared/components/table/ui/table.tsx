@@ -1,5 +1,5 @@
 import { flexRender, type HeaderGroup, type Row } from '@tanstack/react-table';
-import { FileText } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, FileText } from 'lucide-react';
 import * as React from "react";
 import { cn } from "~/shared/utils";
 
@@ -148,7 +148,24 @@ const UncontrolledHeader = <TData,>({ headers }: { headers: HeaderGroup<TData>[]
     <TableHeader>
       {headers.map((headerGroup) => (
         <TableRow key={headerGroup.id}>
-          {headerGroup.headers.map((header) => flexRender(header.column.columnDef.header, header.getContext()))}
+          {headerGroup.headers.map((header) => {
+            const isSortable = header.column.getCanSort();
+
+            return (
+              <TableHead
+                key={header.id}
+                onClick={header.column.getToggleSortingHandler()}
+                colSpan={header.colSpan}
+                className={cn(isSortable && 'cursor-pointer')}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+                {{
+                  asc: <ArrowUpIcon className="ml-2 h-4 w-4 inline" />,
+                  desc: <ArrowDownIcon className="ml-2 h-4 w-4 inline" />,
+                }[header.column.getIsSorted() as string] ?? null}
+              </TableHead>
+            );
+          })}
         </TableRow>
       ))}
     </TableHeader>

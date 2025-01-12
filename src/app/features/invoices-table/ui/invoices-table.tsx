@@ -1,6 +1,6 @@
 'use client';
 
-import { getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { type InvoiceListModel } from '~/entities/invoice/model/invoice.model';
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/components/card/card';
 import { Table, TableBody, TableCell, TableFooter, TableRow, UncontrolledBody, UncontrolledHeader } from '~/shared/components/table/ui/table';
@@ -18,6 +18,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceListModel[] }) {
     columns: INVOICES_TABLE_COLUMNS,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     onPaginationChange: setPagination,
     state: {
       pagination

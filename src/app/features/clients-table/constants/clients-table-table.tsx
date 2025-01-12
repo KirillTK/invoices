@@ -1,12 +1,11 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { type ClientModel } from '~/entities/client/model/client.model';
-import { TableHead } from '~/shared/components/table/ui/table';
 import { ClientRowActions } from '../components/client-row-actions';
 
 export const CLIENTS_TABLE_COLUMNS: ColumnDef<ClientModel>[] = [
   {
     id: "actions",
-    header: () => <TableHead key="actions">Actions</TableHead>,
+    header: 'Actions',
     cell: ({ row: { original: client } }) => (
       <ClientRowActions client={client} />
     ),
@@ -14,7 +13,7 @@ export const CLIENTS_TABLE_COLUMNS: ColumnDef<ClientModel>[] = [
   {
     id: "name",
     accessorKey: "name",
-    header: () => <TableHead key="name">Name</TableHead>,
+    header: 'Name',
     cell: ({ row: { original: client } }) => (
       <p className="font-medium">{client.name}</p>
     ),
@@ -22,16 +21,16 @@ export const CLIENTS_TABLE_COLUMNS: ColumnDef<ClientModel>[] = [
   {
     id: "taxIndex",
     accessorKey: "taxIndex",
-    header: () => <TableHead key="taxIndex">Tax Index</TableHead>,
+    header: 'Tax Index',
   },
   {
     id: "country",
     accessorKey: "country",
-    header: () => <TableHead key="country">Country</TableHead>,
+    header: 'Country',
   },
   {
     id: "city",
     accessorKey: "city",
-    header: () => <TableHead key="city">City</TableHead>,
+    header: 'City',
   },
 ];
