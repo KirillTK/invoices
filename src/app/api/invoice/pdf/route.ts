@@ -1,4 +1,5 @@
 
+import { type User } from '@clerk/nextjs/server';
 import { type NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, rgb } from 'pdf-lib';
 import { InvoicesService } from "~/server/routes/invoices/invoices.route";
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const invoice = await InvoicesService.getInvoice(invoiceId);
+    const invoice = await InvoicesService.getInvoice(invoiceId, (user as User).id);
     if (!invoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }

@@ -1,14 +1,17 @@
 import { and, eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 import type { z } from 'zod';
 import { db } from "~/server/db";
 import { type ClientModel, clients } from "~/server/db/schema";
 import { authRequired } from "~/server/decorators/auth.decorator";
+import { cache } from '~/server/decorators/cache.decorator';
 import { CacheTags } from "~/server/enums/cache";
+import { revalidateCache } from '~/server/utils/cache.utils';
 import type { clientSchema } from "~/shared/schemas/client.schema";
 
 export class ClientsService {
+
   @authRequired()
+  @cache(CacheTags.CLIENTS)
   static getClients(userId: string, query: string) {
     return db.query.clients.findMany({
       where: (model, { eq, and, ilike, or }) =>
@@ -29,7 +32,7 @@ export class ClientsService {
   static async saveClient(client: ClientModel) {
     const res = await db.insert(clients).values(client);
 
-    revalidateTag(`${CacheTags.CLIENTS}:${client.userId}`);
+    revalidateCache(CacheTags.CLIENTS, client.userId);
     return res;
   }
 
@@ -39,7 +42,7 @@ export class ClientsService {
       .delete(clients)
       .where(and(eq(clients.userId, userId), eq(clients.id, clientId)));
 
-    revalidateTag(`${CacheTags.CLIENTS}:${userId}`);
+    revalidateCache(CacheTags.CLIENTS, userId);
     return res;
   }
 
@@ -58,7 +61,8 @@ export class ClientsService {
       })
       .where(and(eq(clients.userId, userId), eq(clients.id, clientId)));
 
-    revalidateTag(`${CacheTags.CLIENTS}:${userId}`);
+    revalidateCache(CacheTags.CLIENTS, userId);
+
     return res;
   }
 }

@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const invoice = await InvoicesService.getInvoice(invoiceId);
+    const invoice = await InvoicesService.getInvoice(invoiceId, (user as User).id);
     if (!invoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }

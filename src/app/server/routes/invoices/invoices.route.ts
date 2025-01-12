@@ -9,13 +9,14 @@ import {
 } from "~/server/db/schema";
 import type { invoiceDocumentSchema, invoiceDocumentSchemaWithDetailsId } from "~/shared/schemas/invoice.schema";
 import { and, desc, eq, like, sql } from "drizzle-orm";
+import { CacheTags } from "../../enums/cache";
+import { cache } from '~/server/decorators/cache.decorator';
+import { revalidateCache } from '~/server/utils/cache.utils';
 
-// TODO: add cache
 export class InvoicesService {
   @authRequired()
-  static async getInvoiceList() {
-    const user = await auth();
-
+  @cache(CacheTags.INVOICES)
+  static async getInvoiceList(userId: string) {
     return db
       .select({
         id: invoice.id,
@@ -29,16 +30,15 @@ export class InvoicesService {
       .innerJoin(clients, eq(invoice.clientId, clients.id))
       .innerJoin(invoiceDetails, eq(invoice.id, invoiceDetails.invoiceId))
       .groupBy(invoice.invoiceNo, clients.name, invoice.createdAt, invoice.id)
-      .where(eq(invoice.userId, user.userId!))
+      .where(eq(invoice.userId, userId))
       .orderBy(desc(invoice.createdAt));
   }
 
   @authRequired()
-  static async getInvoiceListFull() {
-    const user = await auth();
-
+  @cache(CacheTags.INVOICES)
+  static async getInvoiceListFull(userId: string) {
     return db.query.invoice.findMany({
-      where: and(eq(invoice.userId, user.userId!)),
+      where: and(eq(invoice.userId, userId)),
       orderBy: desc(invoice.createdAt),
       with: {
         details: true,
@@ -47,16 +47,14 @@ export class InvoicesService {
   }
 
   @authRequired()
-  static async getInvoiceNameById(invoiceId: string) {
-    const user = await auth();
-
+  static async getInvoiceNameById(invoiceId: string, userId: string) {
     try {
       const [invoiceNo] = await db
         .select({
           invoiceNo: invoice.invoiceNo,
         })
         .from(invoice)
-        .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)))
+        .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, userId)))
         .limit(1);
       return invoiceNo ?? null;
     } catch (error) {
@@ -65,12 +63,10 @@ export class InvoicesService {
   }
 
   @authRequired()
-  static async getInvoice(invoiceId: string) {
-    const user = await auth();
-
-
+  @cache(CacheTags.INVOICE)
+  static async getInvoice(invoiceId: string, userId: string) {
     const invoiceRes = await db.query.invoice.findFirst({
-      where: and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)),
+      where: and(eq(invoice.id, invoiceId), eq(invoice.userId, userId)),
       with: {
         details: true,
       },
@@ -122,6 +118,7 @@ export class InvoicesService {
           }),
         );
 
+        revalidateCache(CacheTags.INVOICES, userId);
         return savedInvoice.invoiceId;
       } catch (error) {
         tx.rollback();
@@ -132,11 +129,9 @@ export class InvoicesService {
 
 
   @authRequired()
-  static async copyInvoice(invoiceId: string) {
-    const user = await auth();
-
+  static async copyInvoice(invoiceId: string, userId: string) {
     const invoiceToCopy = await db.query.invoice.findFirst({
-      where: and(eq(invoice.userId, user.userId!), eq(invoice.id, invoiceId)),
+      where: and(eq(invoice.userId, userId), eq(invoice.id, invoiceId)),
       with: {
         details: true,
       },
@@ -156,7 +151,7 @@ export class InvoicesService {
         .from(invoice)
         .where(
           and(
-            eq(invoice.userId, user.userId!),
+            eq(invoice.userId, userId),
             like(invoice.invoiceNo, `${baseInvoiceNoWithoutCopy} (Copy%)`)
           )
         );
@@ -186,7 +181,10 @@ export class InvoicesService {
             invoiceId: savedInvoice.invoiceId // Link to the new invoice
           }))
         );
-  
+
+
+        revalidateCache(CacheTags.INVOICES, userId);
+
         return savedInvoice.invoiceId;
       } catch (error) {
         tx.rollback();
@@ -202,6 +200,7 @@ export class InvoicesService {
     return db.transaction(async (tx) => {
       try {
         await tx.delete(invoice).where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
+        revalidateCache(CacheTags.INVOICES, user.userId!);
         return true;
       } catch (error) {
         tx.rollback();
@@ -211,9 +210,7 @@ export class InvoicesService {
   }
 
   @authRequired()
-  static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithDetailsId>) {
-    const user = await auth();;
-
+  static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithDetailsId>, userId: string) {
     return db.transaction(async (tx) => {
       try {
         const updatedInvoiceData = {
@@ -225,7 +222,7 @@ export class InvoicesService {
 
         await tx.update(invoice)
           .set(updatedInvoiceData)
-          .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, user.userId!)));
+          .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, userId)));
 
         await Promise.all(invoiceData.details.map(detail =>
           tx.update(invoiceDetails)
@@ -236,6 +233,7 @@ export class InvoicesService {
             .where(and(eq(invoiceDetails.invoiceId, invoiceId), eq(invoiceDetails.id, detail.id)))
         ));
 
+        revalidateCache(CacheTags.INVOICE, invoiceId);
         return true; // Indicate successful update
       } catch (error) {
         tx.rollback();

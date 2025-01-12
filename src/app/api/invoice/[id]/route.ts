@@ -1,3 +1,4 @@
+import { type User } from '@clerk/nextjs/server';
 import { type NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 import { InvoicesService } from '~/server/routes/invoices/invoices.route';
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const copiedInvoiceId = await InvoicesService.copyInvoice(invoiceId);
+    const copiedInvoiceId = await InvoicesService.copyInvoice(invoiceId, (user as User).id);
     return NextResponse.json({ invoiceId: copiedInvoiceId });
   } catch (error) {
     return handleError(error);
@@ -54,7 +55,7 @@ export async function PATCH(req: NextRequest) {
   }));
 
   try {
-    await InvoicesService.updateInvoice(invoiceId, data);
+    await InvoicesService.updateInvoice(invoiceId, data, (user as User).id);
     return NextResponse.json({ invoiceId });
   } catch (error) {
     return handleError(error);
