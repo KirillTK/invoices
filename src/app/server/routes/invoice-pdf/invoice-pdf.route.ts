@@ -1,0 +1,204 @@
+// import { PDFDocument, PDFPage, rgb } from 'pdf-lib';
+import jsPDF from 'jspdf';
+import type { InvoiceDetailsModel, InvoiceModel } from '~/server/db/schema';
+import 'jspdf-autotable';
+import { UserOptions } from 'jspdf-autotable';
+
+// Augment jsPDF type to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: UserOptions) => jsPDF;
+  }
+}
+
+type Coordinates = { x: number; y: number };
+
+export class InvoicePdfService {
+  private static readonly PAGE_WIDTH = 595.28; // A4 width in points
+  private static readonly PAGE_HEIGHT = 841.89; // A4 height in points
+  private static readonly FONT_SIZE = 10;
+  private static readonly HEADER_FONT_SIZE = 12;
+  private static readonly PADDING_PAGE = this.PAGE_WIDTH * 0.05; // 5% of page width
+
+  // TODO: move to utils
+  private static formatDate(date: Date | string | null | undefined): string {
+    if (!date) return '';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  }
+
+  private static renderDateBlock(doc: jsPDF, label: string, value: string, { x, y }: Coordinates) {
+    // Fixed dimensions
+    const blockWidth = 200;
+    const labelWidth = 190;
+    const valueWidth = 190;
+    const padding = 5;
+    const lineHeight = 14;
+
+    // Calculate x position using percentage margin from right
+    // const rightMarginPercent = 0.05; // 5% of page width
+    // const xPosition = this.PAGE_WIDTH * (1 - rightMarginPercent) - blockWidth;
+
+    doc.setFillColor(240, 240, 240);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(this.FONT_SIZE);
+
+    // Split text into lines if they exceed their respective widths
+    const labelLines: string[] = doc.splitTextToSize(label, labelWidth) as string[];
+    const valueLines: string[] = doc.splitTextToSize(value, valueWidth) as string[];
+
+    // Calculate required height for the block
+    const maxLines = Math.max(labelLines.length, valueLines.length);
+    const blockHeight = Math.max(20, (maxLines * lineHeight) + (padding * 2));
+
+    // Draw the background rectangle
+    doc.rect(x, y, blockWidth, blockHeight, 'F');
+
+    // Draw label lines
+    labelLines.forEach((line: string, index: number) => {
+      doc.text(line, x + padding, y + padding + (lineHeight * (index + 1)));
+    });
+    // Draw value lines
+    valueLines.forEach((line: string, index: number) => {
+      const valueY = y + padding + (lineHeight * (labelLines.length + index + 1));
+      doc.text(line, x + padding, valueY);
+    });
+
+    return blockHeight;
+  }
+
+  private static renderAddressBlock(doc: jsPDF, title: string, details: string[], { x, y }: Coordinates) {
+    doc.setFillColor(240, 240, 240); // Light gray background
+    doc.rect(x, y, 200, 20, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, x + 5, y + 14);
+    
+    doc.setFont('helvetica', 'normal');
+    let yOffset = y + 30;
+    details.forEach(line => {
+      doc.text(line, x + 5, yOffset);
+      yOffset += 15;
+    });
+  }
+
+  private static renderTable(doc: jsPDF, details: InvoiceDetailsModel[], startY: number) {
+    const tableColumns = [
+      { header: 'Lp.', dataKey: 'index' },
+      { header: 'Description', dataKey: 'description' },
+      { header: 'Unit', dataKey: 'unit' },
+      { header: 'Quantity', dataKey: 'quantity' },
+      { header: 'Unit net price', dataKey: 'unitPrice' },
+      { header: 'Total net price', dataKey: 'totalNet' },
+      { header: 'VAT rate', dataKey: 'vatRate' },
+      { header: 'VAT amount', dataKey: 'vatAmount' },
+      { header: 'Total gross price', dataKey: 'totalGross' }
+    ];
+
+    const tableRows = details.map((detail, index) => ({
+      index: index + 1,
+      description: detail.description,
+      unit: 'person hour',
+      quantity: detail.quantity,
+      unitPrice: detail.unitPrice?.toFixed(2),
+      totalNet: (detail.quantity * (detail.unitPrice ?? 0)).toFixed(2),
+      vatRate: '23%',
+      vatAmount: ((detail.quantity * (detail.unitPrice ?? 0)) * 0.23).toFixed(2),
+      totalGross: ((detail.quantity * (detail.unitPrice ?? 0)) * 1.23).toFixed(2)
+    }));
+
+    doc.autoTable({
+      startY,
+      head: [tableColumns.map(col => col.header)],
+      body: tableRows,
+      theme: 'grid',
+      styles: {
+        fontSize: 8,
+        cellPadding: 2
+      },
+      headStyles: {
+        fillColor: [240, 240, 240],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold'
+      }
+    });
+  }
+
+  static async getInvoicePdf(invoice: InvoiceModel & { details: InvoiceDetailsModel[] }) {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4'
+    });
+    
+    const BLOCK_WIDTH = 200;
+
+    // Use percentage for top margin
+    const topMarginPercent = 0.035; // 3.5% of page height
+    let currentY = this.PAGE_HEIGHT * topMarginPercent;
+
+
+    const leftBlockPosition = this.PAGE_WIDTH - this.PADDING_PAGE - BLOCK_WIDTH;
+
+    // Dates - now using returned block height for proper spacing
+    const dateBlock1Height = this.renderDateBlock(
+      doc,
+      'Data wystawienia/Date of issue',
+      this.formatDate(invoice.invoiceDate),
+      { x: leftBlockPosition, y: currentY }
+    );
+
+    // Space between blocks as percentage of page height
+    const blockSpacingPercent = 0.02; // 2% of page height
+    currentY += dateBlock1Height + (this.PAGE_HEIGHT * blockSpacingPercent);
+
+    this.renderDateBlock(
+      doc,
+      'Termin realizacji zamówienia/Realization date of the order',
+      this.formatDate(invoice.dueDate),
+      { x: leftBlockPosition, y: currentY }
+    );
+
+    // Calculate positions for address blocks using percentages
+    const addressY = this.PAGE_HEIGHT * 0.15; // 15% down the page
+
+    // Seller and Buyer blocks with percentage-based positioning
+    this.renderAddressBlock(doc, 'Sprzedawca/Seller', [
+      'KIRYL TKACHOU',
+      'NIP/VAT ID: PL5213995825',
+      'Jaktorowska 5 / 80',
+      '01-202 Warszawa'
+    ], { x: this.PADDING_PAGE, y: addressY });
+
+
+    this.renderAddressBlock(doc, 'Nabywca/Buyer', [
+      'Itransition Sp. Z o.o',
+      'NIP/VAT ID: PL5213782733',
+      'Al. Jerozolimskie 123a',
+      '02-017 Warszawa'
+    ], { x: leftBlockPosition, y: addressY });
+
+    // Invoice title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(this.HEADER_FONT_SIZE);
+    doc.text('Faktura VAT wewnętrzna Factura 01/01/2025', this.PAGE_WIDTH / 2, 250, { align: 'center' });
+    doc.text('Internal VAT invoice Factura 01/01/2025', this.PAGE_WIDTH / 2, 270, { align: 'center' });
+
+    // Table with details
+    this.renderTable(doc, invoice.details, 300);
+
+    // Payment details
+    doc.setFontSize(this.FONT_SIZE);
+    doc.setFont('helvetica', 'normal');
+    const paymentY = 650;
+    doc.text('Data płatności/Date of payment: 10-02-2025', 100, paymentY);
+    doc.text('Sposób płatności/Method of payment: przelew/transfer', 100, paymentY + 20);
+    doc.text('PKO, SWIFT: BPKOPLPW', 100, paymentY + 40);
+    doc.text('PL06 1020 1068 0000 1202 0404 1760', 100, paymentY + 60);
+
+    return doc.output('blob');
+  }
+}
