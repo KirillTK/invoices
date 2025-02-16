@@ -2,7 +2,7 @@
 import jsPDF from 'jspdf';
 import type { InvoiceDetailsModel, InvoiceModel } from '~/server/db/schema';
 import 'jspdf-autotable';
-import { UserOptions } from 'jspdf-autotable';
+import type { UserOptions } from 'jspdf-autotable';
 
 // Augment jsPDF type to include autoTable
 declare module 'jspdf' {
@@ -18,7 +18,8 @@ export class InvoicePdfService {
   private static readonly PAGE_HEIGHT = 841.89; // A4 height in points
   private static readonly FONT_SIZE = 10;
   private static readonly HEADER_FONT_SIZE = 12;
-  private static readonly PADDING_PAGE = this.PAGE_WIDTH * 0.05; // 5% of page width
+  private static readonly PADDING_X = this.PAGE_WIDTH * 0.05; // 5% of page width
+  private static readonly PADDING_Y = this.PAGE_HEIGHT * 0.05; // 5% of page height
 
   // TODO: move to utils
   private static formatDate(date: Date | string | null | undefined): string {
@@ -38,10 +39,6 @@ export class InvoicePdfService {
     const valueWidth = 190;
     const padding = 5;
     const lineHeight = 14;
-
-    // Calculate x position using percentage margin from right
-    // const rightMarginPercent = 0.05; // 5% of page width
-    // const xPosition = this.PAGE_WIDTH * (1 - rightMarginPercent) - blockWidth;
 
     doc.setFillColor(240, 240, 240);
     doc.setFont('helvetica', 'normal');
@@ -127,6 +124,40 @@ export class InvoicePdfService {
     });
   }
 
+  private static renderTitle(doc: jsPDF, primaryTitle: string, secondaryTitle: string, y: number) {
+    const maxWidth = (this.PAGE_WIDTH - this.PADDING_X * 2)  * 0.8; // 80% of page width for wider text
+    const centerX = (this.PAGE_WIDTH - this.PADDING_X * 2) / 2;
+    const lineSpacing = 20;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(this.HEADER_FONT_SIZE);
+
+    // Split titles if they exceed max width
+    const primaryLines: string[] = doc.splitTextToSize(primaryTitle, maxWidth) as string[];
+    const secondaryLines: string[] = doc.splitTextToSize(secondaryTitle, maxWidth) as string[];
+
+    let currentY = y;
+
+    // Render primary title lines
+    primaryLines.forEach((line: string) => {
+      const textWidth = doc.getTextWidth(line);
+      const xPos = centerX - (textWidth / 2);
+      doc.text(line, xPos, currentY);
+      currentY += lineSpacing;
+    });
+
+    // Render secondary title lines
+    secondaryLines.forEach((line: string) => {
+      const textWidth = doc.getTextWidth(line);
+      const xPos = centerX - (textWidth / 2);
+      doc.text(line, xPos, currentY);
+      currentY += lineSpacing;
+    });
+
+    // Return the total height used
+    return  currentY - y;
+  }
+
   static async getInvoicePdf(invoice: InvoiceModel & { details: InvoiceDetailsModel[] }) {
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -135,60 +166,64 @@ export class InvoicePdfService {
     });
     
     const BLOCK_WIDTH = 200;
+    const LEFT_BLOCK_POSITION = this.PAGE_WIDTH - this.PADDING_X - BLOCK_WIDTH;
 
-    // Use percentage for top margin
-    const topMarginPercent = 0.035; // 3.5% of page height
-    let currentY = this.PAGE_HEIGHT * topMarginPercent;
+    let currentY = this.PADDING_Y;
 
-
-    const leftBlockPosition = this.PAGE_WIDTH - this.PADDING_PAGE - BLOCK_WIDTH;
-
-    // Dates - now using returned block height for proper spacing
+    // Date of issue
     const dateBlock1Height = this.renderDateBlock(
       doc,
       'Data wystawienia/Date of issue',
       this.formatDate(invoice.invoiceDate),
-      { x: leftBlockPosition, y: currentY }
+      { x: LEFT_BLOCK_POSITION, y: currentY }
     );
 
     // Space between blocks as percentage of page height
-    const blockSpacingPercent = 0.02; // 2% of page height
-    currentY += dateBlock1Height + (this.PAGE_HEIGHT * blockSpacingPercent);
+    const SPACING_BETWEEN_BLOCKS = 0.025; // 2.5% of page height
 
-    this.renderDateBlock(
+    currentY += dateBlock1Height + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
+
+    // Due date
+    const dueDateBlockHeight = this.renderDateBlock(
       doc,
       'Termin realizacji zamówienia/Realization date of the order',
       this.formatDate(invoice.dueDate),
-      { x: leftBlockPosition, y: currentY }
+      { x: LEFT_BLOCK_POSITION, y: currentY }
     );
 
-    // Calculate positions for address blocks using percentages
-    const addressY = this.PAGE_HEIGHT * 0.15; // 15% down the page
+    currentY += dueDateBlockHeight + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
 
-    // Seller and Buyer blocks with percentage-based positioning
+    // Seller address
     this.renderAddressBlock(doc, 'Sprzedawca/Seller', [
       'KIRYL TKACHOU',
       'NIP/VAT ID: PL5213995825',
       'Jaktorowska 5 / 80',
       '01-202 Warszawa'
-    ], { x: this.PADDING_PAGE, y: addressY });
+    ], { x: this.PADDING_X, y: currentY });
 
-
+    // Buyer address
     this.renderAddressBlock(doc, 'Nabywca/Buyer', [
       'Itransition Sp. Z o.o',
       'NIP/VAT ID: PL5213782733',
       'Al. Jerozolimskie 123a',
       '02-017 Warszawa'
-    ], { x: leftBlockPosition, y: addressY });
+    ], { x: LEFT_BLOCK_POSITION, y: currentY });
+
+    currentY += 100; // Add space before title
 
     // Invoice title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(this.HEADER_FONT_SIZE);
-    doc.text('Faktura VAT wewnętrzna Factura 01/01/2025', this.PAGE_WIDTH / 2, 250, { align: 'center' });
-    doc.text('Internal VAT invoice Factura 01/01/2025', this.PAGE_WIDTH / 2, 270, { align: 'center' });
+    const titleHeight = this.renderTitle(
+      doc,
+      // 'Faktura VAT wewnętrzna Factura 01/01/2025',
+      'Internal VAT invoice Factura 01/01/2025',
+      'Internal VAT invoice Factura 01/01/2025',
+      currentY
+    );
+
+    currentY += titleHeight + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
 
     // Table with details
-    this.renderTable(doc, invoice.details, 300);
+    this.renderTable(doc, invoice.details, currentY);
 
     // Payment details
     doc.setFontSize(this.FONT_SIZE);
