@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 import { InvoicesService } from '~/server/routes/invoices/invoices.route';
 import { authenticateUser, handleError } from '~/server/utils/api.utils';
-import { invoiceDocumentSchemaWithDetailsId } from '~/shared/schemas/invoice.schema';
+import { invoiceDocumentSchemaWithOptionalDetailsId } from '~/shared/schemas/invoice.schema';
 import { MathUtils } from '~/shared/utils/math';
 
 export async function POST(req: NextRequest) {
@@ -36,9 +36,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invoice ID is required" }, { status: 400 });
   }
 
-  const data = await req.json() as z.infer<typeof invoiceDocumentSchemaWithDetailsId>;
+  const data = await req.json() as z.infer<typeof invoiceDocumentSchemaWithOptionalDetailsId>;
 
-  const validationResult = invoiceDocumentSchemaWithDetailsId.safeParse(data);
+  const validationResult = invoiceDocumentSchemaWithOptionalDetailsId.safeParse(data);
 
   if (!validationResult.success) {
     return NextResponse.json(
