@@ -1,8 +1,8 @@
-// import { PDFDocument, PDFPage, rgb } from 'pdf-lib';
 import jsPDF from 'jspdf';
-import type { InvoiceDetailsModel, InvoiceModel } from '~/server/db/schema';
 import 'jspdf-autotable';
 import type { UserOptions } from 'jspdf-autotable';
+import type { ClientModel, InvoiceDetailsModel, InvoiceModel } from '~/server/db/schema';
+import { InvoiceCalculationService } from '~/server/services/invoice-calculation.service';
 
 // Augment jsPDF type to include autoTable
 declare module 'jspdf' {
@@ -20,6 +20,8 @@ export class InvoicePdfService {
   private static readonly HEADER_FONT_SIZE = 12;
   private static readonly PADDING_X = this.PAGE_WIDTH * 0.05; // 5% of page width
   private static readonly PADDING_Y = this.PAGE_HEIGHT * 0.05; // 5% of page height
+  private static readonly PADDING_INSIDE_BLOCK = 5;
+  private static readonly LINE_HEIGHT_INSIDE_BLOCK = 14;
 
   // TODO: move to utils
   private static formatDate(date: Date | string | null | undefined): string {
@@ -37,8 +39,6 @@ export class InvoicePdfService {
     const blockWidth = 200;
     const labelWidth = 190;
     const valueWidth = 190;
-    const padding = 5;
-    const lineHeight = 14;
 
     doc.setFillColor(240, 240, 240);
     doc.setFont('helvetica', 'normal');
@@ -50,19 +50,21 @@ export class InvoicePdfService {
 
     // Calculate required height for the block
     const maxLines = Math.max(labelLines.length, valueLines.length);
-    const blockHeight = Math.max(20, (maxLines * lineHeight) + (padding * 2));
-
+    const extraHeight = 2;
+    const blockHeight = Math.max(20, maxLines * (this.LINE_HEIGHT_INSIDE_BLOCK + extraHeight));
+    
     // Draw the background rectangle
     doc.rect(x, y, blockWidth, blockHeight, 'F');
 
     // Draw label lines
     labelLines.forEach((line: string, index: number) => {
-      doc.text(line, x + padding, y + padding + (lineHeight * (index + 1)));
+      doc.text(line, x + this.PADDING_INSIDE_BLOCK, y + (this.LINE_HEIGHT_INSIDE_BLOCK * (index + 1)));
     });
+
     // Draw value lines
     valueLines.forEach((line: string, index: number) => {
-      const valueY = y + padding + (lineHeight * (labelLines.length + index + 1));
-      doc.text(line, x + padding, valueY);
+      const valueY = y + (this.LINE_HEIGHT_INSIDE_BLOCK * (labelLines.length + index + 1));
+      doc.text(line, x + this.PADDING_INSIDE_BLOCK, valueY);
     });
 
     return blockHeight;
@@ -72,44 +74,71 @@ export class InvoicePdfService {
     doc.setFillColor(240, 240, 240); // Light gray background
     doc.rect(x, y, 200, 20, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.text(title, x + 5, y + 14);
+    doc.text(title, x + this.PADDING_INSIDE_BLOCK, y + this.LINE_HEIGHT_INSIDE_BLOCK);
     
     doc.setFont('helvetica', 'normal');
     let yOffset = y + 30;
     details.forEach(line => {
-      doc.text(line, x + 5, yOffset);
-      yOffset += 15;
+      doc.text(line, x + this.PADDING_INSIDE_BLOCK, yOffset);
+      yOffset += this.LINE_HEIGHT_INSIDE_BLOCK;
     });
+
+    return yOffset - y;
   }
 
-  private static renderTable(doc: jsPDF, details: InvoiceDetailsModel[], startY: number) {
-    const tableColumns = [
-      { header: 'Lp.', dataKey: 'index' },
-      { header: 'Description', dataKey: 'description' },
-      { header: 'Unit', dataKey: 'unit' },
-      { header: 'Quantity', dataKey: 'quantity' },
-      { header: 'Unit net price', dataKey: 'unitPrice' },
-      { header: 'Total net price', dataKey: 'totalNet' },
-      { header: 'VAT rate', dataKey: 'vatRate' },
-      { header: 'VAT amount', dataKey: 'vatAmount' },
-      { header: 'Total gross price', dataKey: 'totalGross' }
+  private static renderTable(doc: jsPDF, details: InvoiceDetailsModel[], vatInvoice: boolean, startY: number) {
+    const vatHeaders = ['VAT rate', 'VAT amount'];
+
+    const tableHeaders = [
+      '#',
+      'Description', 
+      'Unit',
+      'Quantity',
+      'Unit net price',
+      'Total net price', 
+      ...(vatInvoice ? vatHeaders : []),
+      'Total gross price'
     ];
 
-    const tableRows = details.map((detail, index) => ({
-      index: index + 1,
-      description: detail.description,
-      unit: 'person hour',
-      quantity: detail.quantity,
-      unitPrice: detail.unitPrice?.toFixed(2),
-      totalNet: (detail.quantity * (detail.unitPrice ?? 0)).toFixed(2),
-      vatRate: '23%',
-      vatAmount: ((detail.quantity * (detail.unitPrice ?? 0)) * 0.23).toFixed(2),
-      totalGross: ((detail.quantity * (detail.unitPrice ?? 0)) * 1.23).toFixed(2)
-    }));
+    const { totalNetPrice, totalVatAmount, totalGrossPrice } = this.getTotalPrice(details);
+    
+    // Create footer with proper alignment to columns
+    const tableFooters = [
+      'Total',
+      '',
+      '',
+      details.reduce((sum, detail) => sum + detail.quantity, 0), // Total quantity
+      '',
+      totalNetPrice.toFixed(2),
+      ...(vatInvoice ? [
+        '', // VAT rate (empty in total)
+        totalVatAmount.toFixed(2) // Total VAT amount
+      ] : []),
+      totalGrossPrice.toFixed(2)
+    ];
+
+    const tableRows = details.map((detail, index) => [
+      index + 1,
+      detail.description,
+      'person hour',
+      detail.quantity,
+      detail.unitPrice?.toFixed(2),
+      (detail.quantity * (detail.unitPrice ?? 0)).toFixed(2),
+      detail.vat,
+      ((detail.quantity * (detail.unitPrice ?? 0)) * 0.23).toFixed(2),
+      ((detail.quantity * (detail.unitPrice ?? 0)) * 1.23).toFixed(2)
+    ]);
+
+    let tableHeight = 0;
 
     doc.autoTable({
+      didDrawPage: (data) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        tableHeight = data?.cursor?.y ?? 0;
+      },
       startY,
-      head: [tableColumns.map(col => col.header)],
+      head: [tableHeaders],
+      foot: [tableFooters],
       body: tableRows,
       theme: 'grid',
       styles: {
@@ -120,8 +149,15 @@ export class InvoicePdfService {
         fillColor: [240, 240, 240],
         textColor: [0, 0, 0],
         fontStyle: 'bold'
+      },
+      footStyles: {
+        fillColor: [240, 240, 240],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold'
       }
     });
+
+    return tableHeight - startY;
   }
 
   private static renderTitle(doc: jsPDF, primaryTitle: string, secondaryTitle: string, y: number) {
@@ -158,7 +194,66 @@ export class InvoicePdfService {
     return  currentY - y;
   }
 
-  static async getInvoicePdf(invoice: InvoiceModel & { details: InvoiceDetailsModel[] }) {
+
+  private static renderTextWithBottomLine(doc: jsPDF, text: string, value: string, { x, y }: Coordinates, blockWidth = 200) {
+    doc.setFontSize(this.FONT_SIZE);
+
+    // Set bold font for the text part
+    doc.setFont('helvetica', 'bold');
+    const textWidth = doc.getTextWidth(`${text}: `);
+    doc.text(`${text}: `, x + this.PADDING_INSIDE_BLOCK, y + this.LINE_HEIGHT_INSIDE_BLOCK);
+    
+    // Set normal font for the value part
+    doc.setFont('helvetica', 'normal');
+    const valueX = x + this.PADDING_INSIDE_BLOCK + textWidth;
+    
+    // Split just the value to ensure proper wrapping
+    const valueLines: string[] = doc.splitTextToSize(value, blockWidth - textWidth - this.PADDING_INSIDE_BLOCK) as string[];
+    
+    // Calculate required height for the block
+    const lineHeight = this.LINE_HEIGHT_INSIDE_BLOCK;
+    const padding = this.PADDING_INSIDE_BLOCK;
+    
+    let currentY = y + lineHeight;
+    
+    // Draw the first line of value (after the text)
+    if (valueLines.length > 0) {
+      doc.text(valueLines[0] ?? '', valueX, currentY);
+    }
+    
+    // Draw any additional value lines with proper indentation
+    for (let i = 1; i < valueLines.length; i++) {
+      currentY += lineHeight;
+      doc.text(valueLines[i] ?? '', x + padding, currentY);
+    }
+    
+    // Add the line below the text
+    const lineY = currentY + lineHeight/2;
+    doc.line(x, lineY, x + blockWidth, lineY);
+    
+    // Calculate and return the total height used
+    // Include the line in the total height calculation
+    const totalHeight = (valueLines.length * lineHeight) + padding + lineHeight/2 + 1; // Adding 1 for the line thickness
+    
+    return totalHeight;
+  }
+
+
+  private static getNextY(elementHeight: number, padding = true) {
+    // Space between blocks as percentage of page height
+    const SPACING_BETWEEN_BLOCKS = 0.025; // 2.5% of page height
+    return elementHeight + (this.PAGE_HEIGHT * (padding ? SPACING_BETWEEN_BLOCKS : 0));
+  }
+
+  private static getTotalPrice(details: InvoiceDetailsModel[]) {
+    const totalNetPrice =  InvoiceCalculationService.getTotalNetPrice(details);
+    const totalVatAmount = InvoiceCalculationService.getTotalVatAmount(details);
+    const totalGrossPrice = InvoiceCalculationService.getTotalGrossPrice(details);
+
+    return { totalNetPrice, totalVatAmount, totalGrossPrice };
+  }
+
+  static async getInvoicePdf(invoice: InvoiceModel & { details: InvoiceDetailsModel[] }, client: ClientModel) {
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'pt',
@@ -178,61 +273,75 @@ export class InvoicePdfService {
       { x: LEFT_BLOCK_POSITION, y: currentY }
     );
 
-    // Space between blocks as percentage of page height
-    const SPACING_BETWEEN_BLOCKS = 0.025; // 2.5% of page height
-
-    currentY += dateBlock1Height + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
+    currentY += this.getNextY(dateBlock1Height);
 
     // Due date
     const dueDateBlockHeight = this.renderDateBlock(
       doc,
-      'Termin realizacji zamówienia/Realization date of the order',
+      'Realization date of the order',
       this.formatDate(invoice.dueDate),
       { x: LEFT_BLOCK_POSITION, y: currentY }
     );
-
-    currentY += dueDateBlockHeight + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
+    currentY += this.getNextY(dueDateBlockHeight);
 
     // Seller address
-    this.renderAddressBlock(doc, 'Sprzedawca/Seller', [
-      'KIRYL TKACHOU',
-      'NIP/VAT ID: PL5213995825',
-      'Jaktorowska 5 / 80',
-      '01-202 Warszawa'
+    const addressHeight = this.renderAddressBlock(doc, 'Seller', [
+      invoice.userName,
+      `NIP/VAT ID: ${invoice.userNip}`,
+      invoice.userAddress ?? '',
     ], { x: this.PADDING_X, y: currentY });
 
     // Buyer address
-    this.renderAddressBlock(doc, 'Nabywca/Buyer', [
-      'Itransition Sp. Z o.o',
-      'NIP/VAT ID: PL5213782733',
-      'Al. Jerozolimskie 123a',
-      '02-017 Warszawa'
+    this.renderAddressBlock(doc, 'Buyer', [
+      client.name,
+      `NIP/VAT ID: ${client.taxIndex}`,
+      `${client.city}, ${client.country} ${client.zip}, ${client.address}`,
     ], { x: LEFT_BLOCK_POSITION, y: currentY });
 
-    currentY += 100; // Add space before title
+    currentY += this.getNextY(addressHeight);
+
+    const vatPrefix = !!invoice.vatInvoice ? 'VAT invoice' : '';
 
     // Invoice title
     const titleHeight = this.renderTitle(
       doc,
-      // 'Faktura VAT wewnętrzna Factura 01/01/2025',
-      'Internal VAT invoice Factura 01/01/2025',
-      'Internal VAT invoice Factura 01/01/2025',
+      `${vatPrefix} Invoice ${invoice.invoiceNo}`.trim(),
+      '',
       currentY
-    );
-
-    currentY += titleHeight + (this.PAGE_HEIGHT * SPACING_BETWEEN_BLOCKS);
+    ); 
+    currentY += this.getNextY(titleHeight);
 
     // Table with details
-    this.renderTable(doc, invoice.details, currentY);
+    const tableHeight = this.renderTable(doc, invoice.details, !!invoice.vatInvoice, currentY);
+    currentY += this.getNextY(tableHeight);
+
+
+    const afterTableY = currentY;
 
     // Payment details
-    doc.setFontSize(this.FONT_SIZE);
-    doc.setFont('helvetica', 'normal');
-    const paymentY = 650;
-    doc.text('Data płatności/Date of payment: 10-02-2025', 100, paymentY);
-    doc.text('Sposób płatności/Method of payment: przelew/transfer', 100, paymentY + 20);
-    doc.text('PKO, SWIFT: BPKOPLPW', 100, paymentY + 40);
-    doc.text('PL06 1020 1068 0000 1202 0404 1760', 100, paymentY + 60);
+    const methodPaymentHeight = this.renderTextWithBottomLine(doc, 'Method of payment', 'transfer', { x: this.PADDING_X, y: currentY });
+    currentY += methodPaymentHeight;
+    const dateOfPaymentHeight = this.renderTextWithBottomLine(doc, 'Date of payment', this.formatDate(invoice.dueDate), { x: this.PADDING_X, y: currentY });
+    currentY += dateOfPaymentHeight;
+    // TODO: add bank to DB
+    this.renderTextWithBottomLine(doc, 'PKO, SWIFT: BPKOPLPW', 'PL06 1020 1068 0000 1202 0404 1760', { x: this.PADDING_X, y: currentY }, 300);
+
+    currentY = afterTableY;
+
+    const { totalNetPrice, totalVatAmount, totalGrossPrice } = this.getTotalPrice(invoice.details);
+
+    // Amount Totals
+    const totalNetPriceHeight = this.renderTextWithBottomLine(doc, 'Total net price', totalNetPrice.toFixed(2), { x: LEFT_BLOCK_POSITION, y: currentY });
+    currentY += totalNetPriceHeight;
+
+    if(!!invoice.vatInvoice) {
+      const vatAmountHeight = this.renderTextWithBottomLine(doc, 'VAT amount', totalVatAmount.toFixed(2), { x: LEFT_BLOCK_POSITION, y: currentY });
+      currentY += vatAmountHeight;
+    }
+    
+    this.renderTextWithBottomLine(doc, 'Total due', totalGrossPrice.toFixed(2), { x: LEFT_BLOCK_POSITION, y: currentY });
+    
+
 
     return doc.output('blob');
   }

@@ -1,4 +1,5 @@
 export class InvoiceUtils {
+  // TODO: Fix calculation
   static getTotalGrossPrice(quantity: number, unitNetPrice: number) {
     return quantity * unitNetPrice;
   }
