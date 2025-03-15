@@ -233,6 +233,10 @@ export class InvoicesService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static async updateDetails(tx: PgTransaction<any, Record<string, unknown>, TablesRelationalConfig>, invoiceId: string, details: z.infer<typeof invoiceDetailsSchemaWithId>[]) {
+    if(!details.length) {
+      return [];
+    }
+    
     return details.map(detail => {
       const { id, ...rest } = detail;
 
@@ -248,6 +252,10 @@ export class InvoicesService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static async createDetails(tx: PgTransaction<any, Record<string, unknown>, TablesRelationalConfig>, invoiceId: string, details: z.infer<typeof invoiceDetailsSchema>[]) {
+    if(!details.length) {
+      return [];
+    }
+
     return tx.insert(invoiceDetails).values(
       details.map((detail) => {
         return {

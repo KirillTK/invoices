@@ -115,18 +115,18 @@ export function InvoiceTable({ form, disabled, vatInvoice = false }: Props) {
 
     const vatPercent = MathUtils.divide(vat ?? 0, 100);
 
-    const gross = InvoiceUtils.getTotalGrossPrice(+quantity, +unitPrice);
+    const netPrice = InvoiceUtils.getTotalNetPrice(+quantity, +unitPrice);
 
     let vatAmount = 0;
 
-    vatAmount = vatPercent && vatInvoice ? InvoiceUtils.getVatAmount(+gross, vatPercent) : 0;
+    vatAmount = vatPercent && vatInvoice ? InvoiceUtils.getVatAmount(+netPrice, vatPercent) : 0;
     
 
-    const totalNetAmount = InvoiceUtils.getTotalNetPrice(gross, vatAmount);    
+    const totalGrossPrice = InvoiceUtils.getGrossPrice(netPrice, vatAmount);    
 
-    setValue(`details.${index}.totalGrossPrice`, gross);
+    setValue(`details.${index}.totalGrossPrice`, totalGrossPrice);
     setValue(`details.${index}.vatAmount`, vatAmount);
-    setValue(`details.${index}.totalNetPrice`, totalNetAmount);
+    setValue(`details.${index}.totalNetPrice`, netPrice);
   };
 
   return (

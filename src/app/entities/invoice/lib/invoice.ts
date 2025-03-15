@@ -1,6 +1,6 @@
 export class InvoiceUtils {
   // TODO: Fix calculation
-  static getTotalGrossPrice(quantity: number, unitNetPrice: number) {
+  static getTotalNetPrice(quantity: number, unitNetPrice: number) {
     return quantity * unitNetPrice;
   }
 
@@ -8,7 +8,7 @@ export class InvoiceUtils {
     return totalPrice * vatRate;
   }
 
-  static getTotalNetPrice(totalGrossPrice: number, vatAmount: number) {
-    return totalGrossPrice + vatAmount;
+  static getGrossPrice(totalNetPrice: number, vatAmount: number) {
+    return totalNetPrice + vatAmount;
   }
 }
