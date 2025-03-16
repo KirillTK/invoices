@@ -1,6 +1,7 @@
 import { createTable } from "../utils/createTable";
 import { uuid, varchar, date, boolean, timestamp } from "drizzle-orm/pg-core";
 import { clients } from "./clients";
+import { users } from "./users";
 import { type InferSelectModel, sql } from 'drizzle-orm';
 
 export const invoice = createTable("invoices", {
@@ -9,7 +10,9 @@ export const invoice = createTable("invoices", {
   dueDate: date("due_date"),
   invoiceDate: date("invoice_date"),
   vatInvoice: boolean("vat_invoice").default(false),
-  userId: varchar("user_id", { length: 256 }).notNull(),
+  userId: varchar("user_id", { length: 256 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   userName: varchar('user_name', { length: 50 }).notNull(),
   userAddress: varchar("user_address", { length: 250 }),
   userNip: varchar("userNip", { length: 50 }),
