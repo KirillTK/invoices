@@ -7,11 +7,12 @@ import {
   invoice,
   invoiceDetails,
 } from "~/server/db/schema";
-import type { invoiceDocumentSchema, invoiceDocumentSchemaWithDetailsId } from "~/shared/schemas/invoice.schema";
-import { and, desc, eq, like, sql } from "drizzle-orm";
+import type { invoiceDetailsSchema, invoiceDetailsSchemaWithId, invoiceDocumentSchema, invoiceDocumentSchemaWithOptionalDetailsId } from "~/shared/schemas/invoice.schema";
+import { and, desc, eq, like, sql, type TablesRelationalConfig } from "drizzle-orm";
 import { CacheTags } from "../../enums/cache";
 import { cache } from '~/server/decorators/cache.decorator';
 import { revalidateCache } from '~/server/utils/cache.utils';
+import { type PgTransaction } from 'drizzle-orm/pg-core';
 
 export class InvoicesService {
   @authRequired()
@@ -102,21 +103,7 @@ export class InvoicesService {
           return;
         }
 
-        await tx.insert(invoiceDetails).values(
-          details.map((detail) => {
-            return {
-              invoiceId: savedInvoice.invoiceId,
-              description: detail.description,
-              unitId: detail.unitId ?? 0,
-              quantity: detail.quantity,
-              unitPrice: detail.unitPrice,
-              totalNetPrice: detail.totalNetPrice,
-              vat: detail.vat,
-              vatAmount: detail.vatAmount,
-              totalGrossPrice: detail.totalGrossPrice,
-            };
-          }),
-        );
+        await InvoicesService.createDetails(tx, savedInvoice.invoiceId, details);
 
         revalidateCache(CacheTags.INVOICES, userId);
         return savedInvoice.invoiceId;
@@ -210,7 +197,7 @@ export class InvoicesService {
   }
 
   @authRequired()
-  static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithDetailsId>, userId: string) {
+  static async updateInvoice(invoiceId: string, invoiceData: z.infer<typeof invoiceDocumentSchemaWithOptionalDetailsId>, userId: string) {
     return db.transaction(async (tx) => {
       try {
         const updatedInvoiceData = {
@@ -220,18 +207,19 @@ export class InvoicesService {
           updatedAt: sql`NOW()`,
         };
 
+        const existedDetails = invoiceData.details.filter(detail => detail.id) as z.infer<typeof invoiceDetailsSchemaWithId>[];
+        const newDetails = invoiceData.details.filter(detail => !detail.id);
+
         await tx.update(invoice)
           .set(updatedInvoiceData)
           .where(and(eq(invoice.id, invoiceId), eq(invoice.userId, userId)));
 
-        await Promise.all(invoiceData.details.map(detail =>
-          tx.update(invoiceDetails)
-            .set({
-              ...detail,
-              updatedAt: sql`NOW()`,
-            })
-            .where(and(eq(invoiceDetails.invoiceId, invoiceId), eq(invoiceDetails.id, detail.id)))
-        ));
+
+        const updateDetailsPromises = InvoicesService.updateDetails(tx, invoiceId, existedDetails);
+
+        const createDetailsPromises = InvoicesService.createDetails(tx, invoiceId, newDetails);
+
+        await Promise.all([updateDetailsPromises, createDetailsPromises]);
 
         revalidateCache(CacheTags.INVOICE, invoiceId);
         return true; // Indicate successful update
@@ -240,5 +228,50 @@ export class InvoicesService {
         return error;
       }
     });
+  }
+
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static async updateDetails(tx: PgTransaction<any, Record<string, unknown>, TablesRelationalConfig>, invoiceId: string, details: z.infer<typeof invoiceDetailsSchemaWithId>[]) {
+    if(!details.length) {
+      return [];
+    }
+    
+    return details.map(detail => {
+      const { id, ...rest } = detail;
+
+      return tx.update(invoiceDetails)
+        .set({
+          ...rest,
+          updatedAt: sql`NOW()`,
+        })
+        .where(and(eq(invoiceDetails.invoiceId, invoiceId), eq(invoiceDetails.id, id)))
+    }
+    );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static async createDetails(tx: PgTransaction<any, Record<string, unknown>, TablesRelationalConfig>, invoiceId: string, details: z.infer<typeof invoiceDetailsSchema>[]) {
+    if(!details.length) {
+      return [];
+    }
+
+    return tx.insert(invoiceDetails).values(
+      details.map((detail) => {
+        return {
+          invoiceId,
+          description: detail.description,
+          unitId: detail.unitId ?? 0,
+          quantity: detail.quantity,
+          unitPrice: detail.unitPrice,
+          totalNetPrice: detail.totalNetPrice,
+          vat: detail.vat,
+          vatAmount: detail.vatAmount,
+          totalGrossPrice: detail.totalGrossPrice,
+          createdAt: sql`NOW()`,
+          updatedAt: null,
+        };
+      }),
+    );
   }
 }

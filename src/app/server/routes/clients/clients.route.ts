@@ -29,6 +29,17 @@ export class ClientsService {
   }
 
   @authRequired()
+  static getClientById(clientId: string, userId: string) {
+    return db.query.clients.findFirst({
+      where: (model, { eq, and }) =>
+        and(
+          eq(model.id, clientId),
+          eq(model.userId, userId),
+        ),
+    });
+  }
+
+  @authRequired()
   static async saveClient(client: ClientModel) {
     const res = await db.insert(clients).values(client);
 

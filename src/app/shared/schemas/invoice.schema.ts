@@ -47,6 +47,10 @@ export const invoiceDetailsSchema = z.object({
   totalGrossPrice: z.number().optional(),
 });
 
+export const invoiceDetailsSchemaWithOptionalId = invoiceDetailsSchema.extend({
+  id: z.string().optional(),
+});
+
 export const invoiceDetailsSchemaWithId = invoiceDetailsSchema.extend({
   id: z.string().min(1, "Id is required"),
 });
@@ -57,6 +61,6 @@ export const invoiceDocumentSchema = z.object({
 });
 
 
-export const invoiceDocumentSchemaWithDetailsId = invoiceDocumentSchema.extend({
-  details: invoiceDetailsSchemaWithId.array(),
+export const invoiceDocumentSchemaWithOptionalDetailsId = invoiceDocumentSchema.extend({
+  details: invoiceDetailsSchemaWithOptionalId.array(),
 });

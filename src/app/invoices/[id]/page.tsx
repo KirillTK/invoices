@@ -19,6 +19,7 @@ export default function Invoice(props: Props) {
   const downloadPdf = useDownloadInvoiceMutation(params.id);
   const updateInvoice =  useInvoiceUpdateMutation(params.id);
   const deleteInvoice = useInvoiceDeleteMutation(params.id, '/invoices');
+  
   const isLoading = downloadPdf.isPending || updateInvoice.isPending;
 
   if(isLoadingInvoice) return <InvoiceSkeleton />;
