@@ -1,26 +1,9 @@
-import { db } from '~/server/db';
-import { users } from '~/server/db/schema/schemas/users';
+import { type ClerkUserPayload } from '~/entities/user/model/clerk-user-payload.model';
+import { UsersService } from '~/server/routes/users/users.route';
 
-interface ClerkWebhookData {
-  id: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  email_addresses: Array<{
-    email_address: string;
-    id: string;
-    verification: null | {
-      status: string;
-      strategy: string;
-    };
-  }>;
-  primary_email_address_id: string;
-  public_metadata: Record<string, unknown>;
-}
 
 export async function POST(req: Request) {
-  const { type, data } = await req.json() as { type: string; data: ClerkWebhookData };
-
-  console.log('Webhook received:', type, data);
+  const { type, data } = await req.json() as { type: string; data: ClerkUserPayload };
 
   if (type === "user.created") {
     const email = data.email_addresses.find(
@@ -31,7 +14,7 @@ export async function POST(req: Request) {
       return new Response("No primary email found for user", { status: 404 })
     }
 
-    await db.insert(users).values({
+    await UsersService.createUser({
       id: data.id,
       email: email,
       name: [data.first_name, data.last_name].filter(Boolean).join(" ") || "Unknown",

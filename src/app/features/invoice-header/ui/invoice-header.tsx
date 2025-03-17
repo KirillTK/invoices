@@ -11,7 +11,7 @@ export function InvoiceHeader() {
           <SignInButton />
         </SignedOut>
         <SignedIn>
-          <UserButton />
+          <UserButton userProfileUrl="/profile" />
         </SignedIn>
       </div>
     </nav>
