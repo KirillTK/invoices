@@ -11,11 +11,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 interface Props {
   className?: string;
-  onChange: (day?: Date) => void | Promise<void>;
+  onChange: (day?: string) => void | Promise<void>;
   value?: Date;
 }
 
 export function DatePicker({ className, onChange, value }: Props) {
+  const handleChange = (day?: Date) => {
+    void onChange(day?.toISOString());
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -35,7 +39,7 @@ export function DatePicker({ className, onChange, value }: Props) {
         <Calendar
           mode="single"
           selected={value}
-          onSelect={onChange}
+          onSelect={handleChange}
         />
       </PopoverContent>
     </Popover>

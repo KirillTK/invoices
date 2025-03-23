@@ -57,6 +57,13 @@
       "when": 1742166771387,
       "tag": "0007_update_user_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1742732972794,
+      "tag": "0008_add-bank-info",
+      "breakpoints": true
     }
   ]
 }

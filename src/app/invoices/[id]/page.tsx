@@ -10,12 +10,14 @@ import { ConfirmRemoveModal } from '~/features/confirm-remove-modal';
 import { InvoiceButton } from '~/features/invoice-button';
 import { DOM_ID } from '~/shared/constants/dom-id.const';
 import { MathUtils } from '~/shared/utils/math';
+import { useGetUserQuery } from '~/entities/user/api/api';
 
 type Props = { params: Promise<{ id: string }> };
 
 export default function Invoice(props: Props) {
   const params = use(props.params);
   const { invoice, isLoading: isLoadingInvoice, error } = useInvoiceQuery(params.id);
+  const { user } = useGetUserQuery();
   const downloadPdf = useDownloadInvoiceMutation(params.id);
   const updateInvoice =  useInvoiceUpdateMutation(params.id);
   const deleteInvoice = useInvoiceDeleteMutation(params.id, '/invoices');
@@ -32,9 +34,11 @@ export default function Invoice(props: Props) {
       dueDate: new Date(invoice.dueDate!),
       invoiceDate: new Date(invoice.invoiceDate!),
       vatInvoice: invoice.vatInvoice!,
-      userName: invoice.userName,
-      userAddress: invoice.userAddress!,
-      userNip: invoice.userNip!,
+      userName: user?.name ?? '',
+      userAddress: user?.address ?? '',
+      userNip: user?.taxIndex ?? '',
+      bankAccount: user?.bankAccount ?? '',
+      paymentDate: invoice.paymentDate ?? '',
       clientId: invoice.clientId,
       clientAddress: invoice.clientAddress!,
       clientNip: invoice.clientNip!,

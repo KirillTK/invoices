@@ -16,6 +16,8 @@ export const invoice = createTable("invoices", {
   userName: varchar('user_name', { length: 50 }).notNull(),
   userAddress: varchar("user_address", { length: 250 }),
   userNip: varchar("userNip", { length: 50 }),
+  bankAccount: varchar("bank_account", { length: 50 }),
+  paymentDate: date("payment_date"),
   clientId: uuid("client_id")
     .references(() => clients.id, { onDelete: "cascade" })
     .notNull(),

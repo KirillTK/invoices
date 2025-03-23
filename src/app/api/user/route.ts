@@ -5,6 +5,19 @@ import { UsersService } from '~/server/routes/users/users.route';
 import { handleError } from '~/server/utils/api.utils';
 import { userSchema } from '~/shared/schemas/user.schema';
 
+
+export async function GET() {
+  const { userId } = await auth();
+  if (!userId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const user = await UsersService.getUser(userId);
+
+  return NextResponse.json(user);
+}
+
+
 export async function PATCH(req: Request) {
   const { userId } = await auth();
   if (!userId) {

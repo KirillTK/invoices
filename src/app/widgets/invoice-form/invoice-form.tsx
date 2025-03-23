@@ -223,6 +223,31 @@ export function InvoiceForm({
               vatInvoice={isVatInvoice}
             />
           </div>
+
+          <div className="col-span-2 flex space-x-4">
+            <Card className="flex-1">
+              <CardHeader>
+                <CardTitle>Bank Account</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-y-2">
+                  <InputField
+                    form={form}
+                    fieldName="invoice.bankAccount"
+                    label="Bank Account:"
+                  />
+                  <DatePickerField
+                    form={form}
+                    fieldName="invoice.paymentDate"
+                    label="Payment Date"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex-1"></div>
+            <div className="flex-1"></div>
+          </div>
         </form>
       </fieldset>
     </Form>

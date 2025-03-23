@@ -1,6 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { type User } from '../model/user.model';
 import { toast } from '~/shared/components/toast/use-toast';
+import { useAuth } from '@clerk/nextjs';
+import { fetcher } from '~/shared/utils/fetcher';
 
 export const useUpdateUserMutation = () => {
   return useMutation({
@@ -20,4 +22,17 @@ export const useUpdateUserMutation = () => {
       toast({ title: "Failed to update user!", variant: "destructive" });
     },
   });
+};
+
+
+export const useGetUserQuery = () => {
+  const { userId } = useAuth();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: async () => fetcher<User>(`/api/user`),
+    enabled: !!userId,
+  });
+
+  return { user: data, isLoading, error };
 };

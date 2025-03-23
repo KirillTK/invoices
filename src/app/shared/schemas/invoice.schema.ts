@@ -31,6 +31,9 @@ export const invoiceSchema = z.object({
     .min(1, "User address is required")
     .max(250, "User address too long"),
   clientNip: z.string().min(1, "User Nip is required").max(50, "Nip too long"),
+  // bank account
+  bankAccount: z.string().min(1, "Bank account is required").max(50, "Bank account too long"),
+  paymentDate: z.string().min(1, "Payment date is required"),
 });
 
 export const invoiceDetailsSchema = z.object({

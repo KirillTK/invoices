@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const invoiceId = await InvoicesService.saveInvoice((user as User).id, data);
-    return NextResponse.json({ invoiceId });
+    return NextResponse.json({ invoiceId }, { status: 201 });
   } catch (error) {
     return handleError(error);
   }
