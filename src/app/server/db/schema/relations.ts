@@ -3,6 +3,7 @@ import { invoiceDetails } from "./schemas/invoiceDetails";
 import { unitTypes, unitTypeCategories } from "./schemas/unitType";
 import { invoice } from "./schemas/invoices";
 import { users } from "./schemas/users";
+import { clients } from './schemas/clients';
 
 export const invoiceDetailsRelations = relations(invoiceDetails, ({ one }) => ({
   invoice: one(invoice, {
@@ -25,6 +26,11 @@ export const invoiceRelations = relations(invoice, ({ one, many }) => ({
     fields: [invoice.userId],
     references: [users.id],
     relationName: 'userInvoices',
+  }),
+  client: one(clients, {
+    fields: [invoice.clientId],
+    references: [clients.id],
+    relationName: 'invoiceClient',
   }),
 }));
 

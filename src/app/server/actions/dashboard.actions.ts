@@ -1,19 +1,16 @@
 'use server';
 
-import { startOfMonth, startOfYear } from 'date-fns';
-import { subYears } from 'date-fns';
-import { subDays } from 'date-fns';
+import { startOfMonth, startOfYear, subYears, subDays } from 'date-fns';
 import { db } from '../db';
 import { DashboardTimePeriod } from '../enums/dashboard-filters';
+import { InvoiceCalculationService } from '../services/invoice-calculation.service';
 
-
-export async function getDashboardData(userId: string, clientId?: string, timePeriod?: DashboardTimePeriod) {
-
-  return db.query.invoice.findMany({
+export async function getDashboardInvoices(userId: string, clientId?: string, timePeriod?: DashboardTimePeriod) {
+  const invoices = await db.query.invoice.findMany({
     where: (invoice, { eq, and, gte, lte }) => {
       const conditions = [eq(invoice.userId, userId)];
       
-      // Filter by client if dateRange is not 'all'
+      // Filter by client if clientId is not 'all'
       if (clientId && clientId !== 'all') {
         conditions.push(eq(invoice.clientId, clientId));
       }
@@ -38,7 +35,45 @@ export async function getDashboardData(userId: string, clientId?: string, timePe
       
       return and(...conditions);
     },
-    orderBy: (invoice, { desc }) => desc(invoice.createdAt)
-  })
+    orderBy: (invoice, { desc }) => desc(invoice.createdAt),
+    with: {
+      client: true,
+      details: true,
+    }
+  });
   
+  
+  const aggregatedData = {
+    invoices,
+    totalRevenue: InvoiceCalculationService.calculateTotalsByInvoices(invoices),
+    invoicesCount: invoices.length,
+    averageInvoiceValue: InvoiceCalculationService.calculateAverageInvoiceValue(invoices),
+    outstandingAmount: InvoiceCalculationService.calculateOutstandingAmount(invoices),
+    clientDistribution: invoices.reduce((acc, invoice) => {
+      const clientName = invoice.client.name;
+      if (!acc[clientName]) acc[clientName] = 0;
+      acc[clientName] += invoice.details.reduce((sum, detail) => 
+        sum + (detail.quantity * detail.unitPrice), 0);
+      return acc;
+    }, {} as Record<string, number>)
+  };
+  
+  return aggregatedData;
+}
+
+
+export async function getDashboardChangesInPastYear(userId: string) {
+  const { invoices } = await getDashboardInvoices(userId, undefined, DashboardTimePeriod.LAST_YEAR);
+
+  const totalRevenue = InvoiceCalculationService.calculateTotalsByInvoices(invoices);
+  const invoicesCount = invoices.length;
+  const averageInvoiceValue = InvoiceCalculationService.calculateAverageInvoiceValue(invoices);
+  const outstandingAmount = InvoiceCalculationService.calculateOutstandingAmount(invoices);
+
+  return {
+    totalRevenue,
+    invoicesCount,
+    averageInvoiceValue,
+    outstandingAmount,
+  };
 }

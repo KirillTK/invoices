@@ -14,4 +14,16 @@ export class FormatterUtils {
 
     return formatter.format(val);
   }
+
+  static formatNumber(val: number) {
+    if (!val) {
+      return 0;
+    }
+
+    return Number(val.toFixed(2));
+  }
+
+  static formatDate(date: string | Date) {
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
 }

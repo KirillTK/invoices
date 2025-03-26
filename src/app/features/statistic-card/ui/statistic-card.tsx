@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/components/card/card';
-import { CURRENCY } from '~/shared/constants/currency.const';
+import type { CURRENCY } from '~/shared/constants/currency.const';
 import { FormatterUtils } from '~/shared/utils/formatter';
 
 
@@ -10,8 +10,8 @@ export interface StatisticCardProps {
   currency?: CURRENCY;
 }
 
-export function StatisticCard({ title, value, change, currency = CURRENCY.USD }: StatisticCardProps) {
-  const formattedValue = FormatterUtils.fromNumberToMoney(value, currency);
+export function StatisticCard({ title, value, change, currency }: StatisticCardProps) {
+  const formattedValue = currency ? FormatterUtils.fromNumberToMoney(value, currency) : value;
   
   return (
     <Card>

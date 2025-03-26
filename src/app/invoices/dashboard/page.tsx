@@ -4,7 +4,9 @@ import { StatisticCard } from '~/features/statistic-card';
 import { ClientsService } from '~/server/routes/clients/clients.route';
 import { DashboardCharts } from '~/widgets/dashboard-charts';
 import type { Option } from '~/shared/types/form';
-import { getDashboardData } from '~/server/actions/dashboard.actions';
+import { getDashboardChangesInPastYear, getDashboardInvoices } from '~/server/actions/dashboard.actions';
+import { CURRENCY } from '~/shared/constants/currency.const';
+import { FormatterUtils } from '~/shared/utils/formatter';
 
 interface DashboardFiltersProps {
   searchParams: Promise<Partial<DashboardFilters>>
@@ -37,15 +39,25 @@ export default async function StatisticsDashboard({ searchParams }: DashboardFil
 
   const { clientId, timePeriod } = await searchParams;
 
-  
-
   if(!user?.id) {
     return <div>Unauthorized</div>;
   }
-  const clients = await ClientsService.getClients(user.id, '');
-  const invoices = await getDashboardData(user.id, clientId, timePeriod);
 
-  console.log(clientId, timePeriod, '!!!!', invoices);
+  const clients = await ClientsService.getClients(user.id, '');
+  const { 
+    invoicesCount, 
+    totalRevenue, 
+    averageInvoiceValue, 
+    outstandingAmount,
+    invoices,
+  } = await getDashboardInvoices(user.id, clientId, timePeriod);
+  
+  const { 
+    totalRevenue: totalRevenuePastYear, 
+    invoicesCount: invoicesCountPastYear, 
+    averageInvoiceValue: averageInvoiceValuePastYear, 
+    outstandingAmount: outstandingAmountPastYear 
+  } = await getDashboardChangesInPastYear(user.id);
   
   const clientsOptions: Option<string>[] = [
     { label: "All Clients", value: "all" },
@@ -56,17 +68,18 @@ export default async function StatisticsDashboard({ searchParams }: DashboardFil
   ];
 
 
-  // Summary data
+
   const summaryData = {
-    totalRevenue: 10000,
-    invoicesIssued: 100,
-    averageInvoiceValue: - 100,
-    outstandingAmount: 1000,
-    revenueChange: 10,
-    invoicesChange: 10,
-    averageChange: 10,
-    outstandingChange: 10,
+    totalRevenue: totalRevenue,
+    invoicesIssued: invoicesCount,
+    averageInvoiceValue: averageInvoiceValue,
+    outstandingAmount: outstandingAmount,
+    revenueChange: FormatterUtils.formatNumber(totalRevenue / totalRevenuePastYear),
+    invoicesChange: FormatterUtils.formatNumber(invoicesCount / invoicesCountPastYear),
+    averageChange: FormatterUtils.formatNumber(averageInvoiceValue / averageInvoiceValuePastYear),
+    outstandingChange: FormatterUtils.formatNumber(outstandingAmount / outstandingAmountPastYear),
   };
+
   
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -75,13 +88,13 @@ export default async function StatisticsDashboard({ searchParams }: DashboardFil
       </div>
       <DashboardFilters clientsOptions={clientsOptions} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatisticCard title="Total Revenue" value={summaryData.totalRevenue} change={summaryData.revenueChange} />
-        <StatisticCard title="Invoices Issued" value={summaryData.invoicesIssued} change={summaryData.invoicesChange} />
-        <StatisticCard title="Average Invoice Value" value={summaryData.averageInvoiceValue} change={summaryData.averageChange} />
-        <StatisticCard title="Outstanding Amount" value={summaryData.outstandingAmount} change={summaryData.outstandingChange} />
+        <StatisticCard title="Total Revenue" value={summaryData.totalRevenue} change={summaryData.revenueChange} currency={CURRENCY.USD} />
+        <StatisticCard title="Invoices Issued" value={summaryData.invoicesIssued} change={summaryData.invoicesChange} currency={undefined} />
+        <StatisticCard title="Average Invoice Value" value={summaryData.averageInvoiceValue} change={summaryData.averageChange} currency={CURRENCY.USD} />
+        <StatisticCard title="Outstanding Amount" value={summaryData.outstandingAmount} change={summaryData.outstandingChange} currency={CURRENCY.USD} />
       </div>
       
-      <DashboardCharts />
+      <DashboardCharts invoices={invoices} />
     </div>
   )
 }

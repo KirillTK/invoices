@@ -1,9 +1,12 @@
+import type { InvoiceModel } from '~/entities/invoice/model/invoice.model';
+import { RevenueChart } from '~/features/revenue-chart';
+import { RevenueTrendChart } from '~/features/revenue-trend-chart';
 import { CardContent } from '~/shared/components/card/card';
 
 import { Card, CardDescription, CardHeader, CardTitle } from '~/shared/components/card/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/shared/components/tabs';
 
-export function DashboardCharts() {
+export function DashboardCharts({ invoices }: { invoices: InvoiceModel[] }) {
   return (
     <Tabs defaultValue="revenue" className="w-full">
         <TabsList className="mb-4">
@@ -14,25 +17,8 @@ export function DashboardCharts() {
         
         <TabsContent value="revenue">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Revenue</CardTitle>
-                <CardDescription>Revenue generated per month</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <div className="flex items-center justify-center h-full">Chart removed</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Trend</CardTitle>
-                <CardDescription>Revenue trend over time</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <div className="flex items-center justify-center h-full">Chart removed</div>
-              </CardContent>
-            </Card>
+            <RevenueChart invoices={invoices} />
+            <RevenueTrendChart invoices={invoices} />
           </div>
         </TabsContent>
         
