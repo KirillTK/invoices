@@ -2,12 +2,12 @@
 
 import { subDays } from 'date-fns';
 import { db } from '../db';
-import { invoice, InvoiceModel } from '../db/schema/schemas/invoices';
-import { invoiceDetails, InvoiceDetailsModel } from '../db/schema/schemas/invoiceDetails';
+import { type InvoiceModel, invoice } from '../db/schema/schemas/invoices';
+import { invoiceDetails, type InvoiceDetailsModel } from '../db/schema/schemas/invoiceDetails';
 import { DashboardTimePeriod } from '../enums/dashboard-filters';
 import { InvoiceCalculationService } from '../services/invoice-calculation.service';
 import { eq, sql, and, gte, lte } from 'drizzle-orm';
-import { ClientModel } from '../db/schema/schemas/clients';
+import { type ClientModel } from '../db/schema/schemas/clients';
 
 type InvoiceFull = InvoiceModel & {
   details: InvoiceDetailsModel[];
