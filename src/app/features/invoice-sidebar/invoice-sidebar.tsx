@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 const navItems = [
   { href: '/invoices', icon: FileText, label: 'Invoices' },
   { href: '/invoices/clients', icon: Users, label: 'Clients' },
-  { href: '/invoices/reports', icon: PieChart, label: 'Reports' },
+  { href: '/invoices/dashboard', icon: PieChart, label: 'Reports' },
 ];
 
 export default function InvoiceSidebar() {

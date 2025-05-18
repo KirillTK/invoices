@@ -1,1 +1,0 @@
-export { YearlyIncomeChart } from "./ui/yearly-income-chart";
