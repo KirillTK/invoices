@@ -24,8 +24,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider dynamic>
-      <html lang="en" className={`font-sans ${inter.variable}`}>
-        <body>
+      <html lang="en" className={`font-sans ${inter.variable} h-full`}>
+        <body className="h-full">
           <Providers>{children}</Providers>
           <Toaster />
           <SpeedInsights />

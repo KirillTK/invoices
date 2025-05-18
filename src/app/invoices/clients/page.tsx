@@ -11,7 +11,7 @@ export default async function ClientsPage() {
   if (!user) return <ClientsNotFound />;
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Clients</h1>
         <ClientModal buttonClassName="bg-blue-600 hover:bg-blue-700 text-white">

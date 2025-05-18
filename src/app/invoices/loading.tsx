@@ -5,7 +5,7 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from '~
 
 export default function InvoicesPageSkeleton() {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <Skeleton className="h-9 w-40 border bg-card" />
         <Skeleton className="h-10 w-32 inline-block border bg-card" />

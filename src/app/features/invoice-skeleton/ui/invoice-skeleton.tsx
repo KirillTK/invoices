@@ -4,7 +4,7 @@ import { Skeleton } from '~/shared/components/skeletons';
 
 export function InvoiceSkeleton() {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <Skeleton className="h-9 w-40 border bg-card" />
         <div className="space-x-2">
