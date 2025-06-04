@@ -138,7 +138,7 @@ resource "aws_db_instance" "postgres" {
   identifier             = "${var.app_name}-db-${random_id.db_suffix.hex}"
   allocated_storage      = 20
   engine                 = "postgres"
-  engine_version         = "14.7" # Changed from 15.3 to supported version
+  engine_version         = "14.11" # Changed from 14.7 to supported version
   instance_class         = "db.t3.micro" # Free tier eligible
   db_name                = var.db_name
   username               = var.db_username
