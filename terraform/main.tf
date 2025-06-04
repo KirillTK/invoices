@@ -14,7 +14,12 @@ provider "aws" {
 
 # S3 bucket for static assets
 resource "aws_s3_bucket" "nextjs_assets" {
-  bucket = var.app_name
+  bucket = "${var.app_name}-${random_id.bucket_suffix.hex}"
+}
+
+# Generate a random suffix for globally unique S3 bucket name
+resource "random_id" "bucket_suffix" {
+  byte_length = 8
 }
 
 resource "aws_s3_bucket_ownership_controls" "nextjs_assets" {

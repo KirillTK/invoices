@@ -34,13 +34,13 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION || 'eu-west-1' }}
       
       - name: Create terraform.tfvars
         working-directory: terraform
         run: |
           cat > terraform.tfvars << EOF
-          aws_region  = "${{ secrets.AWS_REGION }}"
+          aws_region  = "${{ secrets.AWS_REGION || 'eu-west-1' }}"
           app_name    = "factura"
           db_name     = "factura"
           db_username = "${{ secrets.DB_USERNAME }}"
@@ -70,7 +70,7 @@ jobs:
             artifact: build.zip
           global:
             application_name: factura
-            default_region: ${{ secrets.AWS_REGION }}
+            default_region: ${{ secrets.AWS_REGION || 'eu-west-1' }}
           EOF
       
       - name: Create deployment package
