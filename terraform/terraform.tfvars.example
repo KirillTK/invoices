@@ -1,0 +1,5 @@
+aws_region  = "us-east-1"
+app_name    = "factura"
+db_name     = "factura"
+db_username = "postgres"
+db_password = "your-secure-password-here" # Change this to a secure password 

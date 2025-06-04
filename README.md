@@ -26,8 +26,34 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 
 ## How do I deploy this?
 
+### Local Deployment
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
 
+### AWS Deployment (Free Tier)
+This project includes Terraform configurations to deploy the application to AWS using free tier resources. To deploy to AWS:
+
+1. **Prerequisites**:
+   - [AWS CLI](https://aws.amazon.com/cli/) installed and configured
+   - [Terraform](https://www.terraform.io/downloads.html) installed (v1.2.0+)
+   - [Elastic Beanstalk CLI](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html) installed (optional, but recommended)
+
+2. **Configure AWS Infrastructure**:
+   ```sh
+   cd terraform
+   cp terraform.tfvars.example terraform.tfvars
+   ```
+   Edit `terraform.tfvars` with your database password and other settings.
+
+3. **Run the Deployment Script**:
+   ```sh
+   ./deploy-to-aws.sh
+   ```
+   This script will:
+   - Build your Next.js application
+   - Create the necessary AWS infrastructure using Terraform
+   - Deploy your application to Elastic Beanstalk
+
+For more detailed information, see the [AWS Terraform README](./terraform/README.md).
 
 ## How to run the app locally
 

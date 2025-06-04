@@ -1,0 +1,78 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Create terraform.tfvars
+        working-directory: terraform
+        run: |
+          cat > terraform.tfvars << EOF
+          aws_region  = "${{ secrets.AWS_REGION }}"
+          app_name    = "factura"
+          db_name     = "factura"
+          db_username = "${{ secrets.DB_USERNAME }}"
+          db_password = "${{ secrets.DB_PASSWORD }}"
+          EOF
+      
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+      
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+      
+      - name: Install Elastic Beanstalk CLI
+        run: |
+          pip install awsebcli
+          
+      - name: Configure Elastic Beanstalk
+        run: |
+          mkdir -p .elasticbeanstalk
+          cat > .elasticbeanstalk/config.yml << EOF
+          branch-defaults:
+            main:
+              environment: factura-env
+          deploy:
+            artifact: build.zip
+          global:
+            application_name: factura
+            default_region: ${{ secrets.AWS_REGION }}
+          EOF
+      
+      - name: Create deployment package
+        run: |
+          zip -r build.zip . -x "node_modules/*" ".git/*" "terraform/*"
+      
+      - name: Deploy to Elastic Beanstalk
+        run: eb deploy --staged 
