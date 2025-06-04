@@ -131,12 +131,12 @@ resource "aws_db_instance" "postgres" {
   identifier             = "${var.app_name}-db"
   allocated_storage      = 20
   engine                 = "postgres"
-  engine_version         = "15.3"
+  engine_version         = "14.7"
   instance_class         = "db.t3.micro" # Free tier eligible
   db_name                = var.db_name
   username               = var.db_username
   password               = var.db_password
-  parameter_group_name   = "default.postgres15"
+  parameter_group_name   = "default.postgres14"
   publicly_accessible    = false
   skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.rds.id]
