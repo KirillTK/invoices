@@ -55,6 +55,14 @@ jobs:
         working-directory: terraform
         run: terraform apply -auto-approve
       
+      - name: Get Terraform Outputs
+        working-directory: terraform
+        id: terraform_outputs
+        run: |
+          echo "::set-output name=application_name::$(terraform output -raw application_name)"
+          echo "::set-output name=environment_name::$(terraform output -raw environment_name)"
+          echo "::set-output name=region::$(terraform output -raw aws_region || echo "${{ secrets.AWS_REGION || 'eu-west-1' }}")"
+      
       - name: Install Elastic Beanstalk CLI
         run: |
           pip install awsebcli
@@ -65,11 +73,11 @@ jobs:
           cat > .elasticbeanstalk/config.yml << EOF
           branch-defaults:
             main:
-              environment: factura-env
+              environment: ${{ steps.terraform_outputs.outputs.environment_name }}
           deploy:
             artifact: build.zip
           global:
-            application_name: factura
+            application_name: ${{ steps.terraform_outputs.outputs.application_name }}
             default_region: ${{ secrets.AWS_REGION || 'eu-west-1' }}
           EOF
       

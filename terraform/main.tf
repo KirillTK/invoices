@@ -60,28 +60,30 @@ resource "aws_s3_bucket_website_configuration" "nextjs_assets" {
   }
 }
 
-resource "aws_s3_bucket_policy" "nextjs_assets" {
-  bucket = aws_s3_bucket.nextjs_assets.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.nextjs_assets.arn}/*"
-      }
-    ]
-  })
-}
+# Comment out the bucket policy to avoid public policy restrictions
+# If you need this policy, you'll need to disable the S3 Block Public Access setting in your AWS account
+# resource "aws_s3_bucket_policy" "nextjs_assets" {
+#   bucket = aws_s3_bucket.nextjs_assets.id
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Sid       = "PublicReadGetObject"
+#         Effect    = "Allow"
+#         Principal = "*"
+#         Action    = "s3:GetObject"
+#         Resource  = "${aws_s3_bucket.nextjs_assets.arn}/*"
+#       }
+#     ]
+#   })
+# }
 
 # CloudFront distribution for CDN
 resource "aws_cloudfront_distribution" "nextjs_distribution" {
   origin {
     domain_name = aws_s3_bucket_website_configuration.nextjs_assets.website_endpoint
-    origin_id   = "S3-${var.app_name}"
+    origin_id   = "S3-${aws_s3_bucket.nextjs_assets.id}"
     
     custom_origin_config {
       http_port              = 80
@@ -99,7 +101,7 @@ resource "aws_cloudfront_distribution" "nextjs_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${var.app_name}"
+    target_origin_id = "S3-${aws_s3_bucket.nextjs_assets.id}"
 
     forwarded_values {
       query_string = false
@@ -133,19 +135,24 @@ resource "aws_cloudfront_distribution" "nextjs_distribution" {
 
 # RDS PostgreSQL instance (t2.micro - free tier eligible)
 resource "aws_db_instance" "postgres" {
-  identifier             = "${var.app_name}-db"
+  identifier             = "${var.app_name}-db-${random_id.db_suffix.hex}"
   allocated_storage      = 20
   engine                 = "postgres"
-  engine_version         = "14.7"
+  engine_version         = "14.7" # Changed from 15.3 to supported version
   instance_class         = "db.t3.micro" # Free tier eligible
   db_name                = var.db_name
   username               = var.db_username
   password               = var.db_password
-  parameter_group_name   = "default.postgres14"
+  parameter_group_name   = "default.postgres14" # Changed from postgres15 to match version
   publicly_accessible    = false
   skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.default.name
+}
+
+# Generate a random suffix for unique DB resources
+resource "random_id" "db_suffix" {
+  byte_length = 4
 }
 
 # Network configuration
@@ -155,7 +162,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.app_name}-vpc"
+    Name = "${var.app_name}-vpc-${random_id.db_suffix.hex}"
   }
 }
 
@@ -166,7 +173,7 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.app_name}-public-a"
+    Name = "${var.app_name}-public-a-${random_id.db_suffix.hex}"
   }
 }
 
@@ -177,7 +184,7 @@ resource "aws_subnet" "public_b" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.app_name}-public-b"
+    Name = "${var.app_name}-public-b-${random_id.db_suffix.hex}"
   }
 }
 
@@ -185,7 +192,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.app_name}-igw"
+    Name = "${var.app_name}-igw-${random_id.db_suffix.hex}"
   }
 }
 
@@ -198,7 +205,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "${var.app_name}-public-rt"
+    Name = "${var.app_name}-public-rt-${random_id.db_suffix.hex}"
   }
 }
 
@@ -213,16 +220,16 @@ resource "aws_route_table_association" "public_b" {
 }
 
 resource "aws_db_subnet_group" "default" {
-  name       = "${var.app_name}-db-subnet-group"
+  name       = "${var.app_name}-db-subnet-group-${random_id.db_suffix.hex}"
   subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 
   tags = {
-    Name = "${var.app_name}-db-subnet-group"
+    Name = "${var.app_name}-db-subnet-group-${random_id.db_suffix.hex}"
   }
 }
 
 resource "aws_security_group" "rds" {
-  name        = "${var.app_name}-rds-sg"
+  name        = "${var.app_name}-rds-sg-${random_id.db_suffix.hex}"
   description = "Allow PostgreSQL inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -242,18 +249,18 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "${var.app_name}-rds-sg"
+    Name = "${var.app_name}-rds-sg-${random_id.db_suffix.hex}"
   }
 }
 
 # Elastic Beanstalk for hosting the Next.js app
 resource "aws_elastic_beanstalk_application" "nextjs_app" {
-  name        = var.app_name
+  name        = "${var.app_name}-${random_id.db_suffix.hex}"
   description = "Next.js application"
 }
 
 resource "aws_elastic_beanstalk_environment" "nextjs_env" {
-  name                = "${var.app_name}-env"
+  name                = "${var.app_name}-env-${random_id.db_suffix.hex}"
   application         = aws_elastic_beanstalk_application.nextjs_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v6.1.1 running Node.js 20"
 
@@ -300,4 +307,12 @@ output "elastic_beanstalk_endpoint" {
 
 output "database_endpoint" {
   value = aws_db_instance.postgres.endpoint
+}
+
+output "application_name" {
+  value = aws_elastic_beanstalk_application.nextjs_app.name
+}
+
+output "environment_name" {
+  value = aws_elastic_beanstalk_environment.nextjs_env.name
 } 
