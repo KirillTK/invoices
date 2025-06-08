@@ -1,0 +1,29 @@
+{
+  "name": "factura",
+  "version": "1.0.0",
+  "description": "Factura - Invoice Management System",
+  "type": "application",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "startCommand": "npm run start",
+  "port": 3000,
+  "environment": {
+    "NODE_ENV": "production",
+    "SKIP_ENV_VALIDATION": "true"
+  },
+  "healthCheck": {
+    "path": "/api/health",
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3
+  },
+  "resources": {
+    "memory": "512Mi",
+    "cpu": "500m"
+  },
+  "scaling": {
+    "minReplicas": 1,
+    "maxReplicas": 3,
+    "targetCPUUtilization": 70
+  }
+} 

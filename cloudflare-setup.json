@@ -1,0 +1,186 @@
+{
+  "cloudflare_free_tier_setup": {
+    "dns_records": [
+      {
+        "type": "A",
+        "name": "@",
+        "content": "YOUR_DOKPLOY_SERVER_IP",
+        "proxied": true,
+        "comment": "Main domain pointing to Dokploy server - FREE"
+      },
+      {
+        "type": "CNAME",
+        "name": "www",
+        "content": "your-domain.com",
+        "proxied": true,
+        "comment": "WWW subdomain - FREE"
+      }
+    ],
+    "ssl_tls_free": {
+      "ssl_mode": "full_strict",
+      "always_use_https": true,
+      "universal_ssl": true,
+      "min_tls_version": "1.0",
+      "note": "Free SSL certificates included - Full (strict) requires valid cert on origin"
+    },
+    "speed_optimization_free": {
+      "auto_minify": {
+        "css": true,
+        "html": true,
+        "js": true,
+        "note": "FREE - Reduces file sizes automatically"
+      },
+      "brotli": true,
+      "note_rocket_loader": "Rocket Loader available but can break some Next.js functionality",
+      "rocket_loader": false,
+      "note_polish": "Polish (image optimization) requires Pro plan - NOT INCLUDED"
+    },
+    "caching_free": {
+      "browser_cache_ttl": 14400,
+      "caching_level": "standard",
+      "note": "Standard caching included - Advanced cache controls require paid plans"
+    },
+    "page_rules_free": {
+      "limit": "3 rules maximum on free tier",
+      "recommended_rules": [
+        {
+          "priority": 1,
+          "pattern": "*your-domain.com/_next/static/*",
+          "settings": {
+            "cache_level": "cache_everything",
+            "edge_cache_ttl": 2678400
+          },
+          "description": "Cache Next.js static assets for 1 month"
+        },
+        {
+          "priority": 2,
+          "pattern": "*your-domain.com/api/*",
+          "settings": {
+            "cache_level": "bypass"
+          },
+          "description": "Don't cache API routes"
+        },
+        {
+          "priority": 3,
+          "pattern": "*your-domain.com/*.{js,css,png,jpg,jpeg,gif,ico,svg,woff,woff2}",
+          "settings": {
+            "cache_level": "cache_everything",
+            "edge_cache_ttl": 2678400
+          },
+          "description": "Cache static assets (use this OR rule 1, not both)"
+        }
+      ]
+    },
+    "security_free": {
+      "ddos_protection": true,
+      "bot_fight_mode": false,
+      "browser_check": true,
+      "security_level": "medium",
+      "note": "Basic DDoS protection included - Advanced bot management requires paid plans"
+    },
+    "analytics_free": {
+      "web_analytics": true,
+      "basic_analytics": true,
+      "note": "Basic analytics included - Advanced analytics require paid plans"
+    },
+    "free_tier_limitations": {
+      "page_rules": "Maximum 3 page rules",
+      "firewall_rules": "Not available on free tier",
+      "rate_limiting": "Not available on free tier", 
+      "workers": "100,000 requests/day limit",
+      "load_balancing": "Not available on free tier",
+      "argo": "Not available on free tier",
+      "image_optimization": "Not available on free tier",
+      "advanced_certificates": "Not available on free tier"
+    }
+  },
+  "optimized_free_setup_steps": [
+    {
+      "step": 1,
+      "title": "Add Site to Cloudflare",
+      "actions": [
+        "Add your domain to Cloudflare (FREE)",
+        "Update nameservers to Cloudflare's",
+        "Wait for activation (24-48 hours)"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Configure DNS (FREE)",
+      "actions": [
+        "Create A record: @ → YOUR_DOKPLOY_SERVER_IP (Proxied)",
+        "Create CNAME record: www → your-domain.com (Proxied)",
+        "Unlimited DNS records on free tier"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "SSL/TLS Settings (FREE)",
+      "actions": [
+        "Set SSL/TLS mode to 'Full (strict)'",
+        "Enable 'Always Use HTTPS'",
+        "Universal SSL certificate automatically provisioned"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Speed Optimization (FREE)",
+      "actions": [
+        "Enable Auto Minify for CSS, HTML, JavaScript",
+        "Enable Brotli compression",
+        "Keep Rocket Loader OFF (can break Next.js)"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Caching Configuration (FREE)",
+      "actions": [
+        "Set Browser Cache TTL to 4 hours",
+        "Caching Level: Standard",
+        "Use Page Rules for custom caching (max 3 rules)"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Page Rules (3 FREE Rules)",
+      "priority_order": [
+        "1. Cache Next.js static assets: *your-domain.com/_next/static/* → Cache Everything",
+        "2. Bypass API caching: *your-domain.com/api/* → Bypass Cache",
+        "3. Save 3rd rule for future optimization needs"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Security (FREE Features)",
+      "actions": [
+        "Security Level: Medium",
+        "Enable Browser Integrity Check",
+        "Basic DDoS protection (automatic)"
+      ]
+    }
+  ],
+  "monthly_savings_estimate": {
+    "bandwidth_costs": "Potentially $20-100+ saved on CDN costs",
+    "ssl_certificate": "$10-50+ saved on SSL certificates",
+    "ddos_protection": "$50-200+ saved on DDoS protection",
+    "total_potential_savings": "$80-350+ per month with free tier"
+  },
+  "performance_benefits_free_tier": {
+    "global_cdn": "200+ edge locations worldwide",
+    "ssl_offloading": "Free SSL termination at edge",
+    "compression": "Automatic Gzip and Brotli compression",
+    "caching": "Static asset caching reduces server load",
+    "dns": "Fast DNS resolution globally"
+  },
+  "upgrade_recommendations": {
+    "when_to_upgrade": [
+      "More than 3 page rules needed",
+      "Advanced bot management required",
+      "Rate limiting needed",
+      "Image optimization desired",
+      "Advanced analytics required"
+    ],
+    "pro_plan_benefits": "$20/month for advanced caching, rate limiting, and more page rules",
+    "business_plan_benefits": "$200/month for advanced security and prioritized support"
+  }
+} 
