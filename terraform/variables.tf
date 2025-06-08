@@ -28,4 +28,10 @@ variable "db_password" {
   sensitive   = true
   # Do not set a default for sensitive values
   # This will be provided via terraform.tfvars or environment variables
-} 
+}
+
+variable "env_suffix" {
+  description = "Suffix for the environment name"
+  type        = string
+  default     = "prod"
+}

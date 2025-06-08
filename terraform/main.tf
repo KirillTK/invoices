@@ -1,25 +1,6 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-  required_version = ">= 1.2.0"
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
 # S3 bucket for static assets
 resource "aws_s3_bucket" "nextjs_assets" {
-  bucket = "${var.app_name}-${random_id.bucket_suffix.hex}"
-}
-
-# Generate a random suffix for globally unique S3 bucket name
-resource "random_id" "bucket_suffix" {
-  byte_length = 8
+  bucket = "${var.app_name}-${var.env_suffix}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "nextjs_assets" {
@@ -60,24 +41,29 @@ resource "aws_s3_bucket_website_configuration" "nextjs_assets" {
   }
 }
 
+resource "aws_cloudfront_origin_access_identity" "oai" {
+  comment = "OAI for accessing ${aws_s3_bucket.nextjs_assets.id}"
+}
+
 # Comment out the bucket policy to avoid public policy restrictions
 # If you need this policy, you'll need to disable the S3 Block Public Access setting in your AWS account
-# resource "aws_s3_bucket_policy" "nextjs_assets" {
-#   bucket = aws_s3_bucket.nextjs_assets.id
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Sid       = "PublicReadGetObject"
-#         Effect    = "Allow"
-#         Principal = "*"
-#         Action    = "s3:GetObject"
-#         Resource  = "${aws_s3_bucket.nextjs_assets.arn}/*"
-#       }
-#     ]
-#   })
-# }
+resource "aws_s3_bucket_policy" "nextjs_assets" {
+  bucket = aws_s3_bucket.nextjs_assets.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = aws_cloudfront_origin_access_identity.oai.iam_arn
+        },
+        Action   = "s3:GetObject",
+        Resource = "${aws_s3_bucket.nextjs_assets.arn}/*"
+      }
+    ]
+  })
+}
 
 # CloudFront distribution for CDN
 resource "aws_cloudfront_distribution" "nextjs_distribution" {
@@ -88,7 +74,7 @@ resource "aws_cloudfront_distribution" "nextjs_distribution" {
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "http-only"
+      origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
@@ -135,7 +121,7 @@ resource "aws_cloudfront_distribution" "nextjs_distribution" {
 
 # RDS PostgreSQL instance (t2.micro - free tier eligible)
 resource "aws_db_instance" "postgres" {
-  identifier             = "${var.app_name}-db-${random_id.db_suffix.hex}"
+  identifier             = "${var.app_name}-db-${var.env_suffix}"
   allocated_storage      = 20
   engine                 = "postgres"
   engine_version         = "14.11" # Changed from 14.7 to supported version
@@ -150,11 +136,6 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.default.name
 }
 
-# Generate a random suffix for unique DB resources
-resource "random_id" "db_suffix" {
-  byte_length = 4
-}
-
 # Network configuration
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
@@ -162,7 +143,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.app_name}-vpc-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-vpc-${var.env_suffix}"
   }
 }
 
@@ -173,7 +154,7 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.app_name}-public-a-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-public-a-${var.env_suffix}"
   }
 }
 
@@ -184,7 +165,7 @@ resource "aws_subnet" "public_b" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.app_name}-public-b-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-public-b-${var.env_suffix}"
   }
 }
 
@@ -192,7 +173,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.app_name}-igw-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-igw-${var.env_suffix}"
   }
 }
 
@@ -205,7 +186,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "${var.app_name}-public-rt-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-public-rt-${var.env_suffix}"
   }
 }
 
@@ -220,25 +201,24 @@ resource "aws_route_table_association" "public_b" {
 }
 
 resource "aws_db_subnet_group" "default" {
-  name       = "${var.app_name}-db-subnet-group-${random_id.db_suffix.hex}"
+  name       = "${var.app_name}-db-subnet-group-${var.env_suffix}"
   subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 
   tags = {
-    Name = "${var.app_name}-db-subnet-group-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-db-subnet-group-${var.env_suffix}"
   }
 }
 
-resource "aws_security_group" "rds" {
-  name        = "${var.app_name}-rds-sg-${random_id.db_suffix.hex}"
-  description = "Allow PostgreSQL inbound traffic"
+resource "aws_security_group" "beanstalk_ec2" {
+  name        = "${var.app_name}-beanstalk-ec2-sg-${var.env_suffix}"
+  description = "Security group for Elastic Beanstalk EC2 instances"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "PostgreSQL"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # For production, restrict this to your app's security group
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
   }
 
   egress {
@@ -249,18 +229,43 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "${var.app_name}-rds-sg-${random_id.db_suffix.hex}"
+    Name = "${var.app_name}-beanstalk-ec2-sg-${var.env_suffix}"
+  }
+}
+
+resource "aws_security_group" "rds" {
+  name        = "${var.app_name}-rds-sg-${var.env_suffix}"
+  description = "Allow PostgreSQL access from Beanstalk"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "PostgreSQL from Beanstalk"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.beanstalk_ec2.id] # Allow only Beanstalk instances
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.app_name}-rds-sg-${var.env_suffix}"
   }
 }
 
 # Elastic Beanstalk for hosting the Next.js app
 resource "aws_elastic_beanstalk_application" "nextjs_app" {
-  name        = "${var.app_name}-${random_id.db_suffix.hex}"
+  name        = "${var.app_name}-${var.env_suffix}"
   description = "Next.js application"
 }
 
 resource "aws_elastic_beanstalk_environment" "nextjs_env" {
-  name                = "${var.app_name}-env-${random_id.db_suffix.hex}"
+  name                = "${var.app_name}-env-${var.env_suffix}"
   application         = aws_elastic_beanstalk_application.nextjs_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v6.1.1 running Node.js 20"
 
