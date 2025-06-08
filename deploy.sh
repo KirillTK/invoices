@@ -9,8 +9,6 @@ echo "⬆️ Restarting app..."
 docker compose up -d
 
 echo "📦 Applying Drizzle migrations..."
-docker-compose exec your-app-name npx drizzle-kit push
-# Or if using migrate:
-# docker-compose exec your-app-name npx drizzle-kit migrate
+docker compose exec app npm run db:migrate
 
 echo "✅ Done!"
